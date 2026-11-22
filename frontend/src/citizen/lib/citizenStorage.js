@@ -81,6 +81,62 @@ export function getCitizenReports() {
   }
 }
 
+
+// ---- send reports to the server (POST /api/reports) ----
+const API_BASE = import.meta.env.VITE_API_BASE ?? ''
+const inFlight = new Set()
+
+function readShared() {
+  try {
+    const raw = localStorage.getItem(GLOBAL_CUSTOM_REPORTS_KEY)
+    return raw ? JSON.parse(raw) : []
+  } catch {
+    return []
+  }
+}
+
+async function postToServer(r) {
+  if (inFlight.has(r.id)) return false
+  inFlight.add(r.id)
+  try {
+    const res = await fetch(`${API_BASE}/api/reports`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        scam_type: r.scam_type,
+        district: r.district,
+        channel: r.channel,
+        scammer: r.scammer,
+        amount_lost: r.amount_lost,
+        consent: true,
+      }),
+    })
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    localStorage.setItem(
+      GLOBAL_CUSTOM_REPORTS_KEY,
+      JSON.stringify(readShared().filter((x) => x.id !== r.id)),
+    )
+    return true
+  } catch (err) {
+    console.warn('Report kept locally, will retry when online', err)
+    return false
+  } finally {
+    inFlight.delete(r.id)
+  }
+}
+
+// Retry anything that is still only stored locally.
+export async function flushPendingReports() {
+  for (const r of readShared()) {
+    if (r.source === 'citizen_app') await postToServer(r)
+  }
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('online', flushPendingReports)
+  setTimeout(flushPendingReports, 2000)
+}
+
 export function saveCitizenReport(report) {
   try {
     // 1. Save in citizen's private storage
@@ -108,6 +164,10 @@ export function saveCitizenReport(report) {
         source: 'citizen_app',
       }
       localStorage.setItem(GLOBAL_CUSTOM_REPORTS_KEY, JSON.stringify([officialReport, ...sharedList]))
+      // 3. Also send it to the real server so officials on OTHER devices can see it.
+      //    On success the local copy is removed (the dashboard then shows the server copy, no duplicate).
+      //    On failure (offline) it stays in the local list and is retried later.
+      postToServer(officialReport)
     }
     return true
   } catch (err) {
