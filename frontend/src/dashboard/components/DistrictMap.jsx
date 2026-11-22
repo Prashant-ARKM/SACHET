@@ -5,7 +5,7 @@ import { C } from '../lib/theme.js'
 
 // Circle size + strength = report count. Click a district to filter everything.
 // Fills its parent: give the parent a height.
-export default function DistrictMap({ reports, selected, onSelect, zoom = 7 }) {
+export default function DistrictMap({ reports, selected, onSelect, zoom = 7, t }) {
   const counts = countBy(reports, 'district')
   const max = Math.max(1, ...Object.values(counts))
 
@@ -38,7 +38,7 @@ export default function DistrictMap({ reports, selected, onSelect, zoom = 7 }) {
             eventHandlers={{ click: () => onSelect(active ? '' : d.name) }}
           >
             <Tooltip>
-              <strong>{d.name}</strong>: {n} reports
+              <strong>{d.name}</strong>: {n} {t?.alertReports || 'reports'}
             </Tooltip>
           </CircleMarker>
         )

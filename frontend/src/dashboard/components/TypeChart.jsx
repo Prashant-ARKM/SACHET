@@ -3,7 +3,7 @@ import { countBy, sortedCounts } from '../lib/stats.js'
 import { scamLabel } from '../../shared/scamTypes.js'
 import { C, axisStyle, tooltipStyle } from '../lib/theme.js'
 
-export default function TypeChart({ reports, onSelect, selected, limit, height = '100%' }) {
+export default function TypeChart({ reports, onSelect, selected, limit, lang = 'en', height = '100%' }) {
   let rows = sortedCounts(countBy(reports, 'scam_type'))
   if (limit) rows = rows.slice(0, limit)
   rows = rows.reverse() // biggest on top
@@ -14,7 +14,7 @@ export default function TypeChart({ reports, onSelect, selected, limit, height =
     xAxis: { type: 'value', minInterval: 1, ...axisStyle },
     yAxis: {
       type: 'category',
-      data: rows.map(([id]) => scamLabel(id)),
+      data: rows.map(([id]) => scamLabel(id, lang)),
       axisLine: { show: false },
       axisTick: { show: false },
       axisLabel: { color: C.ink },

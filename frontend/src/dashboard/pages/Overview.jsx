@@ -20,40 +20,40 @@ import { MapIcon, TrendIcon, BarsIcon, PulseIcon, ClockIcon } from '../component
 //  │             │Trnd│Activity│
 //  └─────────────┴────┴────────┘
 export default function Overview() {
-  const { filtered, scoped, allDistricts, forTrend, byDistrict, filters, setDistrict, toggleType } = useDashboard()
+  const { filtered, scoped, allDistricts, forTrend, byDistrict, filters, setDistrict, toggleType, lang, t } = useDashboard()
 
   return (
     <div className="grid grid-cols-12 gap-4 lg:h-full lg:grid-rows-[208px_minmax(0,1fr)_minmax(0,1fr)]">
-      <HeroTile reports={forTrend} onSelect={setDistrict} className="col-span-12 lg:col-span-5 min-h-[208px]" />
-      <AlertTile reports={byDistrict} onSelect={toggleType} className="col-span-12 md:col-span-5 lg:col-span-3 min-h-[180px]" />
+      <HeroTile reports={forTrend} onSelect={setDistrict} t={t} lang={lang} className="col-span-12 lg:col-span-5 min-h-[208px]" />
+      <AlertTile reports={byDistrict} onSelect={toggleType} t={t} lang={lang} className="col-span-12 md:col-span-5 lg:col-span-3 min-h-[180px]" />
       <div className="col-span-12 md:col-span-7 lg:col-span-4 grid grid-cols-2 grid-rows-2 gap-3 min-h-0">
-        <KpiTiles filtered={filtered} scoped={scoped} days={filters.days} />
+        <KpiTiles filtered={filtered} scoped={scoped} days={filters.days} t={t} />
       </div>
 
-      <Tile title="Reports by district" to="/official/map" icon={MapIcon} className="col-span-12 lg:col-span-6 lg:row-span-2">
+      <Tile title={t?.tileReportsByDistrict || 'Reports by district'} to="/official/map" icon={MapIcon} className="col-span-12 lg:col-span-6 lg:row-span-2">
         <div className="h-[380px] lg:h-full">
-          <DistrictMap reports={allDistricts} selected={filters.district} onSelect={setDistrict} />
+          <DistrictMap reports={allDistricts} selected={filters.district} onSelect={setDistrict} t={t} />
         </div>
       </Tile>
 
-      <Tile title="Rising · 7 days" to="/official/trends" icon={TrendIcon} tint="bg-blush text-scam" className="col-span-12 md:col-span-6 lg:col-span-3" bodyClass="overflow-auto pr-1">
-        <RisingDistricts reports={forTrend} selected={filters.district} onSelect={setDistrict} limit={6} />
+      <Tile title={t?.tileRising7d || 'Rising · 7 days'} to="/official/trends" icon={TrendIcon} tint="bg-blush text-scam" className="col-span-12 md:col-span-6 lg:col-span-3" bodyClass="overflow-auto pr-1">
+        <RisingDistricts reports={forTrend} selected={filters.district} onSelect={setDistrict} limit={6} t={t} />
       </Tile>
 
-      <Tile title="Top scam types" to="/official/types" icon={BarsIcon} className="col-span-12 md:col-span-6 lg:col-span-3">
+      <Tile title={t?.tileTopScamTypes || 'Top scam types'} to="/official/types" icon={BarsIcon} className="col-span-12 md:col-span-6 lg:col-span-3">
         <div className="h-56 lg:h-full">
-          <TypeChart reports={filtered} selected={filters.type} onSelect={toggleType} limit={5} />
+          <TypeChart reports={filtered} selected={filters.type} onSelect={toggleType} limit={5} lang={lang} />
         </div>
       </Tile>
 
-      <Tile title="Daily reports" to="/official/trends" icon={ClockIcon} tint="bg-sun-tint text-warn" className="col-span-12 md:col-span-6 lg:col-span-3">
+      <Tile title={t?.tileDailyReports || 'Daily reports'} to="/official/trends" icon={ClockIcon} tint="bg-sun-tint text-warn" className="col-span-12 md:col-span-6 lg:col-span-3">
         <div className="h-56 lg:h-full">
           <TrendChart reports={filtered} days={filters.days} />
         </div>
       </Tile>
 
-      <Tile title="Latest activity" to="/official/activity" icon={PulseIcon} tint="bg-blush text-scam" className="col-span-12 md:col-span-6 lg:col-span-3" bodyClass="overflow-auto pr-1">
-        <ActivityFeed reports={filtered} limit={8} compact />
+      <Tile title={t?.tileLatestActivity || 'Latest activity'} to="/official/activity" icon={PulseIcon} tint="bg-blush text-scam" className="col-span-12 md:col-span-6 lg:col-span-3" bodyClass="overflow-auto pr-1">
+        <ActivityFeed reports={filtered} limit={8} compact lang={lang} t={t} />
       </Tile>
     </div>
   )

@@ -1,9 +1,19 @@
-import { Link } from 'react-router-dom'
+import { Link, useOutletContext } from 'react-router-dom'
 
 // One bento tile. All tile styling lives here.
 // icon: an icon component shown in a tinted chip; tint: Tailwind classes for that chip.
 // The body fills the tile; pass bodyClass="overflow-auto" for lists that may be long.
-export default function Tile({ title, to, icon: Icon, tint = 'bg-mint text-forest', className = '', bodyClass = '', children }) {
+export default function Tile({ title, to, icon: Icon, tint = 'bg-mint text-forest', className = '', bodyClass = '', viewAllLabel, children }) {
+  let t = null
+  try {
+    const ctx = useOutletContext()
+    t = ctx?.t
+  } catch {
+    // Rendered outside Outlet context
+  }
+
+  const viewText = viewAllLabel || t?.viewAll || 'View all →'
+
   return (
     <section
       className={`bg-card border border-line rounded-3xl p-4 flex flex-col min-w-0 min-h-0 shadow-[0_1px_0_rgba(30,42,34,0.04)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_-12px_rgba(31,77,51,0.25)] ${className}`}
@@ -20,7 +30,7 @@ export default function Tile({ title, to, icon: Icon, tint = 'bg-mint text-fores
           </div>
           {to && (
             <Link to={to} className="text-xs font-semibold text-forest hover:underline whitespace-nowrap">
-              View all →
+              {viewText}
             </Link>
           )}
         </header>

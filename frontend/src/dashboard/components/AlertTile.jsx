@@ -3,7 +3,7 @@ import { scamLabel } from '../../shared/scamTypes.js'
 import { AlertIcon } from './icons.jsx'
 
 // Soft red tile: the scam type spreading fastest this week.
-export default function AlertTile({ reports, onSelect, className = '' }) {
+export default function AlertTile({ reports, onSelect, t, lang = 'en', className = '' }) {
   const top = risingType(reports)
   const recent = top
     ? reports.filter((r) => r.scam_type === top.name && Date.now() - new Date(r.created_at) < 7 * 864e5)
@@ -21,17 +21,21 @@ export default function AlertTile({ reports, onSelect, className = '' }) {
             <span className="absolute inline-flex w-full h-full rounded-full bg-scam opacity-60 animate-ping" />
             <span className="relative inline-flex w-2.5 h-2.5 rounded-full bg-scam" />
           </span>
-          <span className="text-[11px] font-semibold tracking-[0.18em] uppercase">Spreading fast</span>
+          <span className="text-[11px] font-semibold tracking-[0.18em] uppercase">
+            {t?.alertKicker || 'SPREADING FAST'}
+          </span>
         </div>
         {top ? (
           <>
-            <h2 className="font-display text-3xl font-bold text-scam leading-tight mt-2">{scamLabel(top.name)}</h2>
+            <h2 className="font-display text-3xl font-bold text-scam leading-tight mt-2">{scamLabel(top.name, lang)}</h2>
             <p className="text-sm text-ink mt-1">
-              <span className="font-semibold">+{pct}%</span> this week · {top.last7} reports
+              <span className="font-semibold">+{pct}%</span> {t?.alertThisWeek || 'this week'} · {top.last7} {t?.alertReports || 'reports'}
             </p>
           </>
         ) : (
-          <h2 className="font-display text-2xl font-bold text-scam mt-2">No fast-spreading scam</h2>
+          <h2 className="font-display text-2xl font-bold text-scam mt-2">
+            {t?.alertNoSpreading || 'No fast-spreading scam'}
+          </h2>
         )}
       </div>
 
@@ -43,8 +47,8 @@ export default function AlertTile({ reports, onSelect, className = '' }) {
           <button
             onClick={() => onSelect(top.name)}
             className="grid place-items-center w-9 h-9 rounded-full bg-scam text-card shrink-0 hover:brightness-110"
-            aria-label={`Filter by ${scamLabel(top.name)}`}
-            title="Filter dashboard by this scam"
+            aria-label={`Filter by ${scamLabel(top.name, lang)}`}
+            title={t?.alertFilterTitle || 'Filter dashboard by this scam'}
           >
             <AlertIcon size={16} />
           </button>

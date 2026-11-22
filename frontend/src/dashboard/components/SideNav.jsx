@@ -1,14 +1,15 @@
 import { NavLink, Link } from 'react-router-dom'
 import { HomeIcon, MapIcon, TrendIcon, BarsIcon, PulseIcon, ExitIcon } from './icons.jsx'
 
-export const NAV = [
-  { to: '/official', label: 'Overview', Icon: HomeIcon, end: true },
-  { to: '/official/map', label: 'Map', Icon: MapIcon },
-  { to: '/official/trends', label: 'Trends', Icon: TrendIcon },
-  { to: '/official/types', label: 'Scam types', Icon: BarsIcon },
-  { to: '/official/activity', label: 'Activity', Icon: PulseIcon },
+export const getNav = (t) => [
+  { to: '/official', label: t?.navOverview || 'Overview', Icon: HomeIcon, end: true },
+  { to: '/official/map', label: t?.navMap || 'Map', Icon: MapIcon },
+  { to: '/official/trends', label: t?.navTrends || 'Trends', Icon: TrendIcon },
+  { to: '/official/types', label: t?.navTypes || 'Scam types', Icon: BarsIcon },
+  { to: '/official/activity', label: t?.navActivity || 'Activity', Icon: PulseIcon },
 ]
-// After 10:00: Alerts, Campaign kit
+
+export const NAV = getNav()
 
 // Label that appears to the right of an icon on hover / keyboard focus.
 const Hint = ({ children }) => (
@@ -23,11 +24,12 @@ const rail = ({ isActive }) =>
   }`
 
 // Icon-only rail: icons centred vertically, exit at the bottom.
-export default function SideNav() {
+export default function SideNav({ t }) {
+  const navItems = getNav(t)
   return (
     <aside className="hidden md:flex w-[64px] shrink-0 flex-col items-center bg-forest sticky top-0 self-start h-screen py-5 z-[1000]">
       <nav className="flex-1 flex flex-col justify-center gap-2" aria-label="Dashboard">
-        {NAV.map(({ to, label, Icon, end }) => (
+        {navItems.map(({ to, label, Icon, end }) => (
           <NavLink key={to} to={to} end={end} className={rail} aria-label={label}>
             <Icon size={20} />
             <Hint>{label}</Hint>
@@ -37,17 +39,18 @@ export default function SideNav() {
 
       <Link to="/" className={rail({ isActive: false })} aria-label="Back to start">
         <ExitIcon size={20} />
-        <Hint>Back to start</Hint>
+        <Hint>{t?.navExit || 'Back to start'}</Hint>
       </Link>
     </aside>
   )
 }
 
 // Small screens: same items as a scrollable row with labels.
-export function MobileNav() {
+export function MobileNav({ t }) {
+  const navItems = getNav(t)
   return (
     <nav className="md:hidden flex gap-1 overflow-x-auto bg-forest p-2">
-      {NAV.map(({ to, label, Icon, end }) => (
+      {navItems.map(({ to, label, Icon, end }) => (
         <NavLink
           key={to}
           to={to}
