@@ -13,116 +13,106 @@ import CitizenCheck from './citizen/pages/CitizenCheck.jsx'
 import CitizenReport from './citizen/pages/CitizenReport.jsx'
 import CitizenLearn from './citizen/pages/CitizenLearn.jsx'
 
-// SACHET Welcome / Launch Screen
+// Clean, Minimalist SACHET Launch View
 function LaunchPage() {
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-beige text-ink p-4 sm:p-8">
-      {/* Top Bar */}
+    <div className="min-h-screen flex flex-col justify-between bg-beige text-ink p-5 sm:p-8">
+      {/* Top Header */}
       <header className="max-w-4xl w-full mx-auto flex items-center justify-between py-2">
         <div className="flex items-center gap-2.5">
-          <div className="w-10 h-10 rounded-xl bg-forest text-card flex items-center justify-center font-display font-bold text-xl shadow-xs">
+          <div className="w-8 h-8 rounded-lg bg-forest text-card flex items-center justify-center font-display font-bold text-lg shadow-xs">
             स
           </div>
           <div>
-            <span className="font-display font-bold text-xl text-ink">SACHET</span>
-            <span className="ml-1.5 text-[10px] bg-mint text-forest px-2 py-0.5 rounded-md font-bold">
-              छत्तीसगढ़
+            <span className="font-display font-bold text-lg text-ink">SACHET</span>
+            <span className="ml-1.5 text-[10px] font-semibold tracking-wider uppercase text-muted">
+              CHHATTISGARH
             </span>
           </div>
         </div>
+
         <a
           href="tel:1930"
-          className="bg-blush text-scam border border-scam/30 text-xs sm:text-sm font-extrabold px-3.5 py-1.5 rounded-full hover:bg-scam hover:text-card transition-colors flex items-center gap-1.5"
+          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-blush text-scam border border-scam/20 hover:brightness-95 transition-all shadow-xs"
         >
-          <span>📞</span>
-          <span>1930 हेल्पलाइन</span>
+          <span className="relative flex w-2 h-2">
+            <span className="absolute inline-flex w-full h-full rounded-full bg-scam opacity-60 animate-ping" />
+            <span className="relative inline-flex w-2 h-2 rounded-full bg-scam" />
+          </span>
+          <span>पैसे कटे? कॉल 1930</span>
         </a>
       </header>
 
-      {/* Main Choice Card */}
-      <main className="max-w-2xl w-full mx-auto my-auto text-center space-y-8 py-8">
-        <div className="space-y-3">
-          <span className="text-xs uppercase font-extrabold tracking-widest text-leaf bg-mint px-3 py-1 rounded-full">
-            साइबर सुरक्षा मंच • छत्तीसगढ़
-          </span>
-          <h1 className="text-3xl sm:text-5xl font-bold font-display text-ink leading-tight">
-            सचेत पोर्टल में आपका स्वागत है
+      {/* Main Persona Selector */}
+      <main className="max-w-xl w-full mx-auto my-auto text-center space-y-6 py-6">
+        <div>
+          <div className="text-[11px] font-semibold tracking-[0.18em] uppercase text-muted mb-1">
+            CYBER SAFETY PLATFORM · साइबर सुरक्षा
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-bold font-display text-ink">
+            सचेत छत्तीसगढ़
           </h1>
-          <p className="text-sm sm:text-base text-muted max-w-lg mx-auto">
-            कृपया अपनी भूमिका चुनें — नागरिक सुरक्षा सहायता या अधिकृत साइबर क्राइम मॉनिटरिंग।
+          <p className="text-xs sm:text-sm text-muted mt-1">
+            कृपया अपनी भूमिका चुनें (Select your portal)
           </p>
         </div>
 
-        {/* 2 Main Persona Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 text-left">
-          {/* 1. CITIZEN BUTTON */}
+        {/* 2 Bento Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left">
+          {/* Citizen Portal */}
           <Link
             to="/citizen"
-            className="group bg-card hover:bg-mint/30 border-2 border-forest rounded-3xl p-6 sm:p-7 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between space-y-6 hover:scale-[1.02]"
+            className="bg-card border border-line rounded-3xl p-5 shadow-[0_1px_0_rgba(30,42,34,0.04)] hover:-translate-y-0.5 hover:shadow-[0_10px_30px_-12px_rgba(31,77,51,0.25)] transition duration-200 flex flex-col justify-between space-y-5"
           >
-            <div className="space-y-3">
-              <div className="w-14 h-14 rounded-2xl bg-forest text-card flex items-center justify-center text-3xl shadow-sm group-hover:scale-110 transition-transform">
+            <div>
+              <span className="grid place-items-center w-8 h-8 rounded-lg bg-mint text-forest mb-3 text-base">
                 🛡️
-              </div>
-              <h2 className="text-2xl font-bold font-display text-ink group-hover:text-forest transition-colors">
+              </span>
+              <h2 className="text-xl font-bold font-display text-ink leading-tight">
                 मैं नागरिक हूँ
-                <span className="block text-xs font-normal text-muted mt-0.5">
-                  I'm a Citizen
-                </span>
               </h2>
-              <p className="text-xs sm:text-sm text-ink/80 leading-relaxed">
-                फर्जी SMS, WhatsApp व कॉल की तुरंत जाँच करें, 1930 पर सहायता पाएं और 2 मिनट में अनाम शिकायत दर्ज करें।
+              <p className="text-xs text-muted mt-1">
+                संदेश व लिंक की जाँच, 1930 हेल्पलाइन, अनाम रिपोर्ट और सुरक्षा पाठ।
               </p>
             </div>
 
-            <div className="w-full bg-forest text-card font-bold text-base py-3 px-4 rounded-2xl text-center shadow-xs flex items-center justify-center gap-2 group-hover:bg-forest-2 transition-colors">
-              <span>नागरिक डैशबोर्ड खोलें</span>
-              <span>➔</span>
+            <div className="rounded-full bg-forest text-card text-xs font-semibold py-2 px-4 text-center">
+              नागरिक पोर्टल →
             </div>
           </Link>
 
-          {/* 2. OFFICIAL BUTTON */}
+          {/* Official Dashboard */}
           <Link
             to="/official"
-            className="group bg-card hover:bg-beige border-2 border-line hover:border-forest/50 rounded-3xl p-6 sm:p-7 shadow-xs hover:shadow-md transition-all duration-300 flex flex-col justify-between space-y-6 hover:scale-[1.01]"
+            className="bg-card border border-line rounded-3xl p-5 shadow-[0_1px_0_rgba(30,42,34,0.04)] hover:-translate-y-0.5 hover:shadow-[0_10px_30px_-12px_rgba(31,77,51,0.25)] transition duration-200 flex flex-col justify-between space-y-5"
           >
-            <div className="space-y-3">
-              <div className="w-14 h-14 rounded-2xl bg-beige border border-line text-ink flex items-center justify-center text-3xl shadow-xs group-hover:scale-110 transition-transform">
+            <div>
+              <span className="grid place-items-center w-8 h-8 rounded-lg bg-sun-tint text-warn mb-3 text-base">
                 🏛️
-              </div>
-              <h2 className="text-2xl font-bold font-display text-ink group-hover:text-forest transition-colors">
+              </span>
+              <h2 className="text-xl font-bold font-display text-ink leading-tight">
                 मैं अधिकारी हूँ
-                <span className="block text-xs font-normal text-muted mt-0.5">
-                  I'm an Official
-                </span>
               </h2>
-              <p className="text-xs sm:text-sm text-ink/80 leading-relaxed">
-                छत्तीसगढ़ के 33 ज़िलों में साइबर अपराध के हॉटस्पॉट, लाइव अलर्ट, रुझान और फ्रॉड प्रकारों की समीक्षा करें।
+              <p className="text-xs text-muted mt-1">
+                33 ज़िलों के हॉटस्पॉट मैप, रुझान, लाइव फीड और फ्रॉड विश्लेषण।
               </p>
             </div>
 
-            <div className="w-full bg-beige hover:bg-line text-ink font-bold text-base py-3 px-4 rounded-2xl text-center border border-line flex items-center justify-center gap-2 transition-colors">
-              <span>अधिकारी डैशबोर्ड</span>
-              <span>➔</span>
+            <div className="rounded-full bg-beige border border-line text-ink text-xs font-semibold py-2 px-4 text-center">
+              डैशबोर्ड खोलें →
             </div>
           </Link>
         </div>
 
-        {/* Emergency Notice */}
-        <div className="bg-blush border border-scam/30 p-4 rounded-2xl text-scam text-center space-y-1 max-w-lg mx-auto">
-          <p className="font-extrabold text-sm sm:text-base flex items-center justify-center gap-2">
-            <span>🚨</span>
-            <span>पैसे कट गए हैं? तुरंत 1930 डायल करें</span>
-          </p>
-          <p className="text-xs text-ink/80">
-            गोल्डन ऑवर: घटना के पहले 2 घंटे में कॉल करने से बैंक खाता सील हो सकता है।
-          </p>
-        </div>
+        {/* Minimal helpline notice */}
+        <p className="text-xs text-muted">
+          आपातकाल: किसी भी वित्तीय धोखाधड़ी पर तत्काल <a href="tel:1930" className="text-scam font-bold underline">1930</a> डायल करें।
+        </p>
       </main>
 
-      {/* Footer */}
-      <footer className="max-w-4xl w-full mx-auto text-center text-xs text-muted py-2">
-        सचेत (SACHET) • साइबर सुरक्षा एवं नागरिक संरक्षण पहल • छत्तीसगढ़ शासन
+      {/* Minimal Footer */}
+      <footer className="max-w-4xl w-full mx-auto text-center text-[11px] text-muted py-2">
+        SACHET Chhattisgarh · साइबर अपराध नियंत्रण एवं नागरिक सहायता
       </footer>
     </div>
   )
@@ -131,7 +121,6 @@ function LaunchPage() {
 export default function App() {
   return (
     <Routes>
-      {/* Landing Page */}
       <Route path="/" element={<LaunchPage />} />
 
       {/* Citizen App (U2) */}
