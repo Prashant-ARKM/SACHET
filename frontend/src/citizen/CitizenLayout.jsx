@@ -2,6 +2,10 @@ import { useState, useMemo } from 'react'
 import { Outlet, NavLink, Link, useLocation } from 'react-router-dom'
 import { DISTRICTS } from '../shared/districts.js'
 import { T } from './data/translations.js'
+import ScanLoader from '../shared/loading/ScanLoader.jsx'
+import PageGate from '../shared/loading/PageGate.jsx'
+import { useEntryLoader } from '../shared/loading/useEntryLoader.js'
+import { CitizenHomeSkeleton, CitizenPageSkeleton } from '../shared/loading/Skeletons.jsx'
 import { HomeIcon, SearchIcon, AlertIcon, BookIcon, ExitIcon } from './components/CitizenIcons.jsx'
 import {
   getSavedDistrict,
@@ -27,6 +31,9 @@ export default function CitizenLayout() {
   const [lang, setLangState] = useState(getSavedLanguage) // default is now 'en'
   const [score, setScore] = useState(getSavedScore)
   const location = useLocation()
+  const isHome = location.pathname.replace(/\/$/, '') === '/citizen'
+  // Message-scan loader when entering the citizen app, then skeletons
+  const [entering, doneEntering] = useEntryLoader()
 
   const t = useMemo(() => T[lang] || T.en, [lang])
 
@@ -60,6 +67,7 @@ export default function CitizenLayout() {
 
   return (
     <div className="min-h-screen lg:h-screen lg:overflow-hidden flex bg-beige">
+      {entering && <ScanLoader target="citizen" lang={lang} onDone={doneEntering} />}
       {/* 1. SLIM DESKTOP ICON RAIL (SAME AS DASHBOARD SIDENAV) */}
       <aside className="hidden md:flex w-[64px] shrink-0 flex-col items-center bg-forest sticky top-0 self-start h-screen py-5 z-[1000]">
         <nav className="flex-1 flex flex-col justify-center gap-2" aria-label="Citizen Navigation">
@@ -164,7 +172,13 @@ export default function CitizenLayout() {
 
         {/* 4. MAIN PAGE VIEWPORT */}
         <main className="flex-1 min-h-0 px-5 pb-5 overflow-y-auto">
-          <Outlet context={{ district, lang, t, score, setScore }} />
+          <PageGate
+            key={location.pathname}
+            hold={entering}
+            skeleton={isHome ? <CitizenHomeSkeleton /> : <CitizenPageSkeleton />}
+          >
+            <Outlet context={{ district, lang, t, score, setScore }} />
+          </PageGate>
         </main>
       </div>
     </div>

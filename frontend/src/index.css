@@ -41,3 +41,191 @@ body {
     var(--color-beige);
   background-attachment: fixed;
 }
+
+/* ───────── Loading: intro, scan loader, skeletons, reveal ───────── */
+/* One easing for everything so it feels calm and consistent */
+:root {
+  --ease-soft: cubic-bezier(0.22, 0.8, 0.24, 1);
+}
+
+/* Shimmer skeleton block: soft diagonal sweep, offset per tile */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: #EFE7D7;
+  border-radius: 1.5rem;
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-120%);
+  background: linear-gradient(105deg, transparent 30%, rgba(255, 253, 248, 0.55) 50%, transparent 70%);
+  animation: sachet-shimmer 1.8s var(--ease-soft) infinite;
+  animation-delay: var(--shimmer-delay, 0ms);
+}
+@keyframes sachet-shimmer {
+  60%, 100% { transform: translateX(120%); }
+}
+
+/* Skeleton → page crossfade */
+.gate { position: relative; }
+.gate-skeleton-out {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  animation: sachet-fade-out 0.45s var(--ease-soft) forwards;
+}
+@keyframes sachet-fade-out { to { opacity: 0; transform: scale(0.995); } }
+
+/* Tiles rise in one by one (page root > grid > tiles) */
+.reveal > * > * {
+  animation: sachet-rise 0.65s var(--ease-soft) backwards;
+}
+.reveal > * > *:nth-child(2) { animation-delay: 70ms; }
+.reveal > * > *:nth-child(3) { animation-delay: 140ms; }
+.reveal > * > *:nth-child(4) { animation-delay: 210ms; }
+.reveal > * > *:nth-child(5) { animation-delay: 280ms; }
+.reveal > * > *:nth-child(6) { animation-delay: 350ms; }
+.reveal > * > *:nth-child(7) { animation-delay: 420ms; }
+.reveal > * > *:nth-child(n + 8) { animation-delay: 490ms; }
+@keyframes sachet-rise {
+  from { opacity: 0; transform: translateY(18px); }
+}
+
+/* Full-screen overlays */
+.sachet-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  display: grid;
+  place-items: center;
+  transition: opacity 0.5s var(--ease-soft), transform 0.5s var(--ease-soft), filter 0.5s var(--ease-soft);
+}
+.sachet-overlay.is-leaving {
+  opacity: 0;
+  transform: translateY(-10px);
+  filter: blur(2px);
+  pointer-events: none;
+}
+.sachet-overlay--forest {
+  color: var(--color-card);
+  background:
+    radial-gradient(600px 400px at 80% 10%, rgba(62, 142, 94, 0.35), transparent 60%),
+    var(--color-forest);
+}
+.sachet-overlay--beige {
+  color: var(--color-ink);
+  background:
+    radial-gradient(700px 500px at 85% 0%, #E6F2E9 0%, transparent 60%),
+    radial-gradient(600px 450px at 15% 100%, #FBEBDD 0%, transparent 60%),
+    var(--color-beige);
+}
+
+/* Lock intro: closed padlock appears, key turns, shackle springs open (~2 s total) */
+.lock-in { animation: lock-in 0.45s var(--ease-soft) both; }
+@keyframes lock-in {
+  from { opacity: 0; transform: translateY(14px) scale(0.9); }
+}
+/* key turns: keyhole goes saffron and the body gives a small twist */
+.lock-keyhole { fill: var(--color-forest); animation: lock-keyhole 0.25s 0.5s ease forwards; }
+@keyframes lock-keyhole { to { fill: var(--color-sun); } }
+.lock-body {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: lock-twist 0.35s 0.5s var(--ease-soft) both;
+}
+@keyframes lock-twist {
+  0%, 100% { transform: rotate(0); }
+  35% { transform: rotate(-4deg); }
+  70% { transform: rotate(2deg); }
+}
+/* shackle springs up, then swings open on its right leg */
+.lock-shackle {
+  transform-box: view-box;
+  transform-origin: 134px 104px;
+  animation: lock-open 0.8s 0.8s cubic-bezier(0.3, 1.4, 0.5, 1) both;
+}
+@keyframes lock-open {
+  0% { transform: translateY(0) rotate(0); }
+  45% { transform: translateY(-30px) rotate(0); }
+  75% { transform: translateY(-26px) rotate(-16deg); }
+  100% { transform: translateY(-26px) rotate(-12deg); }
+}
+.lock-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: lock-ring 0.7s 1.05s var(--ease-soft) forwards;
+}
+@keyframes lock-ring {
+  0% { opacity: 0.8; transform: scale(0.6); }
+  100% { opacity: 0; transform: scale(1.8); }
+}
+.lock-label {
+  opacity: 0;
+  animation: sachet-fade-up 0.5s 1.15s var(--ease-soft) forwards;
+}
+@keyframes sachet-fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Message scan */
+.sachet-sms-in { animation: sachet-sms-in 0.55s var(--ease-soft) both; }
+@keyframes sachet-sms-in {
+  from { opacity: 0; transform: translateY(28px) scale(0.96); }
+}
+.sachet-ghost {
+  opacity: 0.38;
+  filter: blur(0.6px);
+  animation: sachet-ghost-in 0.8s var(--ease-soft) both;
+}
+@keyframes sachet-ghost-in { from { opacity: 0; transform: translateY(16px); } }
+.sachet-scanline {
+  position: absolute;
+  left: -4%;
+  right: -4%;
+  height: 2px;
+  top: 0;
+  opacity: 0;
+  background: linear-gradient(90deg, transparent, var(--color-sun) 15%, var(--color-sun) 85%, transparent);
+  box-shadow: 0 0 16px 4px rgba(242, 179, 61, 0.45);
+  transition: opacity 0.2s ease;
+}
+.sachet-scanline.on { opacity: 1; }
+/* red highlight wipes in from the left as the scan line crosses the word */
+.sachet-flag {
+  border-radius: 5px;
+  padding: 0 3px;
+  background-image: linear-gradient(var(--color-scam), var(--color-scam));
+  background-repeat: no-repeat;
+  background-size: 0% 100%;
+  transition: background-size 0.35s var(--ease-soft), color 0.25s ease 0.1s;
+}
+.sachet-flag.on {
+  background-size: 100% 100%;
+  color: var(--color-card);
+}
+.sachet-verdict { opacity: 0; transform: scale(0.6); }
+.sachet-verdict.on { animation: sachet-verdict 0.6s var(--ease-soft) forwards; }
+@keyframes sachet-verdict {
+  0% { opacity: 0; transform: scale(0.6); }
+  55% { opacity: 1; transform: scale(1.08) rotate(-2deg); }
+  70% { transform: scale(1) rotate(2deg); }
+  85% { transform: rotate(-1deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}
+
+/* Respect users who turn off animations */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after,
+  .reveal > * > *,
+  .gate-skeleton-out,
+  .lock-in, .lock-ring, .lock-label { animation: none; }
+}
+
+/* Offset the shimmer so tiles don't flash in sync */
+.skeleton:nth-child(2n)::after { --shimmer-delay: 220ms; }
+.skeleton:nth-child(3n)::after { --shimmer-delay: 440ms; }
