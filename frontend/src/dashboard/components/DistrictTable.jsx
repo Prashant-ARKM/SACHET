@@ -3,7 +3,7 @@ import { countBy, districtTrend, inr, sortedCounts } from '../lib/stats.js'
 import { scamLabel } from '../../shared/scamTypes.js'
 
 // Every district: reports, money lost, top scam type, 7-day change.
-export default function DistrictTable({ reports, trendReports, selected, onSelect }) {
+export default function DistrictTable({ reports, trendReports, selected, onSelect, lang = 'en', t }) {
   const counts = countBy(reports, 'district')
   const trend = Object.fromEntries(districtTrend(trendReports).map((r) => [r.district, r]))
 
@@ -23,11 +23,11 @@ export default function DistrictTable({ reports, trendReports, selected, onSelec
       <table className="w-full text-sm">
         <thead className="text-left text-xs text-muted sticky top-0 bg-card">
           <tr>
-            <th className="py-2 pr-3 font-medium">District</th>
-            <th className="py-2 pr-3 font-medium text-right">Reports</th>
-            <th className="py-2 pr-3 font-medium text-right">7-day</th>
-            <th className="py-2 pr-3 font-medium">Top type</th>
-            <th className="py-2 font-medium text-right">Lost</th>
+            <th className="py-2 pr-3 font-medium">{t?.thDistrict || 'District'}</th>
+            <th className="py-2 pr-3 font-medium text-right">{t?.thReports || 'Reports'}</th>
+            <th className="py-2 pr-3 font-medium text-right">{t?.th7Day || '7-day'}</th>
+            <th className="py-2 pr-3 font-medium">{t?.thTopType || 'Top type'}</th>
+            <th className="py-2 font-medium text-right">{t?.thLost || 'Lost'}</th>
           </tr>
         </thead>
         <tbody>
@@ -44,7 +44,7 @@ export default function DistrictTable({ reports, trendReports, selected, onSelec
                 <td className={`py-2 pr-3 text-right text-xs whitespace-nowrap ${pct > 0 ? 'text-scam' : pct < 0 ? 'text-safe' : 'text-muted'}`}>
                   {pct > 0 ? '▲' : pct < 0 ? '▼' : ''} {Math.abs(pct)}%
                 </td>
-                <td className="py-2 pr-3 text-muted">{r.topType ? scamLabel(r.topType) : '–'}</td>
+                <td className="py-2 pr-3 text-muted">{r.topType ? scamLabel(r.topType, lang) : '–'}</td>
                 <td className="py-2 text-right">{r.lost ? inr(r.lost) : '–'}</td>
               </tr>
             )

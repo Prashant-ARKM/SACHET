@@ -1,7 +1,7 @@
 import { districtTrend } from '../lib/stats.js'
 
 // Last 7 days vs the 7 days before: "rising" vs "quieter" places.
-export default function RisingDistricts({ reports, selected, onSelect, limit = 6, order = 'busiest' }) {
+export default function RisingDistricts({ reports, selected, onSelect, limit = 6, order = 'busiest', t }) {
   let rows = districtTrend(reports)
   if (order === 'falling') rows = rows.filter((r) => r.prev7 >= 3).sort((a, b) => a.change - b.change)
   rows = rows.slice(0, limit)
@@ -37,7 +37,7 @@ export default function RisingDistricts({ reports, selected, onSelect, limit = 6
           </li>
         )
       })}
-      {!rows.length && <li className="text-sm text-muted">No reports yet</li>}
+      {!rows.length && <li className="text-sm text-muted">{t?.noReportsYet || 'No reports yet'}</li>}
     </ul>
   )
 }
