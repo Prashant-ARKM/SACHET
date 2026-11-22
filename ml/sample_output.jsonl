@@ -1,0 +1,6 @@
+{"text": "Dear customer your SBI KYC is pending, account will be blocked today. ", "label": "scam", "score": 0.9800179522549131, "scam_type": "kyc", "highlights": ["Dear", "SBI", "KYC", "be", "http://sbi-kyc.in"]}
+{"text": "आपका खाता आज बंद हो जाएगा, तुरंत KYC अपडेट करें: bit.ly/kyc-upd", "label": "scam", "score": 0.9863222419013092, "scam_type": "kyc", "highlights": ["आपका", "तुरंत", "KYC", "bit.ly/kyc-upd"]}
+{"text": "Main CBI officer bol raha hoon, aapke naam pe parcel mein drugs mile h", "label": "scam", "score": 0.9854425801557634, "scam_type": "digital_arrest", "highlights": ["Main", "aapke", "pe", "parcel", "aao"]}
+{"text": "HDFC Bank: Rs 2,499 debited from a/c XX1234 on 23-11-26. Not you? Call", "label": "scam", "score": 0.5199506117599361, "scam_type": "otp", "highlights": ["HDFC", "debited", "XX1234", "23-11-26.", "18002586161"]}
+{"text": "Your OTP for Zepto login is 482913. Do not share it with anyone.", "label": "genuine", "score": 0.0889341337479875, "scam_type": null, "highlights": ["Your", "OTP", "Zepto", "login", "share"]}
+{"text": "Bhai kal shaam 6 baje milte hain chai pe", "label": "genuine", "score": 0.18954618757658825, "scam_type": null, "highlights": ["Bhai", "shaam", "baje", "hain", "chai"]}
