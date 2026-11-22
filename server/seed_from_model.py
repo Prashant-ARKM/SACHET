@@ -47,9 +47,17 @@ def main():
         if result["label"] != "scam":
             continue
         timestamp = now - timedelta(days=rng.randrange(14))
+        # DEMO DATA: amounts and scammer identifiers are synthetic. Phones are masked,
+        # UPI handles are invented, URLs use the reserved .example domain.
+        n = len(reports)
+        lost = rng.choice([0, 0, 0, 500, 1200, 2500, 4999, 9800, 15000, 32000, 75000])
+        phone = f"{rng.choice(['98', '97', '96', '90', '88'])}XXXXXX{rng.randrange(10, 99)}"
+        upi = rng.choice([None, f"quickcash{rng.randrange(100, 999)}@okaxis", f"refund.desk{rng.randrange(10, 99)}@ybl"])
+        url = rng.choice([None, None, f"http://kyc-update-{rng.randrange(100, 999)}.example/login"])
         reports.append((
-            f"seed-{len(reports)}", result["scam_type"] or "other", rng.choice(DISTRICTS),
+            f"seed-{n}", result["scam_type"] or "other", rng.choice(DISTRICTS),
             rng.choice(["sms", "whatsapp"]), timestamp.isoformat(timespec="seconds"),
+            lost, phone, upi, url,
         ))
 
     if not reports:
@@ -60,8 +68,9 @@ def main():
         conn.execute("DELETE FROM reports WHERE id GLOB 'seed-[0-9]*'")
         conn.executemany(
             """
-            INSERT INTO reports (id, scam_type, district, channel, created_at, consent)
-            VALUES (?, ?, ?, ?, ?, 1)
+            INSERT INTO reports (id, scam_type, district, channel, created_at,
+                                 amount_lost, phone, upi_id, url, consent)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
             """,
             reports,
         )

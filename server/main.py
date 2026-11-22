@@ -99,12 +99,21 @@ def list_reports(limit: int = Query(default=50, ge=0)):
     with closing(db()) as conn:
         rows = conn.execute(
             """
-            SELECT id, scam_type, district, channel, amount_lost, created_at
+            SELECT id, scam_type, district, channel, amount_lost, created_at,
+                   phone, upi_id, url
             FROM reports ORDER BY created_at DESC, rowid DESC LIMIT ?
             """,
             (limit,),
         ).fetchall()
-    return [dict(row) for row in rows]
+    # Contract report format: scammer identifiers are included; no victim data is stored.
+    return [
+        {
+            "id": r["id"], "scam_type": r["scam_type"], "district": r["district"],
+            "channel": r["channel"], "amount_lost": r["amount_lost"], "created_at": r["created_at"],
+            "scammer": {"phone": r["phone"], "upi_id": r["upi_id"], "url": r["url"]},
+        }
+        for r in rows
+    ]
 
 
 @app.get("/api/stats")
