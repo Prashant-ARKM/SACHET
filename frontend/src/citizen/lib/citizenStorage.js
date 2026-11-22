@@ -22,9 +22,9 @@ export function saveDistrict(district) {
 
 export function getSavedLanguage() {
   try {
-    return localStorage.getItem(LANG_KEY) || 'hi'
+    return localStorage.getItem(LANG_KEY) || 'en'
   } catch {
-    return 'hi'
+    return 'en'
   }
 }
 

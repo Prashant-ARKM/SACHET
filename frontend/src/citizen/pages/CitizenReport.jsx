@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react'
 import { useLocation, useOutletContext, Link } from 'react-router-dom'
 import { SCAM_TYPES } from '../../shared/scamTypes.js'
 import { saveCitizenReport } from '../lib/citizenStorage.js'
-import { PhoneIcon, AlertIcon, CheckIcon } from '../components/CitizenIcons.jsx'
+import { CheckIcon } from '../components/CitizenIcons.jsx'
 
 export default function CitizenReport() {
-  const { district, lang } = useOutletContext()
+  const { district, lang, t } = useOutletContext()
   const location = useLocation()
 
   const [lostMoney, setLostMoney] = useState(null) // null | true | false
@@ -46,14 +46,19 @@ export default function CitizenReport() {
     setSubmitted(true)
   }
 
-  const complaintLetter = `सेवा में, थाना प्रभारी / साइबर सेल, ज़िला: ${district}
-विषय: साइबर वित्तीय धोखाधड़ी शिकायत
-महोदय, दिनांक ${new Date().toLocaleDateString('hi-IN')} को प्रार्थी के साथ साइबर ठगी हुई।
-• प्रकार: ${SCAM_TYPES.find((s) => s.id === scamType)?.hi || scamType}
-• नंबर: ${phone || 'अज्ञात'} | UPI: ${upi || 'N/A'}
-${lostMoney ? `• कटी राशि: ₹${amount || '0'} | UTR: ${txnId || 'N/A'}` : '• वित्तीय हानि: शून्य'}
-विवरण: ${description || 'उपरोक्त नंबर द्वारा छल का प्रयास किया गया।'}
-उचित कानूनी कार्रवाई की कृपा करें। (Ref: ${refId || 'SACHET'})`
+  const complaintLetter = `To, Officer in Charge / Cyber Crime Cell, District: ${district}
+Subject: Formal Complaint regarding Cyber Financial Fraud
+Date: ${new Date().toLocaleDateString('en-IN')}
+
+Dear Sir/Madam,
+I am submitting this formal complaint regarding a cyber fraud incident:
+• Fraud Type: ${SCAM_TYPES.find((s) => s.id === scamType)?.en || scamType}
+• Scammer Phone: ${phone || 'Unknown / Internet Call'} | UPI: ${upi || 'N/A'}
+${lostMoney ? `• Amount Lost: ₹${amount || '0'} | Transaction UTR: ${txnId || 'Under Investigation'}` : '• Financial Loss: None (Intercepted timely)'}
+• Details: ${description || 'Deceptive message/call attempting unlawful financial extraction.'}
+
+Kindly take necessary legal action under IT Act and relevant penal provisions.
+Reference ID: ${refId || 'SACHET-CG'}`
 
   const copyLetter = () => {
     navigator.clipboard?.writeText(complaintLetter)
@@ -69,9 +74,11 @@ ${lostMoney ? `• कटी राशि: ₹${amount || '0'} | UTR: ${txnId ||
             <CheckIcon size={20} />
           </div>
           <div>
-            <h2 className="font-display text-2xl font-bold text-forest">रिपोर्ट दर्ज हो गई</h2>
+            <h2 className="font-display text-2xl font-bold text-forest">
+              {t.reportSuccess}
+            </h2>
             <p className="text-xs text-muted mt-1">
-              संदर्भ संख्या: <span className="font-mono font-bold text-ink">{refId}</span> · {district} डैशबोर्ड पर प्रेषित
+              {lang === 'hi' ? 'संदर्भ संख्या' : lang === 'cg' ? 'संदर्भ नंबर' : 'Reference ID'}: <span className="font-mono font-bold text-ink">{refId}</span> · {district} {lang === 'hi' ? 'डैशबोर्ड पर प्रेषित' : lang === 'cg' ? 'डैशबोर्ड म भेज दे गे' : 'sent to dashboard'}
             </p>
           </div>
 
@@ -80,22 +87,26 @@ ${lostMoney ? `• कटी राशि: ₹${amount || '0'} | UTR: ${txnId ||
               onClick={() => setShowLetter(!showLetter)}
               className="rounded-full bg-forest text-card text-xs font-semibold px-4 py-2 hover:bg-forest-2 transition"
             >
-              {showLetter ? 'पत्र छुपाएं' : 'थाना शिकायत पत्र देखें'}
+              {showLetter
+                ? (lang === 'hi' ? 'पत्र छुपाएं' : lang === 'cg' ? 'पत्र लुकावव' : 'Hide Letter')
+                : (lang === 'hi' ? 'थाना शिकायत पत्र देखें' : lang === 'cg' ? 'थाना रपट देखव' : 'View Police Application Letter')}
             </button>
             <Link
               to="/citizen"
               className="rounded-full bg-card border border-line text-ink text-xs font-semibold px-4 py-2 hover:bg-beige transition"
             >
-              होम पर जाएं
+              {lang === 'hi' ? 'होम पर जाएं' : lang === 'cg' ? 'घर जावव' : 'Back to Home'}
             </Link>
           </div>
 
           {showLetter && (
             <div className="text-left bg-beige/60 p-4 rounded-2xl border border-line space-y-2 mt-3 text-xs font-mono">
               <div className="flex justify-between items-center">
-                <span className="font-semibold text-ink">आवेदन पत्र:</span>
+                <span className="font-semibold text-ink font-sans">
+                  {t.complaintWriterTitle}:
+                </span>
                 <button onClick={copyLetter} className="text-forest underline font-sans font-bold">
-                  {copied ? '✓ कॉपी हुआ' : 'कॉपी करें'}
+                  {copied ? '✓ Copied' : t.btnCopyLetter}
                 </button>
               </div>
               <pre className="whitespace-pre-wrap text-ink/80 leading-relaxed">{complaintLetter}</pre>
@@ -107,9 +118,9 @@ ${lostMoney ? `• कटी राशि: ₹${amount || '0'} | UTR: ${txnId ||
           {/* STEP 1: DID YOU LOSE MONEY */}
           <section className="bg-card border border-line rounded-3xl p-5 shadow-[0_1px_0_rgba(30,42,34,0.04)] space-y-3">
             <div className="text-[11px] font-semibold tracking-[0.18em] uppercase text-muted">
-              चरण 1 · DID YOU LOSE MONEY?
+              {lang === 'hi' ? 'चरण 1 · क्या आपके पैसे कटे?' : lang === 'cg' ? 'पहिला पायदान · पैसा कट गे का?' : 'STEP 1 · DID YOU LOSE MONEY?'}
             </div>
-            <h3 className="font-display text-xl font-bold text-ink">क्या आपके पैसे कटे हैं?</h3>
+            <h3 className="font-display text-xl font-bold text-ink">{t.qLostMoney}</h3>
 
             <div className="flex gap-2">
               <button
@@ -121,7 +132,7 @@ ${lostMoney ? `• कटी राशि: ₹${amount || '0'} | UTR: ${txnId ||
                     : 'bg-card border-line text-ink hover:bg-beige'
                 }`}
               >
-                हाँ, पैसे कटे हैं
+                {t.ansYes}
               </button>
               <button
                 type="button"
@@ -132,32 +143,32 @@ ${lostMoney ? `• कटी राशि: ₹${amount || '0'} | UTR: ${txnId ||
                     : 'bg-card border-line text-ink hover:bg-beige'
                 }`}
               >
-                नहीं, सिर्फ़ कॉल/SMS आया
+                {t.ansNo}
               </button>
             </div>
 
             {lostMoney === true && (
               <div className="bg-blush/60 border border-scam/15 p-3 rounded-2xl flex items-center justify-between gap-3 text-xs">
-                <span className="text-scam font-medium">तुरंत 1930 पर कॉल करें (गोल्डन ऑवर)</span>
+                <span className="text-scam font-medium">{t.lostStep1}</span>
                 <a
                   href="tel:1930"
                   className="rounded-full bg-scam text-card px-3 py-1 font-semibold hover:brightness-110 shrink-0"
                 >
-                  कॉल 1930
+                  {t.callNow}
                 </a>
               </div>
             )}
 
             {lostMoney === false && (
               <div className="bg-mint/40 border border-leaf/15 p-3 rounded-2xl flex items-center justify-between gap-3 text-xs">
-                <span className="text-forest font-medium">संचार साथी "चक्षु" पर नंबर रिपोर्ट करें</span>
+                <span className="text-forest font-medium">{t.noLostMoneyDesc}</span>
                 <a
                   href="https://sancharsaathi.gov.in/sfc/"
                   target="_blank"
                   rel="noreferrer"
                   className="rounded-full bg-forest text-card px-3 py-1 font-semibold hover:bg-forest-2 shrink-0"
                 >
-                  Chakshu →
+                  {t.btnChakshu} →
                 </a>
               </div>
             )}
@@ -166,12 +177,12 @@ ${lostMoney ? `• कटी राशि: ₹${amount || '0'} | UTR: ${txnId ||
           {/* STEP 2: EVIDENCE */}
           <section className="bg-card border border-line rounded-3xl p-5 shadow-[0_1px_0_rgba(30,42,34,0.04)] space-y-3">
             <div className="text-[11px] font-semibold tracking-[0.18em] uppercase text-muted">
-              चरण 2 · साक्ष्य (EVIDENCE)
+              {t.evidenceTitle}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
               <div>
-                <label className="font-semibold text-ink block mb-1">धोखाधड़ी का प्रकार</label>
+                <label className="font-semibold text-ink block mb-1">{t.scamTypeLabel}</label>
                 <select
                   value={scamType}
                   onChange={(e) => setScamType(e.target.value)}
@@ -179,14 +190,14 @@ ${lostMoney ? `• कटी राशि: ₹${amount || '0'} | UTR: ${txnId ||
                 >
                   {SCAM_TYPES.map((st) => (
                     <option key={st.id} value={st.id}>
-                      {st[lang] || st.hi}
+                      {st[lang] || st.en}
                     </option>
                   ))}
                 </select>
               </div>
 
               <div>
-                <label className="font-semibold text-ink block mb-1">धोखेबाज़ का फोन नंबर</label>
+                <label className="font-semibold text-ink block mb-1">{t.chkPhone}</label>
                 <input
                   type="text"
                   value={phone}
@@ -197,7 +208,7 @@ ${lostMoney ? `• कटी राशि: ₹${amount || '0'} | UTR: ${txnId ||
               </div>
 
               <div>
-                <label className="font-semibold text-ink block mb-1">UPI ID (यदि हो)</label>
+                <label className="font-semibold text-ink block mb-1">{t.chkUpi}</label>
                 <input
                   type="text"
                   value={upi}
@@ -209,7 +220,9 @@ ${lostMoney ? `• कटी राशि: ₹${amount || '0'} | UTR: ${txnId ||
 
               {lostMoney && (
                 <div>
-                  <label className="font-semibold text-scam block mb-1">कटी राशि (₹)</label>
+                  <label className="font-semibold text-scam block mb-1">
+                    {lang === 'hi' ? 'कटी राशि (₹)' : lang === 'cg' ? 'कटे पैसा (₹)' : 'Amount Lost (₹)'}
+                  </label>
                   <input
                     type="number"
                     value={amount}
@@ -222,12 +235,14 @@ ${lostMoney ? `• कटी राशि: ₹${amount || '0'} | UTR: ${txnId ||
             </div>
 
             <div>
-              <label className="font-semibold text-ink block mb-1 text-xs">विवरण</label>
+              <label className="font-semibold text-ink block mb-1 text-xs">
+                {lang === 'hi' ? 'घटना का संक्षिप्त विवरण' : lang === 'cg' ? 'विवरण' : 'Brief Description'}
+              </label>
               <textarea
                 rows="2"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="संदेश या घटना की मुख्य बात लिखें..."
+                placeholder={lang === 'hi' ? 'संदेश या घटना की मुख्य बात लिखें...' : lang === 'cg' ? 'मैसेज या ठगी के बात लिखव...' : 'Paste message text or describe what happened...'}
                 className="w-full border border-line rounded-xl p-3 bg-beige/40 text-xs text-ink outline-none focus:border-forest resize-none"
               />
             </div>
@@ -242,14 +257,14 @@ ${lostMoney ? `• कटी राशि: ₹${amount || '0'} | UTR: ${txnId ||
                 onChange={(e) => setConsent(e.target.checked)}
                 className="w-4 h-4 rounded text-forest focus:ring-0"
               />
-              <span>{district} ज़िले के नागरिकों को सचेत करने हेतु अनाम रिपोर्ट साझा करें</span>
+              <span>{t.consentLabel}</span>
             </label>
 
             <button
               type="submit"
               className="w-full rounded-full bg-forest text-card text-xs sm:text-sm font-semibold py-2.5 hover:bg-forest-2 active:scale-95 transition"
             >
-              अनाम रिपोर्ट दर्ज करें →
+              {t.btnSubmitReport} →
             </button>
           </section>
         </form>

@@ -5,10 +5,10 @@ import { saveScore } from '../lib/citizenStorage.js'
 import { SpeakerIcon, BookIcon, CheckIcon } from '../components/CitizenIcons.jsx'
 
 export default function CitizenLearn() {
-  const { lang, score, setScore } = useOutletContext()
+  const { lang, t, score, setScore } = useOutletContext()
   const location = useLocation()
 
-  const [audioLang, setAudioLang] = useState('hi')
+  const [audioLang, setAudioLang] = useState('en')
   const [playingId, setPlayingId] = useState(null)
   const [highlightId, setHighlightId] = useState(location.state?.highlightLessonId || null)
 
@@ -18,6 +18,11 @@ export default function CitizenLearn() {
   const [chosenOpt, setChosenOpt] = useState(null)
   const [correctList, setCorrectList] = useState([])
   const [quizDone, setQuizDone] = useState(false)
+
+  // Sync audio language when overall language switches
+  useEffect(() => {
+    setAudioLang(lang === 'hi' ? 'hi' : lang === 'cg' ? 'cg' : 'en')
+  }, [lang])
 
   useEffect(() => {
     return () => window.speechSynthesis?.cancel()
@@ -32,9 +37,9 @@ export default function CitizenLearn() {
 
     if (window.speechSynthesis) {
       window.speechSynthesis.cancel()
-      const text = lesson.audioScript[audioLang] || lesson.audioScript.hi
+      const text = lesson.audioScript[audioLang] || lesson.audioScript.en || lesson.audioScript.hi
       const u = new SpeechSynthesisUtterance(text)
-      u.lang = 'hi-IN'
+      u.lang = audioLang === 'en' ? 'en-IN' : 'hi-IN'
       u.rate = 0.95
       u.onend = () => setPlayingId(null)
       u.onerror = () => setPlayingId(null)
@@ -65,42 +70,39 @@ export default function CitizenLearn() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* 1. 4 VISUAL LESSONS (2x2 GRID MATCHING REST OF WEBSITE) */}
+      {/* 1. 4 VISUAL LESSONS */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="grid place-items-center w-7 h-7 rounded-lg bg-mint text-forest">
               <BookIcon size={16} />
             </span>
-            <h2 className="text-sm font-semibold text-ink">4 बुनियादी सुरक्षा नियम · Core Lessons</h2>
+            <h2 className="text-sm font-semibold text-ink">
+              {lang === 'hi' ? '4 बुनियादी सुरक्षा नियम' : lang === 'cg' ? '4 बुनियादी सुरक्षा नियम' : '4 Core Safety Rules'}
+            </h2>
           </div>
 
-          {/* Dialect Switcher */}
+          {/* Audio Dialect Switcher */}
           <div className="flex border border-line rounded-full overflow-hidden text-xs bg-card p-0.5">
-            <button
-              onClick={() => {
-                window.speechSynthesis?.cancel()
-                setPlayingId(null)
-                setAudioLang('hi')
-              }}
-              className={`px-3 py-1 rounded-full font-medium transition ${
-                audioLang === 'hi' ? 'bg-forest text-card' : 'text-ink hover:bg-beige'
-              }`}
-            >
-              ऑडियो: हिंदी
-            </button>
-            <button
-              onClick={() => {
-                window.speechSynthesis?.cancel()
-                setPlayingId(null)
-                setAudioLang('cg')
-              }}
-              className={`px-3 py-1 rounded-full font-medium transition ${
-                audioLang === 'cg' ? 'bg-forest text-card' : 'text-ink hover:bg-beige'
-              }`}
-            >
-              छत्तीसगढ़ी
-            </button>
+            {[
+              { id: 'en', label: 'Audio: EN' },
+              { id: 'hi', label: 'ऑडियो: हिंदी' },
+              { id: 'cg', label: 'छ.ग.' },
+            ].map((al) => (
+              <button
+                key={al.id}
+                onClick={() => {
+                  window.speechSynthesis?.cancel()
+                  setPlayingId(null)
+                  setAudioLang(al.id)
+                }}
+                className={`px-3 py-1 rounded-full font-medium transition ${
+                  audioLang === al.id ? 'bg-forest text-card' : 'text-ink hover:bg-beige'
+                }`}
+              >
+                {al.label}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -108,6 +110,7 @@ export default function CitizenLearn() {
           {LESSONS.map((lesson) => {
             const isPlaying = playingId === lesson.id
             const isHighlighted = highlightId === lesson.id
+            const badgeText = lesson.badge[lang] || lesson.badge.en || lesson.badge.hi
 
             return (
               <div
@@ -122,7 +125,7 @@ export default function CitizenLearn() {
                       className="text-[10px] font-bold px-2 py-0.5 rounded-full"
                       style={{ backgroundColor: lesson.bgColor, color: lesson.accent }}
                     >
-                      {lesson.badge}
+                      {badgeText}
                     </span>
                     <button
                       type="button"
@@ -134,15 +137,15 @@ export default function CitizenLearn() {
                       }`}
                     >
                       <SpeakerIcon size={13} />
-                      <span>{isPlaying ? 'रोकें' : 'सुनें'}</span>
+                      <span>{isPlaying ? t.btnPause : t.btnListen}</span>
                     </button>
                   </div>
 
                   <h3 className="font-display text-xl font-bold text-ink mt-1">
-                    {lesson.title[lang] || lesson.title.hi}
+                    {lesson.title[lang] || lesson.title.en || lesson.title.hi}
                   </h3>
                   <p className="text-xs text-muted mt-0.5">
-                    {lesson.tagline[lang] || lesson.tagline.hi}
+                    {lesson.tagline[lang] || lesson.tagline.en || lesson.tagline.hi}
                   </p>
 
                   {/* Concise DOs and DONTs */}
@@ -150,13 +153,13 @@ export default function CitizenLearn() {
                     <div className="flex items-center gap-1.5 text-safe">
                       <span className="font-bold">✓</span>
                       <span className="text-ink font-medium truncate">
-                        {lesson.dos[0][lang] || lesson.dos[0].hi}
+                        {lesson.dos[0][lang] || lesson.dos[0].en || lesson.dos[0].hi}
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5 text-scam">
                       <span className="font-bold">✕</span>
                       <span className="text-ink font-medium truncate">
-                        {lesson.donts[0][lang] || lesson.donts[0].hi}
+                        {lesson.donts[0][lang] || lesson.donts[0].en || lesson.donts[0].hi}
                       </span>
                     </div>
                   </div>
@@ -166,7 +169,7 @@ export default function CitizenLearn() {
                   className="mt-3 p-2.5 rounded-xl text-xs font-semibold"
                   style={{ backgroundColor: lesson.bgColor, color: lesson.accent }}
                 >
-                  {lesson.goldenRule[lang] || lesson.goldenRule.hi}
+                  {lesson.goldenRule[lang] || lesson.goldenRule.en || lesson.goldenRule.hi}
                 </div>
               </div>
             )
@@ -174,37 +177,41 @@ export default function CitizenLearn() {
         </div>
       </div>
 
-      {/* 2. QUIZ & SCORE SECTION (MINIMALIST BENTO TILE) */}
+      {/* 2. QUIZ & SCORE SECTION */}
       <section className="bg-card border border-line rounded-3xl p-5 shadow-[0_1px_0_rgba(30,42,34,0.04)] space-y-4">
         <div className="flex items-center justify-between">
           <div>
             <div className="text-[11px] font-semibold tracking-[0.18em] uppercase text-muted">
-              SELF TEST · आत्म-परीक्षण
+              {lang === 'hi' ? 'आत्म-परीक्षण · SELF TEST' : lang === 'cg' ? 'जाँच · SELF TEST' : 'SELF TEST · KNOWLEDGE CHECK'}
             </div>
-            <h3 className="font-display text-xl font-bold text-ink mt-0.5">डिजिटल सुरक्षा क्विज़</h3>
+            <h3 className="font-display text-xl font-bold text-ink mt-0.5">
+              {t.quizTitle}
+            </h3>
           </div>
 
           <div className="text-right">
-            <span className="text-xs text-muted">वर्तमान स्कोर</span>
+            <span className="text-xs text-muted">{t.yourScore}</span>
             <div className="font-display text-2xl font-bold text-forest leading-none">{score}/100</div>
           </div>
         </div>
 
         {!quizStarted && !quizDone ? (
           <div className="bg-beige/50 border border-line rounded-2xl p-4 flex items-center justify-between gap-4">
-            <p className="text-xs text-muted">4 आसान सवालों के जवाब देकर अपना सुरक्षा स्कोर परखें</p>
+            <p className="text-xs text-muted">{t.quizDesc}</p>
             <button
               onClick={() => setQuizStarted(true)}
               className="rounded-full bg-forest text-card text-xs font-semibold px-4 py-2 hover:bg-forest-2 shrink-0 transition"
             >
-              क्विज़ शुरू करें →
+              {t.btnStartQuiz} →
             </button>
           </div>
         ) : quizDone ? (
           <div className="bg-mint/40 border border-leaf/20 rounded-2xl p-5 text-center space-y-2 animate-fadeIn">
-            <h4 className="font-display text-2xl font-bold text-forest">क्विज़ पूर्ण!</h4>
+            <h4 className="font-display text-2xl font-bold text-forest">
+              {t.congratsTitle}
+            </h4>
             <p className="text-xs text-ink">
-              आपका नया स्कोर: <span className="font-bold text-forest text-base">{score}/100</span>
+              {t.yourScore} <span className="font-bold text-forest text-base">{score}/100</span>
             </p>
             <button
               onClick={() => {
@@ -216,16 +223,16 @@ export default function CitizenLearn() {
               }}
               className="rounded-full bg-forest text-card text-xs font-semibold px-4 py-1.5 hover:bg-forest-2 transition"
             >
-              पुनः क्विज़ दें
+              {t.btnRetryQuiz}
             </button>
           </div>
         ) : (
           <div className="space-y-3 animate-fadeIn">
             <div className="text-xs font-semibold text-muted">
-              प्रश्न {qIndex + 1} / {QUIZ_QUESTIONS.length}
+              {lang === 'hi' ? 'प्रश्न' : lang === 'cg' ? 'सवाल' : 'Question'} {qIndex + 1} / {QUIZ_QUESTIONS.length}
             </div>
             <p className="text-sm font-semibold text-ink bg-beige/40 p-3.5 rounded-2xl border border-line">
-              {QUIZ_QUESTIONS[qIndex].question[lang] || QUIZ_QUESTIONS[qIndex].question.hi}
+              {QUIZ_QUESTIONS[qIndex].question[lang] || QUIZ_QUESTIONS[qIndex].question.en || QUIZ_QUESTIONS[qIndex].question.hi}
             </p>
 
             <div className="space-y-1.5">
@@ -244,7 +251,7 @@ export default function CitizenLearn() {
                     disabled={chosenOpt !== null}
                     className={`w-full p-3 rounded-2xl border text-left text-xs font-medium transition flex items-center justify-between ${cls}`}
                   >
-                    <span>{opt.text[lang] || opt.text.hi}</span>
+                    <span>{opt.text[lang] || opt.text.en || opt.text.hi}</span>
                     {chosenOpt !== null && opt.correct && <CheckIcon size={14} />}
                   </button>
                 )

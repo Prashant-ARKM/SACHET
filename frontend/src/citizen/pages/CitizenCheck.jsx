@@ -5,7 +5,7 @@ import { saveRecentCheck } from '../lib/citizenStorage.js'
 import { PhoneIcon, AlertIcon, BookIcon } from '../components/CitizenIcons.jsx'
 
 export default function CitizenCheck() {
-  const { lang } = useOutletContext()
+  const { lang, t } = useOutletContext()
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -16,7 +16,13 @@ export default function CitizenCheck() {
   const [callAnalyzing, setCallAnalyzing] = useState(false)
   const [shared, setShared] = useState(false)
 
-  // Prefilled text / autoCheck from home tile
+  const SAMPLES = [
+    { label: { en: 'Power Bill Cutoff', hi: 'बिजली बिल फ्रॉड', cg: 'बिजली बिल ठगी' }, text: SAMPLE_MESSAGES[0].text },
+    { label: { en: 'Bank KYC Block', hi: 'बैंक KYC ब्लॉक', cg: 'बैंक KYC ब्लॉक' }, text: SAMPLE_MESSAGES[1].text },
+    { label: { en: 'Lottery QR Prize', hi: 'लॉटरी QR कोड', cg: 'लॉटरी क्यूआर' }, text: SAMPLE_MESSAGES[2].text },
+    { label: { en: 'Digital Arrest', hi: 'डिजिटल अरेस्ट', cg: 'डिजिटल अरेस्ट' }, text: SAMPLE_MESSAGES[3].text },
+  ]
+
   useEffect(() => {
     if (location.state?.result) {
       setResult(location.state.result)
@@ -44,7 +50,7 @@ export default function CitizenCheck() {
 
   const handleShare = async () => {
     if (!result) return
-    const text = `⚠️ SACHET साइबर अलर्ट: यह संदेश धोखाधड़ी पाया गया है:\n"${result.originalText}"\nसावधान रहें, किसी को OTP या पिन न दें!`
+    const text = `⚠️ SACHET Cyber Warning: This message was flagged as fraud:\n"${result.originalText}"\nStay cautious, never share your OTP or PIN!`
     if (navigator.share) {
       try {
         await navigator.share({ text })
@@ -63,7 +69,7 @@ export default function CitizenCheck() {
     setTimeout(() => {
       setCallAnalyzing(false)
       const fakeCall =
-        'कॉल रिकॉर्डिंग: नमस्ते, मैं साइबर क्राइम सेल दिल्ली से बोल रहा हूँ। आपके नाम से ताइवान कूरियर में नशीला पदार्थ मिला है। तुरंत वीडियो कॉल पर डिजिटल अरेस्ट में रहें।'
+        'Call recording: Hello, I am calling from Cyber Crime Branch Delhi. A customs parcel under your Aadhaar contains illegal drugs. You must remain on video call under digital arrest.'
       const res = analyzeMessage(fakeCall)
       setResult(res)
       setActiveTab('message')
@@ -82,7 +88,7 @@ export default function CitizenCheck() {
               activeTab === 'message' ? 'bg-forest text-card' : 'text-ink hover:bg-beige'
             }`}
           >
-            संदेश / लिंक
+            {t.tabMessage}
           </button>
           <button
             type="button"
@@ -91,7 +97,7 @@ export default function CitizenCheck() {
               activeTab === 'call' ? 'bg-forest text-card' : 'text-ink hover:bg-beige'
             }`}
           >
-            कॉल रिकॉर्डिंग
+            {t.tabCall}
           </button>
         </div>
 
@@ -103,7 +109,7 @@ export default function CitizenCheck() {
             }}
             className="text-xs text-muted hover:text-scam font-medium"
           >
-            साफ़ करें
+            {t.btnClear}
           </button>
         )}
       </div>
@@ -115,14 +121,14 @@ export default function CitizenCheck() {
             rows="3"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
-            placeholder="SMS, WhatsApp चैट या संदिग्ध लिंक यहाँ पेस्ट करें..."
+            placeholder={t.checkInputPlaceholder}
             className="w-full p-3.5 rounded-2xl border border-line bg-beige/40 text-ink text-sm outline-none focus:border-forest resize-none placeholder:text-muted/60"
           />
 
           <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
             {/* Quick chips */}
             <div className="flex flex-wrap gap-1.5">
-              {SAMPLE_MESSAGES.map((s, idx) => (
+              {SAMPLES.map((s, idx) => (
                 <button
                   key={idx}
                   type="button"
@@ -132,7 +138,7 @@ export default function CitizenCheck() {
                   }}
                   className="text-xs bg-beige hover:bg-mint text-ink font-medium px-3 py-1 rounded-full border border-line transition"
                 >
-                  {s.label.split('(')[0].trim()}
+                  {s.label[lang] || s.label.en}
                 </button>
               ))}
             </div>
@@ -144,7 +150,9 @@ export default function CitizenCheck() {
               disabled={!inputText.trim() || isAnalyzing}
               className="rounded-full bg-forest text-card text-xs sm:text-sm font-semibold px-5 py-2 hover:bg-forest-2 active:scale-95 transition disabled:opacity-40"
             >
-              {isAnalyzing ? 'जाँच हो रही है…' : 'जाँच करें →'}
+              {isAnalyzing
+                ? (lang === 'hi' ? 'जाँच हो रही है…' : lang === 'cg' ? 'जाँच चलत हे…' : 'Analyzing…')
+                : `${t.btnCheckNow} →`}
             </button>
           </div>
         </section>
@@ -155,14 +163,16 @@ export default function CitizenCheck() {
         <section className="bg-card border border-line rounded-3xl p-5 shadow-[0_1px_0_rgba(30,42,34,0.04)] space-y-4">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-warn bg-sun-tint px-3 py-1 rounded-full">
-              ⏰ सेवा समय: 10:00 AM से सक्रिय (Screen built now)
+              ⏰ {t.callTabNoticeSub}
             </span>
             <button
               onClick={handleSampleCall}
               disabled={callAnalyzing}
               className="text-xs font-semibold text-forest underline"
             >
-              {callAnalyzing ? 'विश्लेषण...' : 'नमूना कॉल परखें →'}
+              {callAnalyzing
+                ? (lang === 'hi' ? 'विश्लेषण...' : lang === 'cg' ? 'विश्लेषण...' : 'Analyzing…')
+                : `${t.callSampleBtn} →`}
             </button>
           </div>
 
@@ -170,8 +180,14 @@ export default function CitizenCheck() {
             <div className="grid place-items-center w-10 h-10 rounded-full bg-mint text-forest mx-auto">
               <PhoneIcon size={18} />
             </div>
-            <p className="text-xs font-semibold text-ink">ऑडियो रिकॉर्डिंग चुनें (.mp3, .wav, .m4a)</p>
-            <p className="text-[11px] text-muted">हमारा वॉइस AI कॉल में धोखाधड़ी के शब्द व पैटर्न पहचानता है</p>
+            <p className="text-xs font-semibold text-ink">{t.callUploadLabel}</p>
+            <p className="text-[11px] text-muted">
+              {lang === 'hi'
+                ? 'हमारा वॉइस AI कॉल में धोखाधड़ी के शब्द व पैटर्न पहचानता है'
+                : lang === 'cg'
+                ? 'हमार वॉइस AI कॉल म ठगी के बात ल पहचानथे'
+                : 'Our voice AI model analyzes phone calls for extortion keywords and coercion'}
+            </p>
           </div>
         </section>
       )}
@@ -191,36 +207,38 @@ export default function CitizenCheck() {
               <div className="flex items-center gap-2">
                 <span className="text-xl">{result.verdict === 'scam' ? '🚨' : '✅'}</span>
                 <h3 className="font-display text-xl sm:text-2xl font-bold leading-tight">
-                  {result.verdict === 'scam' ? 'धोखाधड़ी (SCAM)' : 'सुरक्षित (GENUINE)'}
+                  {result.verdict === 'scam' ? t.verdictScam : t.verdictGenuine}
                 </h3>
               </div>
               <p className="text-xs opacity-85 mt-0.5">
-                विश्वास स्कोर: {result.confidence}% · {result.typeName?.[lang] || result.typeName?.hi}
+                {lang === 'hi' ? 'विश्वास स्कोर' : lang === 'cg' ? 'विश्वास स्कोर' : 'Confidence'}: {result.confidence}% · {result.typeName?.[lang] || result.typeName?.en || result.typeName?.hi}
               </p>
             </div>
 
             <span className="text-xs font-semibold px-3 py-1 rounded-full bg-card/80 border border-current">
-              {result.verdict === 'scam' ? 'ख़तरा' : 'सामान्य'}
+              {result.verdict === 'scam'
+                ? (lang === 'hi' ? 'ख़तरा' : lang === 'cg' ? 'खतरा' : 'Threat')
+                : (lang === 'hi' ? 'सामान्य' : lang === 'cg' ? 'सामान्य' : 'Safe')}
             </span>
           </div>
 
           {/* AI Token Attention Highlighting */}
           <div className="space-y-1.5">
             <div className="text-[11px] font-semibold tracking-[0.18em] uppercase text-muted">
-              AI टोकन ध्यान · MODEL ATTENTION
+              {t.whyTitle}
             </div>
             <div className="p-3.5 rounded-2xl bg-beige/60 border border-line text-xs sm:text-sm leading-relaxed text-ink font-mono break-words">
-              {result.annotatedTokens.map((t, idx) =>
-                t.isFlagged ? (
+              {result.annotatedTokens.map((tok, idx) =>
+                tok.isFlagged ? (
                   <mark
                     key={idx}
-                    title={t.reason}
+                    title={tok.reason}
                     className="bg-scam/15 text-scam font-semibold px-1 py-0.5 rounded-sm mx-0.5"
                   >
-                    {t.text}
+                    {tok.text}
                   </mark>
                 ) : (
-                  <span key={idx}>{t.text}</span>
+                  <span key={idx}>{tok.text}</span>
                 )
               )}
             </div>
@@ -229,13 +247,13 @@ export default function CitizenCheck() {
           {/* 3 Action Steps */}
           <div className="space-y-1.5">
             <div className="text-[11px] font-semibold tracking-[0.18em] uppercase text-muted">
-              अब क्या करें · ACTION STEPS
+              {t.whatToDoTitle}
             </div>
             <div className="space-y-1">
               {result.actionSteps.map((step) => (
                 <div key={step.num} className="text-xs text-ink flex items-start gap-2 py-0.5">
                   <span className="font-bold text-forest">{step.num}.</span>
-                  <span>{step[lang] || step.hi}</span>
+                  <span>{step[lang] || step.en || step.hi}</span>
                 </div>
               ))}
             </div>
@@ -256,7 +274,7 @@ export default function CitizenCheck() {
               className="inline-flex items-center gap-1.5 rounded-full bg-scam text-card text-xs font-semibold px-4 py-2 hover:brightness-110 active:scale-95 transition"
             >
               <AlertIcon size={14} />
-              <span>रिपोर्ट करें</span>
+              <span>{t.btnReportThis}</span>
             </button>
 
             <button
@@ -269,7 +287,7 @@ export default function CitizenCheck() {
               className="inline-flex items-center gap-1.5 rounded-full bg-forest text-card text-xs font-semibold px-4 py-2 hover:bg-forest-2 active:scale-95 transition"
             >
               <BookIcon size={14} />
-              <span>संबंधित पाठ</span>
+              <span>{t.btnRelatedLesson}</span>
             </button>
 
             <button
@@ -277,7 +295,7 @@ export default function CitizenCheck() {
               onClick={handleShare}
               className="inline-flex items-center gap-1.5 rounded-full bg-sun text-ink text-xs font-semibold px-4 py-2 hover:brightness-105 active:scale-95 transition"
             >
-              <span>{shared ? '✓ भेजा गया' : 'परिवार को शेयर करें'}</span>
+              <span>{shared ? '✓ ' + t.shareTextSuccess : t.btnShareFamily}</span>
             </button>
           </div>
         </section>
