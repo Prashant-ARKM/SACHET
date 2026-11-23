@@ -261,9 +261,9 @@ export const QUIZ_QUESTIONS = [
       },
     ],
     explanation: {
-      en: 'Correct! Banks never ask for OTP over a phone call.',
-      hi: 'सही! बैंक कभी भी फोन पर OTP नहीं मांगता। फोन काटने पर ही आपका पैसा सुरक्षित रहेगा।',
-      cg: 'सहीं जवाब! बैंक कभू फोन म ओटीपी नइ मांगे। फोन काटे म ही पैसा बांचही।',
+      en: 'Banks never ask for OTP over a phone call.',
+      hi: 'बैंक कभी भी फोन पर OTP नहीं मांगता। फोन काटने पर ही आपका पैसा सुरक्षित रहेगा।',
+      cg: 'बैंक कभू फोन म ओटीपी नइ मांगे। फोन काटे म ही पैसा बांचही।',
     },
   },
 
@@ -301,9 +301,9 @@ export const QUIZ_QUESTIONS = [
       },
     ],
     explanation: {
-      en: 'Spot on! UPI PIN is solely for paying out. Receiving funds never requires a PIN.',
-      hi: 'बिल्कुल सही! UPI पिन केवल पैसे भेजने के लिए होता है। पैसे आने के लिए कोई पिन नहीं लगता।',
-      cg: 'सांचो! यूपीआई पिन खाली पैसा भेजे बर होथे, पैसा पाए बर कभू पिन नइ लागे।',
+      en: 'UPI PIN is solely for paying out. Receiving funds never requires a PIN.',
+      hi: 'UPI पिन केवल पैसे भेजने के लिए होता है। पैसे आने के लिए कोई पिन नहीं लगता।',
+      cg: 'यूपीआई पिन खाली पैसा भेजे बर होथे, पैसा पाए बर कभू पिन नइ लागे।',
     },
   },
 
@@ -341,9 +341,9 @@ export const QUIZ_QUESTIONS = [
       },
     ],
     explanation: {
-      en: 'Correct! Dialing 1930 in the Golden Hour enables the national portal to freeze accounts.',
-      hi: 'शाबाश! घटना के पहले 2 घंटे (गोल्डन ऑवर) में 1930 डायल करने से ठगों का खाता तत्काल सील हो सकता है।',
-      cg: 'बने जवाब! पहिला 2 घंटा म 1930 म फोन करे ले ठग के खाता सील हो सकत हे।',
+      en: 'Dialing 1930 in the Golden Hour enables the national portal to freeze accounts.',
+      hi: 'घटना के पहले 2 घंटे (गोल्डन ऑवर) में 1930 डायल करने से ठगों का खाता तत्काल सील हो सकता है।',
+      cg: 'पहिला 2 घंटा म 1930 म फोन करे ले ठग के खाता सील हो सकत हे।',
     },
   },
 
@@ -381,9 +381,169 @@ export const QUIZ_QUESTIONS = [
       },
     ],
     explanation: {
-      en: 'Correct! Covering the keypad prevents hidden skimmer cameras and shoulder-surfers.',
-      hi: 'सही! हाथ से कीपैड छुपाने से छिपे हुए कैमरे या पास खड़े व्यक्ति को आपका गुप्त पिन नहीं दिखता।',
-      cg: 'सहीं! हाथ ले तोपे म कैमरा या कोनो मनखे तुंहर पिन ल देख नइ सके।',
+      en: 'Covering the keypad prevents hidden skimmer cameras and shoulder-surfers.',
+      hi: 'हाथ से कीपैड छुपाने से छिपे हुए कैमरे या पास खड़े व्यक्ति को आपका गुप्त पिन नहीं दिखता।',
+      cg: 'हाथ ले तोपे म कैमरा या कोनो मनखे तुंहर पिन ल देख नइ सके।',
+    },
+  },
+
+  {
+    id: 'q5',
+    question: {
+      en: 'A video caller in police uniform says: "A parcel with drugs is in your name. You are under digital arrest. Stay on video and send money to clear your name." What should you do?',
+      hi: 'वीडियो कॉल पर पुलिस वर्दी में एक व्यक्ति कहता है: "आपके नाम के पार्सल में ड्रग्स मिले हैं। आप डिजिटल अरेस्ट में हैं। वीडियो पर बने रहें और नाम साफ़ करने के लिए पैसे भेजें।" आपको क्या करना चाहिए?',
+      cg: 'वीडियो कॉल म पुलिस के कपड़ा पहिरे मनखे कहिथे: "तुंहर नाव के पार्सल म ड्रग्स मिले हे। तुमन डिजिटल अरेस्ट म हव। वीडियो म बने रहव अउ पैसा भेजव।" का करना चाही?',
+    },
+    options: [
+      {
+        text: {
+          en: 'Cut the call. "Digital arrest" does not exist. Report it on 1930 or Chakshu',
+          hi: 'फोन काटें। "डिजिटल अरेस्ट" जैसा कुछ नहीं होता। 1930 या चक्षु पर शिकायत करें',
+          cg: 'फोन काट देवव। "डिजिटल अरेस्ट" कुछु नइ होवय। 1930 या चक्षु म सिकायत करव',
+        },
+        correct: true,
+      },
+      {
+        text: {
+          en: 'Stay on the call and pay to avoid arrest',
+          hi: 'गिरफ़्तारी से बचने के लिए कॉल पर रहें और पैसे भेज दें',
+          cg: 'गिरफ़्तारी ले बांचे बर कॉल म रहव अउ पैसा भेज देवव',
+        },
+        correct: false,
+      },
+      {
+        text: {
+          en: 'Share your Aadhaar and bank details to prove you are innocent',
+          hi: 'खुद को निर्दोष साबित करने के लिए आधार और बैंक की जानकारी दे दें',
+          cg: 'अपन ल निर्दोष बताए बर आधार अउ बैंक के जानकारी दे देवव',
+        },
+        correct: false,
+      },
+    ],
+    explanation: {
+      en: 'Police never arrest anyone over a video call, and never ask for money to "clear your name". This is a scam.',
+      hi: 'पुलिस कभी वीडियो कॉल पर गिरफ़्तार नहीं करती और "नाम साफ़ करने" के लिए पैसे नहीं मांगती। यह ठगी है।',
+      cg: 'पुलिस कभू वीडियो कॉल म गिरफ़्तार नइ करय अउ नाव साफ करे बर पैसा नइ मांगय। ए ठगी आय।',
+    },
+  },
+
+  {
+    id: 'q6',
+    question: {
+      en: 'An SMS says: "Your electricity will be cut tonight. Download this app to pay your bill: bit.ly/cseb-pay.apk". What should you do?',
+      hi: 'SMS आता है: "आज रात आपकी बिजली कट जाएगी। बिल भरने के लिए यह ऐप डाउनलोड करें: bit.ly/cseb-pay.apk"। आपको क्या करना चाहिए?',
+      cg: 'SMS आथे: "आज रात तुंहर बिजली कट जाही। बिल पटाए बर ए ऐप डाउनलोड करव: bit.ly/cseb-pay.apk"। का करना चाही?',
+    },
+    options: [
+      {
+        text: {
+          en: 'Do not open the link. Pay only through the official app or office',
+          hi: 'लिंक न खोलें। बिल केवल आधिकारिक ऐप या दफ़्तर से भरें',
+          cg: 'लिंक झन खोलव। बिल खाली सरकारी ऐप या दफ़्तर ले पटावव',
+        },
+        correct: true,
+      },
+      {
+        text: {
+          en: 'Install the app quickly so the power is not cut',
+          hi: 'बिजली न कटे, इसलिए ऐप जल्दी से इंस्टॉल कर लें',
+          cg: 'बिजली झन कटय, तेकर सेती ऐप ल जल्दी डाल लेवव',
+        },
+        correct: false,
+      },
+      {
+        text: {
+          en: 'Call the number in the SMS and share your OTP',
+          hi: 'SMS में दिए नंबर पर फोन करके OTP बता दें',
+          cg: 'SMS के नंबर म फोन करके ओटीपी बता देवव',
+        },
+        correct: false,
+      },
+    ],
+    explanation: {
+      en: 'Apps from SMS links (.apk files) can read your OTPs and empty your account. Use only official apps.',
+      hi: 'SMS लिंक से डाउनलोड किए गए ऐप (.apk) आपके OTP पढ़कर खाता खाली कर सकते हैं। केवल आधिकारिक ऐप इस्तेमाल करें।',
+      cg: 'SMS लिंक ले डाले ऐप (.apk) तुंहर ओटीपी पढ़ के खाता खाली कर सकथे। खाली सरकारी ऐप चलावव।',
+    },
+  },
+
+  {
+    id: 'q7',
+    question: {
+      en: '"Customer care" asks you to install AnyDesk or a screen-sharing app to fix a failed payment. What should you do?',
+      hi: '"कस्टमर केयर" कहता है कि अटका हुआ पेमेंट ठीक करने के लिए AnyDesk या कोई स्क्रीन-शेयर ऐप डालें। आपको क्या करना चाहिए?',
+      cg: '"कस्टमर केयर" कहिथे कि अटके पेमेंट ल ठीक करे बर AnyDesk या स्क्रीन-शेयर ऐप डालव। का करना चाही?',
+    },
+    options: [
+      {
+        text: {
+          en: 'Refuse. Never let a stranger see or control your phone screen',
+          hi: 'मना कर दें। किसी अनजान को अपने फोन की स्क्रीन न दिखाएं',
+          cg: 'मना कर देवव। कोनो अनचिन्हार ल अपन फोन के स्क्रीन झन देखावव',
+        },
+        correct: true,
+      },
+      {
+        text: {
+          en: 'Install it, because they are from customer care',
+          hi: 'इंस्टॉल कर लें, क्योंकि वे कस्टमर केयर से हैं',
+          cg: 'डाल लेवव, काबर कि ओमन कस्टमर केयर ले हें',
+        },
+        correct: false,
+      },
+      {
+        text: {
+          en: 'Install it, but keep the call short',
+          hi: 'इंस्टॉल करें, पर कॉल जल्दी खत्म करें',
+          cg: 'डाल लेवव, फेर कॉल जल्दी खतम करव',
+        },
+        correct: false,
+      },
+    ],
+    explanation: {
+      en: 'Screen-sharing apps let scammers watch you type your PIN and OTP. Real customer care never asks for this.',
+      hi: 'स्क्रीन-शेयर ऐप से ठग आपका पिन और OTP देख लेते हैं। असली कस्टमर केयर ऐसा कभी नहीं कहता।',
+      cg: 'स्क्रीन-शेयर ऐप ले ठग तुंहर पिन अउ ओटीपी देख लेथें। सच के कस्टमर केयर अइसन कभू नइ कहय।',
+    },
+  },
+
+  {
+    id: 'q8',
+    question: {
+      en: 'You got a suspicious call but did NOT lose any money. Where should you report it?',
+      hi: 'आपको एक संदिग्ध कॉल आया, पर कोई पैसा नहीं कटा। इसकी शिकायत कहाँ करें?',
+      cg: 'तुंहला एक संदिग्ध कॉल आइस, फेर पैसा नइ कटिस। एकर सिकायत कहाँ करव?',
+    },
+    options: [
+      {
+        text: {
+          en: 'On Chakshu (Sanchar Saathi)',
+          hi: 'संचार साथी पोर्टल पर चक्षु में',
+          cg: 'संचार साथी म चक्षु म',
+        },
+        correct: true,
+      },
+      {
+        text: {
+          en: 'Nowhere. Nothing happened, so ignore it',
+          hi: 'कहीं नहीं, कुछ हुआ ही नहीं तो छोड़ दें',
+          cg: 'कहूँ नहीं, कुछु नइ होइस त छोड़ देवव',
+        },
+        correct: false,
+      },
+      {
+        text: {
+          en: 'Call the scammer back and argue',
+          hi: 'ठग को वापस फोन करके बहस करें',
+          cg: 'ठग ल फेर फोन करके बहस करव',
+        },
+        correct: false,
+      },
+    ],
+    explanation: {
+      en: 'Reporting on Chakshu helps block scam numbers before they cheat someone else. If money is lost, call 1930.',
+      hi: 'चक्षु पर शिकायत से ठगों के नंबर बंद होते हैं, ताकि दूसरों के साथ ठगी न हो। पैसा कटे तो 1930 पर फोन करें।',
+      cg: 'चक्षु म सिकायत करे ले ठग के नंबर बंद होथे, ताकि दूसर संग ठगी झन होय। पैसा कटे त 1930 म फोन करव।',
     },
   },
 ]

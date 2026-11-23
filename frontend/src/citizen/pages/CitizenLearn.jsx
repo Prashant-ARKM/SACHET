@@ -4,6 +4,17 @@ import { LESSONS, QUIZ_QUESTIONS } from '../data/lessonsData.js'
 import { saveScore } from '../lib/citizenStorage.js'
 import { SpeakerIcon, BookIcon, CheckIcon } from '../components/CitizenIcons.jsx'
 
+// Random answer order for each question, so the correct answer is not always in the same place
+const shuffledOrders = () =>
+  QUIZ_QUESTIONS.map((q) => {
+    const order = q.options.map((_, i) => i)
+    for (let i = order.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[order[i], order[j]] = [order[j], order[i]]
+    }
+    return order
+  })
+
 export default function CitizenLearn() {
   const { lang, t, score, setScore } = useOutletContext()
   const location = useLocation()
@@ -18,6 +29,7 @@ export default function CitizenLearn() {
   const [chosenOpt, setChosenOpt] = useState(null)
   const [correctList, setCorrectList] = useState([])
   const [quizDone, setQuizDone] = useState(false)
+  const [optionOrder, setOptionOrder] = useState(shuffledOrders)
 
   // Sync audio language when overall language switches
   useEffect(() => {
@@ -51,21 +63,21 @@ export default function CitizenLearn() {
   const handleAnswer = (opt, idx) => {
     if (chosenOpt !== null) return
     setChosenOpt(idx)
-    const updated = [...correctList, opt.correct]
-    setCorrectList(updated)
+    setCorrectList([...correctList, opt.correct])
+  }
 
-    setTimeout(() => {
-      if (qIndex + 1 < QUIZ_QUESTIONS.length) {
-        setQIndex(qIndex + 1)
-        setChosenOpt(null)
-      } else {
-        const hits = updated.filter(Boolean).length
-        const finalScore = Math.round((hits / QUIZ_QUESTIONS.length) * 100)
-        setScore(finalScore)
-        saveScore(finalScore)
-        setQuizDone(true)
-      }
-    }, 1200)
+  // The user reads the explanation, then moves on
+  const goNext = () => {
+    if (qIndex + 1 < QUIZ_QUESTIONS.length) {
+      setQIndex(qIndex + 1)
+      setChosenOpt(null)
+    } else {
+      const hits = correctList.filter(Boolean).length
+      const finalScore = Math.round((hits / QUIZ_QUESTIONS.length) * 100)
+      setScore(finalScore)
+      saveScore(finalScore)
+      setQuizDone(true)
+    }
   }
 
   return (
@@ -150,18 +162,18 @@ export default function CitizenLearn() {
 
                   {/* Concise DOs and DONTs */}
                   <div className="mt-3 space-y-1 text-sm md:text-xs">
-                    <div className="flex items-center gap-1.5 text-safe">
-                      <span className="font-bold">✓</span>
-                      <span className="text-ink font-medium md:truncate">
-                        {lesson.dos[0][lang] || lesson.dos[0].en || lesson.dos[0].hi}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-scam">
-                      <span className="font-bold">✕</span>
-                      <span className="text-ink font-medium md:truncate">
-                        {lesson.donts[0][lang] || lesson.donts[0].en || lesson.donts[0].hi}
-                      </span>
-                    </div>
+                    {lesson.dos.map((d, i) => (
+                      <div key={`do-${i}`} className="flex items-start gap-1.5 text-safe">
+                        <span className="font-bold">✓</span>
+                        <span className="text-ink font-medium">{d[lang] || d.en || d.hi}</span>
+                      </div>
+                    ))}
+                    {lesson.donts.map((d, i) => (
+                      <div key={`dont-${i}`} className="flex items-start gap-1.5 text-scam">
+                        <span className="font-bold">✕</span>
+                        <span className="text-ink font-medium">{d[lang] || d.en || d.hi}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
@@ -219,6 +231,7 @@ export default function CitizenLearn() {
                 setQIndex(0)
                 setChosenOpt(null)
                 setCorrectList([])
+                setOptionOrder(shuffledOrders())
                 setQuizDone(false)
               }}
               className="rounded-full bg-forest text-card text-sm md:text-xs font-semibold px-4 py-3 md:py-1.5 hover:bg-forest-2 transition"
@@ -236,7 +249,8 @@ export default function CitizenLearn() {
             </p>
 
             <div className="space-y-1.5">
-              {QUIZ_QUESTIONS[qIndex].options.map((opt, idx) => {
+              {optionOrder[qIndex].map((idx) => {
+                const opt = QUIZ_QUESTIONS[qIndex].options[idx]
                 const selected = chosenOpt === idx
                 let cls = 'bg-card hover:bg-beige border-line text-ink'
                 if (chosenOpt !== null) {
@@ -257,6 +271,40 @@ export default function CitizenLearn() {
                 )
               })}
             </div>
+
+            {/* After answering: why, then Next */}
+            {chosenOpt !== null && (() => {
+              const gotIt = QUIZ_QUESTIONS[qIndex].options[chosenOpt].correct
+              const why = QUIZ_QUESTIONS[qIndex].explanation
+              const isLast = qIndex + 1 === QUIZ_QUESTIONS.length
+              return (
+                <div className="space-y-3 animate-fadeIn">
+                  <div
+                    className={`p-3.5 rounded-2xl border text-sm md:text-xs ${
+                      gotIt ? 'bg-mint/40 border-leaf/30 text-forest' : 'bg-blush/60 border-scam/20 text-scam'
+                    }`}
+                  >
+                    <span className="font-bold">
+                      {gotIt
+                        ? (lang === 'hi' ? '✓ सही। ' : lang === 'cg' ? '✓ सहीं। ' : '✓ Right. ')
+                        : (lang === 'hi' ? '✕ सही जवाब नहीं। ' : lang === 'cg' ? '✕ सहीं जवाब नइ। ' : '✕ Not quite. ')}
+                    </span>
+                    <span className="text-ink">{why[lang] || why.en || why.hi}</span>
+                  </div>
+                  <div className="flex justify-end">
+                    <button
+                      type="button"
+                      onClick={goNext}
+                      className="rounded-full bg-forest text-card text-sm md:text-xs font-semibold px-5 py-3 md:py-2 hover:bg-forest-2 active:scale-95 transition"
+                    >
+                      {isLast
+                        ? (lang === 'hi' ? 'मेरा स्कोर देखें →' : lang === 'cg' ? 'मोर स्कोर देखव →' : 'See my score →')
+                        : (lang === 'hi' ? 'अगला →' : lang === 'cg' ? 'आगू →' : 'Next →')}
+                    </button>
+                  </div>
+                </div>
+              )
+            })()}
           </div>
         )}
       </section>
