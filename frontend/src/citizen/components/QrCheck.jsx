@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { decodeQrFromFile, parseQr, checkQr } from '../lib/qrCheck.js'
 
 const L = (lang, en, hi, cg) => (lang === 'hi' ? hi : lang === 'cg' ? cg : en)
@@ -21,6 +21,10 @@ export default function QrCheck({ lang, onCheckLink }) {
   const [payAnyway, setPayAnyway] = useState(false)
   const [speechError, setSpeechError] = useState('')
 
+  useEffect(() => {
+    window.speechSynthesis?.getVoices()
+  }, [])
+
   const readPayee = () => {
     const synth = window.speechSynthesis
     const speechLocale = lang === 'hi' || lang === 'cg' ? 'hi-IN' : 'en-IN'
@@ -38,8 +42,17 @@ export default function QrCheck({ lang, onCheckLink }) {
     ))
 
     setSpeechError('')
-    if (!voice || !window.SpeechSynthesisUtterance) {
-      showSpeechError()
+    if (!synth || !window.SpeechSynthesisUtterance) {
+      setSpeechError(L(lang, 'This browser does not support reading aloud.', 'इस ब्राउज़र में आवाज़ में पढ़ने की सुविधा नहीं है।', 'ए ब्राउज़र म बोल के पढ़े के सुविधा नइ हे।'))
+      return
+    }
+    if (!voice) {
+      setSpeechError(L(
+        lang,
+        'No on-device English voice was found. Install English voice data in your phone’s text-to-speech settings, then reopen SACHET.',
+        'फ़ोन में स्थानीय हिंदी आवाज़ नहीं मिली। टेक्स्ट-टू-स्पीच सेटिंग में हिंदी आवाज़ इंस्टॉल करें और SACHET फिर खोलें।',
+        'फ़ोन म स्थानीय हिंदी आवाज नइ मिलिस। टेक्स्ट-टू-स्पीच सेटिंग म हिंदी आवाज इंस्टॉल करव अउ SACHET फेर खोलव।',
+      ))
       return
     }
 
