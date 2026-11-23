@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { decodeQrFromFile, parseQr, checkQr } from '../lib/qrCheck.js'
 
 const L = (lang, en, hi, cg) => (lang === 'hi' ? hi : lang === 'cg' ? cg : en)
@@ -12,6 +12,7 @@ const LEVEL_STYLE = {
 // Fake-QR checker: photo or screenshot of a QR -> UPI ID, payee name, amount + red flags.
 // Runs on the phone, offline. onCheckLink(url) sends a website QR to the message checker.
 export default function QrCheck({ lang, onCheckLink }) {
+  const cameraInput = useRef(null)
   const [info, setInfo] = useState(null)
   const [preview, setPreview] = useState('')
   const [expected, setExpected] = useState('')
@@ -110,11 +111,22 @@ export default function QrCheck({ lang, onCheckLink }) {
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <label className={`${pickBtn} bg-forest text-card hover:bg-forest-2`}>
+        <button
+          type="button"
+          className={`${pickBtn} bg-forest text-card hover:bg-forest-2`}
+          onClick={() => cameraInput.current.click()}
+        >
           <span aria-hidden="true">📷</span>
           {L(lang, 'Take photo of QR', 'QR की फ़ोटो लें', 'QR के फ़ोटो लेवव')}
-          <input type="file" accept="image/*" capture="environment" onChange={handleFile} className="sr-only" />
-        </label>
+        </button>
+        <input
+          ref={cameraInput}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          onChange={handleFile}
+          hidden
+        />
         <label className={`${pickBtn} bg-beige text-ink border border-line hover:bg-mint`}>
           <span aria-hidden="true">🖼️</span>
           {L(lang, 'Upload screenshot', 'स्क्रीनशॉट चुनें', 'स्क्रीनशॉट चुनव')}
