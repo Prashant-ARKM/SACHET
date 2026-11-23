@@ -82,7 +82,7 @@ Full report, confusion matrix, dataset breakdown and known errors: [`ml/results.
 ## ■ End-to-End Flow
 
 ```mermaid
-flowchart TD
+flowchart LR
   A[Citizen gets a suspicious SMS, link or call] --> B[Paste, share or play on speaker]
   B --> C[On-device model<br/>model.json + score.js]
   C --> D{Scam?}
@@ -104,54 +104,60 @@ flowchart TD
 ## ■ Architecture
 
 ```mermaid
-flowchart TB
+flowchart LR
+  subgraph ML[ML pipeline · Python]
+    direction TB
+    DATA[build_dataset.py<br/>16,867 messages] --> TRAIN[train.py] --> EXPORT[export.py]
+    EVAL[evaluate.py → results.md]
+    PARITY[parity_test.py]
+  end
+
   subgraph Citizen[Citizen app · PWA · works offline]
+    direction TB
     CHECK[Check: message, link, call]
-    REPORT[Report: 1930, Chakshu, evidence checklist]
-    LEARN[Learn: lessons, audio, quiz, score]
     MODEL[score.js + model.json<br/>TF-IDF char n-grams + logistic regression]
     SW[Service worker cache]
+    REPORT[Report: 1930, Chakshu, evidence checklist]
+    LEARN[Learn: lessons, audio, quiz, score]
     LS[(localStorage: language, district,<br/>recent checks, score)]
   end
 
+  subgraph Help[Official help]
+    direction TB
+    H1930[1930 helpline]
+    PORTAL[cybercrime.gov.in]
+    CHAKSHU[Chakshu · Sanchar Saathi]
+  end
+
+  subgraph Server[FastAPI server]
+    direction TB
+    POST[POST /api/reports]
+    DB[(SQLite)]
+    GET[GET /api/reports]
+    STATS[GET /api/stats]
+  end
+
   subgraph Officials[Officials dashboard]
+    direction TB
     OV[Overview bento]
     MAP[District map]
     TR[Trends + scam types]
     ACT[Anonymised activity]
   end
 
-  subgraph Server[FastAPI server]
-    POST[POST /api/reports]
-    GET[GET /api/reports]
-    STATS[GET /api/stats]
-    DB[(SQLite)]
-  end
-
-  subgraph ML[ML pipeline · Python]
-    DATA[build_dataset.py<br/>16,867 messages] --> TRAIN[train.py] --> EXPORT[export.py]
-    EVAL[evaluate.py → results.md]
-    PARITY[parity_test.py]
-  end
-
-  subgraph Help[Official help]
-    H1930[1930 helpline]
-    PORTAL[cybercrime.gov.in]
-    CHAKSHU[Chakshu · Sanchar Saathi]
-  end
-
+  EXPORT --> MODEL
   CHECK --> MODEL
   SW -. caches .-> MODEL
-  EXPORT --> MODEL
   REPORT --> H1930
   REPORT --> PORTAL
   REPORT --> CHAKSHU
   REPORT --> POST --> DB
-  DB --> GET --> OV
+  DB --> GET
+  DB --> STATS
+  GET --> OV
   GET --> MAP
   GET --> TR
   GET --> ACT
-  DB --> STATS
 ```
 
 ## ■ Technical Snapshot
