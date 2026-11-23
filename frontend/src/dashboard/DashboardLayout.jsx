@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { useReports } from './hooks/useReports.js'
 import { filterReports } from './lib/stats.js'
@@ -9,26 +9,10 @@ import ScanLoader from '../shared/loading/ScanLoader.jsx'
 import PageGate from '../shared/loading/PageGate.jsx'
 import { useEntryLoader } from '../shared/loading/useEntryLoader.js'
 import { DashboardOverviewSkeleton, DashboardPageSkeleton } from '../shared/loading/Skeletons.jsx'
-import OfficialLogin from './OfficialLogin.jsx'
-import { getToken } from './lib/auth.js'
-// Map styles load only with the dashboard, never on citizens' phones
-import 'leaflet/dist/leaflet.css'
-
-// Officials must log in. The server also refuses report details without a valid login.
-export default function DashboardLayout() {
-  const [loggedIn, setLoggedIn] = useState(() => Boolean(getToken()))
-  if (!loggedIn) return <OfficialLogin onLoggedIn={() => setLoggedIn(true)} />
-  return <DashboardShell onLoginExpired={() => setLoggedIn(false)} />
-}
 
 // Shared shell: side nav + top bar + filters + language switcher.
-function DashboardShell({ onLoginExpired }) {
+export default function DashboardLayout() {
   const { reports, source, updatedAt } = useReports()
-
-  // Server said the login is missing or expired: back to the login screen
-  useEffect(() => {
-    if (source === 'auth') onLoginExpired()
-  }, [source, onLoginExpired])
   const [filters, setFilters] = useState({ district: '', type: '', days: 30 })
   const [lang, setLang] = useState(() => {
     try {
@@ -91,9 +75,7 @@ function DashboardShell({ onLoginExpired }) {
             className="lg:h-full"
             skeleton={isOverview ? <DashboardOverviewSkeleton /> : <DashboardPageSkeleton />}
           >
-            <Suspense fallback={isOverview ? <DashboardOverviewSkeleton /> : <DashboardPageSkeleton />}>
-              <Outlet context={{ ...data, filters, setDistrict, toggleType, lang, setLang: handleLangChange, t }} />
-            </Suspense>
+            <Outlet context={{ ...data, filters, setDistrict, toggleType, lang, setLang: handleLangChange, t }} />
           </PageGate>
         </main>
       </div>

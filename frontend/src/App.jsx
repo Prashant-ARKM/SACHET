@@ -1,15 +1,11 @@
-import { lazy, Suspense } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import LaunchPage from './LaunchPage.jsx'
-
-// Official dashboard: loaded only when someone opens /official, and never cached offline,
-// so citizens' phones don't download or store it.
-const DashboardLayout = lazy(() => import('./dashboard/DashboardLayout.jsx'))
-const Overview = lazy(() => import('./dashboard/pages/Overview.jsx'))
-const MapPage = lazy(() => import('./dashboard/pages/MapPage.jsx'))
-const TrendsPage = lazy(() => import('./dashboard/pages/TrendsPage.jsx'))
-const TypesPage = lazy(() => import('./dashboard/pages/TypesPage.jsx'))
-const ActivityPage = lazy(() => import('./dashboard/pages/ActivityPage.jsx'))
+import DashboardLayout from './dashboard/DashboardLayout.jsx'
+import Overview from './dashboard/pages/Overview.jsx'
+import MapPage from './dashboard/pages/MapPage.jsx'
+import TrendsPage from './dashboard/pages/TrendsPage.jsx'
+import TypesPage from './dashboard/pages/TypesPage.jsx'
+import ActivityPage from './dashboard/pages/ActivityPage.jsx'
 
 // Citizen App (U2)
 import CitizenLayout from './citizen/CitizenLayout.jsx'
@@ -32,14 +28,7 @@ export default function App() {
       </Route>
 
       {/* Official Dashboard (U1) */}
-      <Route
-        path="/official"
-        element={
-          <Suspense fallback={<div className="min-h-screen bg-beige grid place-items-center text-sm text-muted">Loading…</div>}>
-            <DashboardLayout />
-          </Suspense>
-        }
-      >
+      <Route path="/official" element={<DashboardLayout />}>
         <Route index element={<Overview />} />
         <Route path="map" element={<MapPage />} />
         <Route path="trends" element={<TrendsPage />} />
