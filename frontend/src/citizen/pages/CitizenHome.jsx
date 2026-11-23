@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate, useOutletContext } from 'react-router-dom'
 import { getRecentChecks } from '../lib/citizenStorage.js'
 import { DISTRICTS } from '../../shared/districts.js'
+import { getSavedAlerts } from '../../shared/alertSign.js'
+import { buildCampaign } from '../../dashboard/data/campaignTemplates.js'
 import { AlertIcon, BookIcon, PhoneIcon, ShieldCheckIcon } from '../components/CitizenIcons.jsx'
 
 export default function CitizenHome() {
@@ -63,6 +65,10 @@ export default function CitizenHome() {
       cg: 'दंतेवाड़ा म बैंक खाता भाड़ा म लेहे के लालच देवत हें। अपन खाता कोनो ल झन देवा।',
     },
   }
+
+  // A genuine signed alert this phone scanned for this district (from a poster or a neighbour's phone)
+  const signedAlert = getSavedAlerts().find((a) => a.district === district && !(a.expires < new Date().toISOString().slice(0, 10)))
+  const signedKit = signedAlert ? buildCampaign({ district, type: signedAlert.type, lang }) : null
 
   const currentAlert =
     DISTRICT_ALERTS[district]?.[lang] ||
@@ -272,19 +278,37 @@ export default function CitizenHome() {
                 {lang === 'hi' ? `ज़िला अलर्ट · ${district}` : lang === 'cg' ? `ज़िला अलर्ट · ${district}` : `District Alert · ${district}`}
               </h3>
             </div>
-            <span className="text-sm md:text-[10px] font-semibold bg-sun-tint text-warn px-2 py-0.5 rounded-full">
-              {lang === 'hi' ? 'सक्रिय' : lang === 'cg' ? 'सक्रिय' : 'Active'}
-            </span>
+            {signedKit ? (
+              <span className={`text-sm md:text-[10px] font-semibold px-2 py-0.5 rounded-full ${signedAlert.status === 'official' ? 'bg-mint text-forest' : 'bg-sun-tint text-warn'}`}>
+                {signedAlert.status === 'official' ? (lang === 'en' ? '✓ Verified' : '✓ असली') : 'Demo'}
+              </span>
+            ) : (
+              <span className="text-sm md:text-[10px] font-semibold bg-sun-tint text-warn px-2 py-0.5 rounded-full">
+                {lang === 'hi' ? 'सक्रिय' : lang === 'cg' ? 'सक्रिय' : 'Active'}
+              </span>
+            )}
           </div>
 
           <p className="text-base md:text-xs font-medium text-ink leading-relaxed mt-2">
-            {currentAlert}
+            {signedKit ? (
+              <>
+                <span className="font-semibold text-scam">{signedKit.label}:</span> {signedKit.content.truth}
+              </>
+            ) : (
+              currentAlert
+            )}
           </p>
         </div>
 
-        <span className="text-sm md:text-[11px] text-muted mt-3">
-          {lang === 'hi' ? 'नागरिक रिपोर्टों पर आधारित' : lang === 'cg' ? 'नागरिक रपट म आधारित' : 'Based on citizen reports'}
-        </span>
+        {signedKit ? (
+          <Link to={{ pathname: '/citizen/alert', hash: `#${signedAlert.token}` }} className="text-sm md:text-[11px] font-semibold text-forest mt-3 hover:underline">
+            {lang === 'en' ? 'Signed alert · open & pass it on →' : lang === 'cg' ? 'दस्तखत वाला सूचना · खोलव अउ आगू बढ़ावव →' : 'हस्ताक्षरित सूचना · खोलें और आगे बढ़ाएँ →'}
+          </Link>
+        ) : (
+          <Link to="/citizen/alert" className="text-sm md:text-[11px] text-muted mt-3 hover:text-forest">
+            {lang === 'hi' ? 'नागरिक रिपोर्टों पर आधारित · पोस्टर QR स्कैन करें →' : lang === 'cg' ? 'नागरिक रपट म आधारित · पोस्टर QR स्कैन करव →' : 'Based on citizen reports · scan a poster QR →'}
+          </Link>
+        )}
       </section>
 
       {/* 6. RECENT CHECKS */}

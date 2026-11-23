@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { decodeQrFromFile, parseQr, checkQr } from '../lib/qrCheck.js'
+import AlertVerdict from './AlertVerdict.jsx'
+import { Link } from 'react-router-dom'
+import { matchBlocked, normUpi, normLink, showId } from '../../shared/alertSign.js'
 
 const L = (lang, en, hi, cg) => (lang === 'hi' ? hi : lang === 'cg' ? cg : en)
 
@@ -100,7 +103,13 @@ export default function QrCheck({ lang, onCheckLink }) {
     setBusy(false)
   }
 
-  const result = info ? checkQr(info, expected) : null
+  const isAlert = info?.kind === 'alert'
+  // Payment QR to a UPI ID (or a link) that a signed alert on this phone lists as reported
+  const blockedMatch =
+    info && !isAlert
+      ? matchBlocked(info.kind === 'upi' ? '' : info.raw, info.kind === 'upi' ? [{ kind: 'u', value: normUpi(info.upiId) }] : [{ kind: 'l', value: normLink(info.raw) }])
+      : null
+  const result = info && !isAlert ? checkQr(info, expected) : null
   const pickBtn =
     'relative inline-flex items-center justify-center gap-2 rounded-full px-4 py-3 md:py-2 text-base md:text-sm font-semibold active:scale-95 transition cursor-pointer'
 
@@ -113,9 +122,9 @@ export default function QrCheck({ lang, onCheckLink }) {
         <p className="text-sm md:text-xs text-muted mt-0.5">
           {L(
             lang,
-            'See the real UPI ID and name hidden in the QR. QR scanning works offline.',
-            'QR में छिपी असली UPI ID और नाम देखें। QR स्कैनिंग बिना इंटरनेट काम करती है।',
-            'QR म लुकाय असली UPI ID अउ नाव देखव। QR स्कैनिंग बिना इंटरनेट चलथे।',
+            'See the real UPI ID and name hidden in the QR, or check a SACHET alert poster is genuine. QR scanning works offline.',
+            'QR में छिपी असली UPI ID और नाम देखें, या जाँचें कि SACHET सूचना पोस्टर असली है। QR स्कैनिंग बिना इंटरनेट काम करती है।',
+            'QR म लुकाय असली UPI ID अउ नाव देखव, या जाँचव कि SACHET सूचना पोस्टर असली हे। QR स्कैनिंग बिना इंटरनेट चलथे।',
           )}
         </p>
       </div>
@@ -164,8 +173,33 @@ export default function QrCheck({ lang, onCheckLink }) {
       {busy && <p className="text-sm text-muted">{L(lang, 'Reading QR…', 'QR पढ़ा जा रहा है…', 'QR पढ़त हन…')}</p>}
       {error && <p className="text-sm font-medium text-scam">{error}</p>}
 
+      {isAlert && <AlertVerdict text={info.raw} lang={lang} />}
+
       {result && (
         <div className="space-y-3 animate-fadeIn">
+          {blockedMatch && (
+            <Link
+              to={{ pathname: '/citizen/alert', hash: `#${blockedMatch.alert.token}` }}
+              className="block p-4 rounded-2xl border-2 border-scam bg-scam text-card hover:brightness-110"
+            >
+              <p className="text-base md:text-sm font-bold">
+                {lang === 'en'
+                  ? `🚨 ${blockedMatch.id.kind === 'p' ? 'This number' : blockedMatch.id.kind === 'u' ? 'This UPI ID' : 'This link'} was reported ${blockedMatch.id.count} time${blockedMatch.id.count === 1 ? '' : 's'} in ${blockedMatch.alert.district}`
+                  : lang === 'cg'
+                  ? `🚨 ${blockedMatch.id.kind === 'p' ? 'ए नंबर' : blockedMatch.id.kind === 'u' ? 'ए UPI ID' : 'ए लिंक'} के ${blockedMatch.alert.district} म ${blockedMatch.id.count} बेर सिकायत होए हे`
+                  : `🚨 ${blockedMatch.id.kind === 'p' ? 'इस नंबर' : blockedMatch.id.kind === 'u' ? 'इस UPI ID' : 'इस लिंक'} की ${blockedMatch.alert.district} में ${blockedMatch.id.count} बार शिकायत हुई है`}
+              </p>
+              <p className="text-sm md:text-xs mt-1 opacity-90">
+                <span className="font-mono font-semibold">{showId(blockedMatch.id)}</span> ·{' '}
+                {lang === 'en'
+                  ? 'From a signed SACHET alert you scanned. Do not reply, pay or share any code. Open the alert →'
+                  : lang === 'cg'
+                  ? 'तुंहर स्कैन करे दस्तखत वाला SACHET सूचना ले। जवाब, पइसा या कोड झन देवव। सूचना खोलव →'
+                  : 'आपकी स्कैन की हुई हस्ताक्षरित SACHET सूचना से। जवाब, पैसा या कोई कोड न दें। सूचना खोलें →'}
+              </p>
+            </Link>
+          )}
+
           <div className="flex gap-3 items-start">
             {preview && (
               <img src={preview} alt="" className="w-20 h-20 object-contain rounded-xl border border-line bg-white shrink-0" />

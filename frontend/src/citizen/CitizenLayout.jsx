@@ -7,7 +7,7 @@ import ScanLoader from '../shared/loading/ScanLoader.jsx'
 import PageGate from '../shared/loading/PageGate.jsx'
 import { useEntryLoader } from '../shared/loading/useEntryLoader.js'
 import { CitizenHomeSkeleton, CitizenPageSkeleton } from '../shared/loading/Skeletons.jsx'
-import { HomeIcon, SearchIcon, AlertIcon, BookIcon, ExitIcon, PhoneIcon } from './components/CitizenIcons.jsx'
+import { HomeIcon, SearchIcon, AlertIcon, BookIcon, ExitIcon, PhoneIcon, BellIcon } from './components/CitizenIcons.jsx'
 import {
   getSavedDistrict,
   saveDistrict,
@@ -102,6 +102,7 @@ export default function CitizenLayout() {
     { to: '/citizen/check', label: t.navCheck, Icon: SearchIcon },
     { to: '/citizen/report', label: t.navReport, Icon: AlertIcon },
     { to: '/citizen/learn', label: t.navLearn, Icon: BookIcon },
+    { to: '/citizen/alert', label: t.navAlerts || 'Alerts', Icon: BellIcon },
   ]
 
   // Page title resolution
@@ -112,6 +113,8 @@ export default function CitizenLayout() {
       ? t.navReport
       : location.pathname.endsWith('/learn')
       ? t.navLearn
+      : location.pathname.endsWith('/alert')
+      ? t.navAlerts || 'Alerts'
       : t.appName
 
   return (
@@ -217,18 +220,18 @@ export default function CitizenLayout() {
         </main>
       </div>
 
-      {/* PHONE BOTTOM BAR: Home · Check · [Call 1930] · Report · Learn */}
+      {/* PHONE BOTTOM BAR: Home · Check · [Call 1930] · Report · Learn · Alerts */}
       <nav
-        className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-forest text-card px-2 pt-2"
+        className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-forest text-card px-1 pt-2"
         style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}
         aria-label="Citizen Navigation"
       >
-        <div className="grid grid-cols-5 items-end">
+        <div className="grid items-end" style={{ gridTemplateColumns: `repeat(${navItems.length + 1}, minmax(0, 1fr))` }}>
           {navItems.slice(0, 2).map((item) => (
             <BottomTab key={item.to} {...item} />
           ))}
           <a href="tel:1930" className="flex flex-col items-center gap-1 -mt-7" aria-label={t.callNow}>
-            <span className="grid place-items-center w-16 h-16 rounded-full bg-scam text-card border-4 border-beige shadow-[0_8px_20px_-6px_rgba(179,38,30,0.7)]">
+            <span className="grid place-items-center w-14 h-14 min-[400px]:w-16 min-[400px]:h-16 rounded-full bg-scam text-card border-4 border-beige shadow-[0_8px_20px_-6px_rgba(179,38,30,0.7)]">
               <PhoneIcon size={26} />
             </span>
             <span className="text-[13px] font-bold leading-none pb-1">1930</span>
@@ -248,7 +251,7 @@ function BottomTab({ to, label, Icon, end }) {
       to={to}
       end={end}
       className={({ isActive }) =>
-        `flex flex-col items-center justify-center gap-1 h-16 mx-0.5 rounded-2xl text-[13px] font-semibold leading-none transition-colors ${
+        `flex flex-col items-center justify-center gap-1 h-16 mx-0.5 rounded-2xl text-[12px] font-semibold leading-none transition-colors ${
           isActive ? 'bg-card/20 text-card' : 'text-card/75'
         }`
       }

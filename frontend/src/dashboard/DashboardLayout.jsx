@@ -67,6 +67,7 @@ export default function DashboardLayout() {
           lang={lang}
           onLangChange={handleLangChange}
           t={t}
+          showFilters={pathname.replace(/\/$/, '') !== '/official/campaign'}
         />
         <main className="flex-1 min-h-0 px-4 md:px-5 pb-28 md:pb-5">
           <PageGate

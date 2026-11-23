@@ -37,7 +37,7 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,svg,png,jpg,jpeg,webp,avif,json,woff2}'],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         navigateFallback: '/index.html',
-        navigateFallbackAllowlist: [/^\/(?:\?|$)/, /^\/citizen(?:[/?]|$)/],
+        navigateFallbackAllowlist: [/^\/(?:\?|$)/, /^\/citizen(?:[/?]|$)/, /^\/a(?:[/?]|$)/],
         cleanupOutdatedCaches: true,
         // Speech engine (ONNX Runtime) files that Transformers.js downloads on first use:
         // keep them so recorded-call transcription also works offline afterwards.

@@ -75,3 +75,39 @@ export const ArrowRightIcon = (p) => (
     <path d="M5 12h14M13 6l6 6-6 6" />
   </Svg>
 )
+export const MegaphoneIcon = (p) => (
+  <Svg {...p}>
+    <path d="M3 10v4h3l7 4V6L6 10z" />
+    <path d="M16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11" />
+  </Svg>
+)
+export const PrinterIcon = (p) => (
+  <Svg {...p}>
+    <path d="M7 9V3h10v6M7 18H5a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+    <rect x="7" y="14" width="10" height="7" rx="1" />
+  </Svg>
+)
+export const CopyIcon = (p) => (
+  <Svg {...p}>
+    <rect x="8" y="8" width="12" height="12" rx="2" />
+    <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" />
+  </Svg>
+)
+export const PlayIcon = (p) => (
+  <Svg {...p}>
+    <path d="M7 5v14l12-7z" />
+  </Svg>
+)
+export const StopIcon = (p) => (
+  <Svg {...p}>
+    <rect x="6" y="6" width="12" height="12" rx="2" />
+  </Svg>
+)
+export const QrIcon = (p) => (
+  <Svg {...p}>
+    <rect x="4" y="4" width="6" height="6" rx="1" />
+    <rect x="14" y="4" width="6" height="6" rx="1" />
+    <rect x="4" y="14" width="6" height="6" rx="1" />
+    <path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2" />
+  </Svg>
+)

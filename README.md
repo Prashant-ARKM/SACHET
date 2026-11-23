@@ -237,13 +237,13 @@ SACHET is built on open-source software, open data and public services. Thank yo
 
 | Area | What we used |
 |---|---|
-| **Frontend** | [React](https://react.dev) · [React Router](https://reactrouter.com) · [Vite](https://vite.dev) · [Tailwind CSS](https://tailwindcss.com) · [vite-plugin-pwa](https://vite-pwa-org.netlify.app) (Workbox) · [idb](https://github.com/jakearchibald/idb) · [Oxlint](https://oxc.rs) |
+| **Frontend** | [React](https://react.dev) · [React Router](https://reactrouter.com) · [Vite](https://vite.dev) · [Tailwind CSS](https://tailwindcss.com) · [vite-plugin-pwa](https://vite-pwa-org.netlify.app) (Workbox) · [idb](https://github.com/jakearchibald/idb) · [jsQR](https://github.com/cozmo/jsQR) · [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator) (MIT, vendored) · [Oxlint](https://oxc.rs) |
 | **Charts and map** | [Apache ECharts](https://echarts.apache.org) + [echarts-for-react](https://github.com/hustcc/echarts-for-react) · [Leaflet](https://leafletjs.com) + [React Leaflet](https://react-leaflet.js.org) |
 | **Backend** | [FastAPI](https://fastapi.tiangolo.com) · [Uvicorn](https://www.uvicorn.org) · [Pydantic](https://docs.pydantic.dev) · [SQLite](https://sqlite.org) |
 | **Machine learning** | [scikit-learn](https://scikit-learn.org) · [pandas](https://pandas.pydata.org) · [NumPy](https://numpy.org) · [SciPy](https://scipy.org) · [joblib](https://joblib.readthedocs.io) |
 | **Fonts** | [Fraunces](https://fonts.google.com/specimen/Fraunces) and [Plus Jakarta Sans](https://fonts.google.com/specimen/Plus+Jakarta+Sans) via Google Fonts (SIL Open Font License) |
 | **Map data** | Chhattisgarh district boundaries: LGD 2024 via [bharatlas](https://bharatlas.com/view/lgd_districts) ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)), simplified |
-| **Browser APIs** | Web Speech API: speech-to-text for call checks and text-to-speech for lesson audio · Service Workers (offline) |
+| **Browser APIs** | Web Speech API: speech-to-text for call checks and text-to-speech for lesson audio and announcer scripts · Web Crypto (offline QR alert signatures) · Service Workers (offline) |
 | **Data sources** | [Hugging Face](https://huggingface.co/datasets) and [Kaggle](https://www.kaggle.com/datasets) open datasets (see below) |
 | **Design inspiration** | [Pinterest](https://www.pinterest.com) |
 | **AI assistants** | Claude Opus 5.5 and Claude Sonnet 5.5 ([Anthropic](https://www.anthropic.com)) · Flash 3.5 · GPT Sol 6.2, used for coding help, design iteration and documentation |

@@ -12,6 +12,7 @@ export default function TopBar({
   lang = 'en',
   onLangChange,
   t,
+  showFilters = true,
 }) {
   const set = (patch) => onChange({ ...filters, ...patch })
   const sel = 'border border-line rounded-full px-3 py-1.5 text-sm bg-card text-ink focus:outline-none'
@@ -52,6 +53,8 @@ export default function TopBar({
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
+        {/* Filters are hidden on pages that have their own controls (Campaign kit) */}
+        {showFilters && (<>
         {(filters.district || filters.type) && (
           <button className="text-sm text-forest underline" onClick={() => set({ district: '', type: '' })}>
             {t?.clear || 'Clear'}
@@ -91,6 +94,7 @@ export default function TopBar({
             </button>
           ))}
         </div>
+        </>)}
 
         {/* Official Language Selector: English (Default), Hindi, Chhattisgarhi */}
         {onLangChange && (

@@ -1,9 +1,11 @@
-import { useState, useEffect, useRef } from 'react'
-import { useLocation, useNavigate, useOutletContext } from 'react-router-dom'
+import { useState, useEffect, useRef, useMemo } from 'react'
+import { Link, useLocation, useNavigate, useOutletContext } from 'react-router-dom'
 import { analyzeMessage, SAMPLE_MESSAGES } from '../lib/scamDetector.js'
 import { saveRecentCheck } from '../lib/citizenStorage.js'
 import { PhoneIcon, AlertIcon, BookIcon } from '../components/CitizenIcons.jsx'
 import QrCheck from '../components/QrCheck.jsx'
+import { matchSavedAlerts, matchBlocked, normWord, showId } from '../../shared/alertSign.js'
+import { scamLabel } from '../../shared/scamTypes.js'
 import { transcribeCall, downloadedPacks } from '../lib/transcribeCall.js'
 
 // Browser speech-to-text (Chrome / Android). Undefined where not supported: the mic button then hides.
@@ -25,9 +27,19 @@ export default function CitizenCheck() {
   const location = useLocation()
   const navigate = useNavigate()
 
-  const [activeTab, setActiveTab] = useState('message') // 'message' | 'call' | 'qr'
+  const [activeTab, setActiveTab] = useState(() => location.state?.tab || 'message') // 'message' | 'call' | 'qr'
   const [inputText, setInputText] = useState('')
   const [result, setResult] = useState(null)
+  // Saved signed alert whose ML-flagged words appear in the checked text
+  const alertMatch = useMemo(() => (result?.originalText ? matchSavedAlerts(result.originalText) : null), [result])
+  // Exact scammer number / UPI ID / link from a saved signed alert
+  const blockedMatch = useMemo(() => (result?.originalText ? matchBlocked(result.originalText) : null), [result])
+  const idOverride = !!blockedMatch && result?.verdict !== 'scam'
+  const ID_STEPS = [
+    { num: 1, en: "Don't reply or call this number back.", hi: 'इस नंबर को जवाब न दें, वापस कॉल न करें।', cg: 'ए नंबर ल जवाब झन देवव, लहुट के फोन झन करव।' },
+    { num: 2, en: 'Never share OTP, PIN or pay any money.', hi: 'OTP, पिन न बताएँ, कोई पैसा न भेजें।', cg: 'ओटीपी, पिन झन बतावव, कोनो पइसा झन भेजव।' },
+    { num: 3, en: 'Lost money? Call 1930 right away.', hi: 'पैसे कटे? तुरंत 1930 पर कॉल करें।', cg: 'पइसा कटगे? तुरते 1930 म फोन करव।' },
+  ]
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [callAnalyzing, setCallAnalyzing] = useState(false)
   const [callText, setCallText] = useState('')
@@ -610,6 +622,8 @@ export default function CitizenCheck() {
       {result && activeTab !== 'qr' && (
         <section className="bg-card border border-line rounded-3xl p-5 sm:p-6 shadow-[0_1px_0_rgba(30,42,34,0.04)] space-y-4 animate-fadeIn">
           {/* Verdict Banner */}
+          {/* Hidden when a reported scammer ID overrides a 'looks safe' verdict (the red alert below says it) */}
+          {!idOverride && (
           <div
             className={`p-4 rounded-2xl border flex items-center justify-between ${
               result.verdict === 'scam'
@@ -637,6 +651,67 @@ export default function CitizenCheck() {
                 : t.verdictGenuineBadge}
             </span>
           </div>
+          )}
+
+          {/* Scammer ID from a signed alert this phone scanned */}
+          {blockedMatch && (
+            <Link
+              to={{ pathname: '/citizen/alert', hash: `#${blockedMatch.alert.token}` }}
+              className="block p-4 rounded-2xl border-2 border-scam bg-scam text-card hover:brightness-110"
+            >
+              <p className="text-base md:text-sm font-bold">
+                {lang === 'en'
+                  ? `🚨 ${blockedMatch.id.kind === 'p' ? 'This number' : blockedMatch.id.kind === 'u' ? 'This UPI ID' : 'This link'} was reported ${blockedMatch.id.count} time${blockedMatch.id.count === 1 ? '' : 's'} in ${blockedMatch.alert.district}`
+                  : lang === 'cg'
+                  ? `🚨 ${blockedMatch.id.kind === 'p' ? 'ए नंबर' : blockedMatch.id.kind === 'u' ? 'ए UPI ID' : 'ए लिंक'} के ${blockedMatch.alert.district} म ${blockedMatch.id.count} बेर सिकायत होए हे`
+                  : `🚨 ${blockedMatch.id.kind === 'p' ? 'इस नंबर' : blockedMatch.id.kind === 'u' ? 'इस UPI ID' : 'इस लिंक'} की ${blockedMatch.alert.district} में ${blockedMatch.id.count} बार शिकायत हुई है`}
+              </p>
+              <p className="text-sm md:text-xs mt-1 opacity-90">
+                <span className="font-mono font-semibold">{showId(blockedMatch.id)}</span> ·{' '}
+                {lang === 'en'
+                  ? 'From a signed SACHET alert you scanned. Do not reply, pay or share any code. Open the alert →'
+                  : lang === 'cg'
+                  ? 'तुंहर स्कैन करे दस्तखत वाला SACHET सूचना ले। जवाब, पइसा या कोड झन देवव। सूचना खोलव →'
+                  : 'आपकी स्कैन की हुई हस्ताक्षरित SACHET सूचना से। जवाब, पैसा या कोई कोड न दें। सूचना खोलें →'}
+              </p>
+            </Link>
+          )}
+
+          {/* Matches a signed alert this phone scanned (poster QR / relay): offline pattern update */}
+          {alertMatch && !blockedMatch && (
+            <Link
+              to={{ pathname: '/citizen/alert', hash: `#${alertMatch.alert.token}` }}
+              className="block p-4 rounded-2xl border-2 border-scam/40 bg-blush text-scam hover:brightness-[0.98]"
+            >
+              <p className="text-base md:text-sm font-bold">
+                {lang === 'en'
+                  ? `⚠ This matches the ${alertMatch.alert.district} alert you scanned`
+                  : lang === 'cg'
+                  ? `⚠ ए ${alertMatch.alert.district} के ओ सूचना ले मिलथे जेला तुमन स्कैन करे रहेव`
+                  : `⚠ यह ${alertMatch.alert.district} की उस सूचना से मिलता है जो आपने स्कैन की थी`}
+              </p>
+              <p className="text-sm md:text-xs text-ink mt-1">
+                {scamLabel(alertMatch.alert.type, lang)} ·{' '}
+                {lang === 'en' ? 'same words:' : lang === 'cg' ? 'उही सब्द:' : 'वही शब्द:'}{' '}
+                <span className="font-semibold">
+                  {alertMatch.alert.keywords.filter((k) => alertMatch.hits.some((h) => normWord(k).includes(h) || h.includes(normWord(k)))).join(', ')}
+                </span>
+              </p>
+              <p className="text-sm md:text-xs text-ink mt-1">
+                {result.verdict === 'scam'
+                  ? lang === 'en'
+                    ? 'Treat it as a scam. Open the alert →'
+                    : lang === 'cg'
+                    ? 'एला ठगी मानव। सूचना खोलव →'
+                    : 'इसे ठगी मानें। सूचना खोलें →'
+                  : lang === 'en'
+                  ? "Our model was not sure, but your district warned about this exact scam. Don't reply, pay or share any code. Open the alert →"
+                  : lang === 'cg'
+                  ? 'मॉडल पक्का नइ रहिस, फेर तुंहर जिला ह इही ठगी बर चेताय हे। जवाब, पइसा या कोड झन देवव। सूचना खोलव →'
+                  : 'मॉडल पक्का नहीं था, पर आपके ज़िले ने इसी ठगी की चेतावनी दी है। जवाब, पैसा या कोई कोड न दें। सूचना खोलें →'}
+              </p>
+            </Link>
+          )}
 
           {/* AI Token Attention Highlighting */}
           <div className="space-y-1.5">
@@ -688,7 +763,7 @@ export default function CitizenCheck() {
               {t.whatToDoTitle}
             </div>
             <div className="space-y-1">
-              {result.actionSteps.map((step) => (
+              {(idOverride ? ID_STEPS : result.actionSteps).map((step) => (
                 <div key={step.num} className="text-sm md:text-xs text-ink flex items-start gap-2 py-0.5">
                   <span className="font-bold text-forest">{step.num}.</span>
                   <span>{step[lang] || step.en || step.hi}</span>

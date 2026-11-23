@@ -44,13 +44,21 @@ export default function HeroTile({ reports, onSelect, className = '', lang = 'en
 
       {top && (
         <div className="relative flex items-end justify-between gap-4 mt-3">
-          <Link
-            to="/official/map"
-            onClick={() => onSelect(top.name)}
-            className="inline-flex items-center gap-2 rounded-full bg-sun text-ink text-sm font-semibold px-4 py-2 hover:brightness-105"
-          >
-            {t?.heroSeeMap || `See ${top.name} on map →`}
-          </Link>
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              to="/official/map"
+              onClick={() => onSelect(top.name)}
+              className="inline-flex items-center gap-2 rounded-full bg-sun text-ink text-sm font-semibold px-4 py-2 hover:brightness-105"
+            >
+              {t?.heroSeeMap || `See ${top.name} on map →`}
+            </Link>
+            <Link
+              to={`/official/campaign?district=${encodeURIComponent(top.name)}${topType ? `&type=${topType[0]}` : ''}`}
+              className="inline-flex items-center gap-2 rounded-full border border-card/40 text-card text-sm font-semibold px-4 py-2 hover:bg-card/10"
+            >
+              {t?.makeCampaign || 'Make campaign →'}
+            </Link>
+          </div>
           <Sparkline values={dailyValues(mine, 14)} color={C.sun} className="w-32 h-12" />
         </div>
       )}

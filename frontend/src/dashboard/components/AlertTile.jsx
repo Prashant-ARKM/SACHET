@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { risingType, countBy, sortedCounts } from '../lib/stats.js'
 import { scamLabel } from '../../shared/scamTypes.js'
 import { AlertIcon } from './icons.jsx'
@@ -41,8 +42,14 @@ export default function AlertTile({ reports, onSelect, t, lang = 'en', className
 
       {top && (
         <div className="relative flex items-end justify-between gap-2 mt-3">
-          <div className="text-xs text-muted">
-            {where.map(([d]) => d).join(' · ')}
+          <div className="min-w-0">
+            <div className="text-xs text-muted">{where.map(([d]) => d).join(' · ')}</div>
+            <Link
+              to={`/official/campaign?type=${top.name}${where[0] ? `&district=${encodeURIComponent(where[0][0])}` : ''}`}
+              className="inline-block mt-1 text-xs font-semibold text-scam hover:underline"
+            >
+              {t?.makeCampaign || 'Make campaign →'}
+            </Link>
           </div>
           <button
             onClick={() => onSelect(top.name)}

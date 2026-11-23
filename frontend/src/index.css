@@ -229,3 +229,20 @@ body {
 /* Offset the shimmer so tiles don't flash in sync */
 .skeleton:nth-child(2n)::after { --shimmer-delay: 220ms; }
 .skeleton:nth-child(3n)::after { --shimmer-delay: 440ms; }
+
+/* Campaign kit: print only the A4 poster (CampaignPage copies it into #poster-print-root) */
+#poster-print-root { display: none; }
+@media print {
+  @page { size: A4; margin: 0; }
+  html, body { background: #fff !important; }
+  body > *:not(#poster-print-root) { display: none !important; }
+  #poster-print-root {
+    display: block !important;
+    width: 210mm;
+    height: 297mm;
+    overflow: hidden;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  #poster-print-root > * { width: 210mm !important; height: 297mm !important; }
+}

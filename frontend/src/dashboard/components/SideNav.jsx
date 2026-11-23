@@ -1,5 +1,5 @@
 import { NavLink, Link } from 'react-router-dom'
-import { HomeIcon, MapIcon, TrendIcon, BarsIcon, PulseIcon, ExitIcon } from './icons.jsx'
+import { HomeIcon, MapIcon, TrendIcon, BarsIcon, PulseIcon, ExitIcon, MegaphoneIcon } from './icons.jsx'
 
 export const getNav = (t) => [
   { to: '/official', label: t?.navOverview || 'Overview', Icon: HomeIcon, end: true },
@@ -7,6 +7,7 @@ export const getNav = (t) => [
   { to: '/official/trends', label: t?.navTrends || 'Trends', Icon: TrendIcon },
   { to: '/official/types', label: t?.navTypes || 'Scam types', Icon: BarsIcon },
   { to: '/official/activity', label: t?.navActivity || 'Activity', Icon: PulseIcon },
+  { to: '/official/campaign', label: t?.navCampaign || 'Campaign kit', Icon: MegaphoneIcon },
 ]
 
 export const NAV = getNav()
@@ -50,8 +51,8 @@ export function MobileNav({ t }) {
   const navItems = getNav(t)
   return (
     <nav
-      className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-forest text-card px-2 pt-2 grid grid-cols-5"
-      style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}
+      className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-forest text-card px-1 pt-2 grid"
+      style={{ gridTemplateColumns: `repeat(${navItems.length}, minmax(0, 1fr))`, paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}
       aria-label="Dashboard"
     >
       {navItems.map(({ to, label, Icon, end }) => (
@@ -60,7 +61,7 @@ export function MobileNav({ t }) {
           to={to}
           end={end}
           className={({ isActive }) =>
-            `flex flex-col items-center justify-center gap-1 h-16 mx-0.5 rounded-2xl text-[12px] font-semibold leading-tight text-center transition-colors ${
+            `flex flex-col items-center justify-center gap-1 h-16 mx-0.5 rounded-2xl text-[11px] font-semibold leading-tight text-center transition-colors ${
               isActive ? 'bg-card/20 text-card' : 'text-card/75'
             }`
           }

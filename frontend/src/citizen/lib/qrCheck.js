@@ -1,6 +1,7 @@
 // Fake-QR checker: read what is inside a QR code and flag common UPI scams.
 // Works fully offline. Nothing is sent anywhere.
 import jsQR from 'jsqr'
+import { findAlertToken } from '../../shared/alertSign.js'
 
 // ---------- 1. Read the QR from a photo or screenshot ----------
 
@@ -53,6 +54,8 @@ export async function decodeQrFromFile(file) {
 // upi://pay?pa=<UPI ID>&pn=<payee name>&am=<amount>&tn=<note>
 export function parseQr(raw) {
   const text = (raw || '').trim()
+  // SACHET signed alert (from a campaign poster or another citizen's phone)
+  if (findAlertToken(text)) return { kind: 'alert', raw: text }
   if (/^upi:\/\//i.test(text)) {
     const query = text.includes('?') ? text.slice(text.indexOf('?') + 1) : ''
     const params = new URLSearchParams(query)

@@ -6,6 +6,8 @@ export const DASHBOARD_T = {
     navTrends: 'Trends',
     navTypes: 'Scam types',
     navActivity: 'Activity',
+    navCampaign: 'Campaign kit',
+    makeCampaign: 'Make campaign →',
     navExit: 'Back to start',
 
     // TopBar
@@ -86,6 +88,8 @@ export const DASHBOARD_T = {
     navTrends: 'रुझान',
     navTypes: 'धोखाधड़ी प्रकार',
     navActivity: 'गतिविधियाँ',
+    navCampaign: 'अभियान किट',
+    makeCampaign: 'अभियान बनाएँ →',
     navExit: 'मुख्य पृष्ठ',
 
     // TopBar
@@ -166,6 +170,8 @@ export const DASHBOARD_T = {
     navTrends: 'चाल-चलन',
     navTypes: 'ठगी किसम',
     navActivity: 'गतिविधि',
+    navCampaign: 'अभियान किट',
+    makeCampaign: 'अभियान बनावव →',
     navExit: 'मुख्य पृष्ठ',
 
     // TopBar
