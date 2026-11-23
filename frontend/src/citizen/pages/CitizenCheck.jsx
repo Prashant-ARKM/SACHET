@@ -1,22 +1,8 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useLocation, useNavigate, useOutletContext } from 'react-router-dom'
 import { analyzeMessage, SAMPLE_MESSAGES } from '../lib/scamDetector.js'
 import { saveRecentCheck } from '../lib/citizenStorage.js'
 import { PhoneIcon, AlertIcon, BookIcon } from '../components/CitizenIcons.jsx'
-
-// Browser speech-to-text (Chrome / Android). Undefined where not supported: the mic button then hides.
-const SpeechRecognitionApi =
-  typeof window !== 'undefined' ? window.SpeechRecognition || window.webkitSpeechRecognition : undefined
-
-// Speech engines write English acronyms in Devanagari ("ओटीपी" for OTP). The model learned these
-// in Latin letters, so map the common ones back before checking a call.
-const SPOKEN_ACRONYMS = [
-  ['ओटीपी', 'OTP'], ['केवाईसी', 'KYC'], ['यूपीआई', 'UPI'], ['एसबीआई', 'SBI'], ['सीबीआई', 'CBI'],
-  ['एटीएम', 'ATM'], ['क्यूआर', 'QR'], ['फेडेक्स', 'FedEx'], ['एचडीएफसी', 'HDFC'], ['आईसीआईसीआई', 'ICICI'],
-  ['पीएनबी', 'PNB'], ['आरबीआई', 'RBI'], ['एपीके', 'APK'], ['ट्राई', 'TRAI'],
-]
-const normalizeSpokenText = (text) =>
-  SPOKEN_ACRONYMS.reduce((out, [spoken, latin]) => out.split(spoken).join(latin), text)
 
 export default function CitizenCheck() {
   const { lang, t } = useOutletContext()
@@ -29,13 +15,6 @@ export default function CitizenCheck() {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [callAnalyzing, setCallAnalyzing] = useState(false)
   const [callText, setCallText] = useState('')
-  const [listening, setListening] = useState(false)
-  const [listenError, setListenError] = useState('')
-  const [speechLang, setSpeechLang] = useState(lang === 'en' ? 'en-IN' : 'hi-IN')
-  const recognitionRef = useRef(null)
-
-  // Stop the microphone if the user leaves this page while listening
-  useEffect(() => () => recognitionRef.current?.abort(), [])
   const [shared, setShared] = useState(false)
 
   const SAMPLES = [
@@ -111,7 +90,7 @@ export default function CitizenCheck() {
     if (!text.trim()) return
     setCallAnalyzing(true)
     try {
-      const res = await analyzeMessage(normalizeSpokenText(text))
+      const res = await analyzeMessage(text)
       setResult(res)
       if (res) saveRecentCheck(res)
     } catch (err) {
@@ -121,48 +100,6 @@ export default function CitizenCheck() {
     setCallAnalyzing(false)
   }
 
-  // Listen to a call played on speaker: speech -> text in the box -> same offline model check
-  const startListening = () => {
-    if (!SpeechRecognitionApi || listening) return
-    if (!navigator.onLine) {
-      setListenError(t.listenNeedsNet)
-      return
-    }
-    setListenError('')
-
-    const before = callText.trim()
-    let heard = ''
-    const rec = new SpeechRecognitionApi()
-    rec.lang = speechLang
-    rec.continuous = true
-    rec.interimResults = true
-
-    rec.onresult = (event) => {
-      heard = Array.from(event.results)
-        .map((r) => r[0].transcript)
-        .join(' ')
-        .trim()
-      setCallText([before, heard].filter(Boolean).join(' '))
-    }
-    rec.onerror = (event) => {
-      if (event.error === 'aborted') return
-      if (event.error === 'not-allowed' || event.error === 'service-not-allowed') setListenError(t.listenDenied)
-      else if (event.error === 'no-speech') setListenError(t.listenNoSpeech)
-      else setListenError(t.listenNeedsNet)
-    }
-    rec.onend = () => {
-      setListening(false)
-      recognitionRef.current = null
-      if (heard) runCallCheck([before, heard].filter(Boolean).join(' '))
-    }
-
-    recognitionRef.current = rec
-    rec.start()
-    setListening(true)
-  }
-
-  const stopListening = () => recognitionRef.current?.stop()
-
   return (
     <div className="max-w-3xl mx-auto space-y-4">
       {/* Tab Switcher */}
@@ -170,10 +107,7 @@ export default function CitizenCheck() {
         <div className="flex border border-line rounded-full overflow-hidden text-base md:text-sm bg-card p-0.5">
           <button
             type="button"
-            onClick={() => {
-              recognitionRef.current?.stop()
-              setActiveTab('message')
-            }}
+            onClick={() => setActiveTab('message')}
             className={`px-4 py-3 md:py-1.5 rounded-full font-medium transition ${
               activeTab === 'message' ? 'bg-forest text-card' : 'text-ink hover:bg-beige'
             }`}
@@ -191,7 +125,7 @@ export default function CitizenCheck() {
           </button>
         </div>
 
-        {(inputText || callText) && !listening && (
+        {(inputText || callText) && (
           <button
             onClick={() => {
               setInputText('')
@@ -262,47 +196,6 @@ export default function CitizenCheck() {
             </div>
             <p className="text-base md:text-xs font-semibold text-ink">{t.callUploadLabel}</p>
           </div>
-
-          {/* Listen to the call (speech -> text). Hidden where the browser has no speech recognition. */}
-          {SpeechRecognitionApi && (
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={listening ? stopListening : startListening}
-                className={`inline-flex items-center gap-2 rounded-full px-4 py-3 md:py-2 text-base md:text-sm font-semibold active:scale-95 transition ${
-                  listening ? 'bg-scam text-card' : 'bg-forest text-card hover:bg-forest-2'
-                }`}
-              >
-                <span aria-hidden="true">{listening ? '⏹' : '🎤'}</span>
-                <span>{listening ? t.btnStopListen : t.btnListenCall}</span>
-              </button>
-
-              <div className="flex border border-line rounded-full overflow-hidden text-sm md:text-xs bg-card p-0.5">
-                {[
-                  ['hi-IN', 'हिंदी'],
-                  ['en-IN', 'English'],
-                ].map(([code, label]) => (
-                  <button
-                    key={code}
-                    type="button"
-                    disabled={listening}
-                    onClick={() => setSpeechLang(code)}
-                    className={`px-3 py-1.5 md:py-1 rounded-full font-medium transition disabled:opacity-50 ${
-                      speechLang === code ? 'bg-mint text-forest' : 'text-ink hover:bg-beige'
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-
-              {listening && (
-                <span className="text-sm md:text-xs font-medium text-scam animate-pulse">{t.listeningHint}</span>
-              )}
-            </div>
-          )}
-
-          {listenError && <p className="text-sm md:text-xs font-medium text-scam">{listenError}</p>}
 
           <textarea
             rows="3"
