@@ -119,23 +119,24 @@ export function checkQr(info, expectedName = '') {
   } else {
     const nameAndNote = `${info.payeeName} ${info.note}`
 
-    // The classic fake-QR scam: "scan to receive money"
+    // Hidden payment note / name that talks about prizes, refunds or cashback.
+    // People never see this note; scammers use it in "scan to receive money" QRs.
     if (RECEIVE_WORDS.test(nameAndNote)) {
-      const amountEn = info.amount ? ` It will send ${money(info.amount)} from your account.` : ''
-      const amountHi = info.amount ? ` यह आपके खाते से ${money(info.amount)} भेज देगा।` : ''
-      const amountCg = info.amount ? ` ए तुंहर खाता ले ${money(info.amount)} भेज दिही।` : ''
       add(
         'danger',
-        `This QR says you will receive money (prize, refund or cashback). Scanning a QR and entering your PIN always SENDS money, never receives it.${amountEn}`,
-        `यह QR कहता है कि आपको पैसे मिलेंगे (इनाम, रिफंड या कैशबैक)। QR स्कैन करके पिन डालने से पैसे हमेशा जाते हैं, आते नहीं।${amountHi}`,
-        `ए QR कहिथे कि तुमन ल पैसा मिलही (इनाम, रिफंड या कैशबैक)। QR स्कैन करके पिन डाले ले पैसा हमेशा जाथे, आवय नहीं।${amountCg}`,
+        'Hidden inside this QR is a note about a prize, refund or cashback. That is a typical "scan to receive money" scam: paying this QR only takes money from you.',
+        'इस QR के अंदर इनाम, रिफंड या कैशबैक वाला छिपा संदेश है। यह "पैसे पाने के लिए स्कैन करें" वाली ठगी का तरीका है: इस QR से सिर्फ़ आपके पैसे कटेंगे।',
+        'ए QR के भीतर इनाम, रिफंड या कैशबैक वाला लुकाय संदेस हे। ए "पैसा पाए बर स्कैन करव" वाला ठगी के तरीका आय: ए QR ले खाली तुंहर पैसा कटही।',
       )
-    } else if (info.amount) {
+    }
+
+    // A pre-filled amount: the payment app will open with it already entered
+    if (info.amount) {
       add(
         'warn',
-        `The amount ${money(info.amount)} is already filled in. Check it matches your bill before paying.`,
-        `राशि ${money(info.amount)} पहले से भरी हुई है। भुगतान से पहले देखें कि यह आपके बिल से मेल खाती है।`,
-        `रकम ${money(info.amount)} पहिली ले भराय हे। पेमेंट ले पहिली देखव कि ए तुंहर बिल ले मिलथे।`,
+        `Your UPI app will open with ${money(info.amount)} already filled in. Entering your PIN will take ${money(info.amount)} from your account. Check it matches your bill.`,
+        `आपका UPI ऐप ${money(info.amount)} पहले से भरकर खुलेगा। पिन डालते ही आपके खाते से ${money(info.amount)} कट जाएंगे। देखें कि यह आपके बिल से मेल खाता है।`,
+        `तुंहर UPI ऐप ${money(info.amount)} पहिली ले भर के खुलही। पिन डारते ही तुंहर खाता ले ${money(info.amount)} कट जाही। देखव कि ए तुंहर बिल ले मिलथे।`,
       )
     }
 

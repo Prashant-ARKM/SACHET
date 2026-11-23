@@ -17,6 +17,7 @@ export default function QrCheck({ lang, onCheckLink }) {
   const [expected, setExpected] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const [payAnyway, setPayAnyway] = useState(false)
 
   const handleFile = async (e) => {
     const file = e.target.files?.[0]
@@ -25,6 +26,7 @@ export default function QrCheck({ lang, onCheckLink }) {
     setBusy(true)
     setError('')
     setInfo(null)
+    setPayAnyway(false)
     setPreview(URL.createObjectURL(file))
     try {
       const raw = await decodeQrFromFile(file)
@@ -152,6 +154,59 @@ export default function QrCheck({ lang, onCheckLink }) {
               'पिन डाले ले पहिली देखव कि UPI ऐप म दिखे नाव उही मनखे या दुकान के हे जेला तुमन पेमेंट करना चाहथव।',
             )}
           </p>
+
+          {info.kind === 'upi' && (
+            <>
+              <p className="text-sm md:text-xs font-semibold text-scam">
+                {L(
+                  lang,
+                  '⚠️ If someone told you to scan a QR to RECEIVE money (prize, refund, job, cashback), it is a scam. Scanning a QR only ever SENDS money.',
+                  '⚠️ अगर किसी ने पैसे पाने (इनाम, रिफंड, नौकरी, कैशबैक) के लिए QR स्कैन करने को कहा है, तो यह ठगी है। QR स्कैन करने से पैसे सिर्फ़ जाते हैं।',
+                  '⚠️ अगर कोनो पैसा पाए (इनाम, रिफंड, नौकरी, कैशबैक) बर QR स्कैन करे ल कहिस हे, त ए ठगी आय। QR स्कैन करे ले पैसा खाली जाथे।',
+                )}
+              </p>
+
+              {/* Continue to the real payment, in the user's UPI app */}
+              <div className="border-t border-line pt-3 space-y-2">
+                {result.level === 'danger' && (
+                  <>
+                    <p className="text-sm md:text-xs font-bold text-scam">
+                      {L(lang, 'We recommend you do NOT pay this QR.', 'हमारी सलाह: इस QR पर भुगतान न करें।', 'हमर सलाह: ए QR म पेमेंट झन करव।')}
+                    </p>
+                    <label className="flex items-start gap-2 text-sm md:text-xs text-ink cursor-pointer">
+                      <input type="checkbox" checked={payAnyway} onChange={(e) => setPayAnyway(e.target.checked)} className="mt-0.5" />
+                      {L(
+                        lang,
+                        'I know this person or shop and still want to pay',
+                        'मैं इस व्यक्ति या दुकान को जानता/जानती हूँ और फिर भी भुगतान करना चाहता/चाहती हूँ',
+                        'मैं ए मनखे या दुकान ल जानथंव अउ तभो ले पेमेंट करना चाहथंव',
+                      )}
+                    </label>
+                  </>
+                )}
+                {(result.level !== 'danger' || payAnyway) && /^upi:\/\/pay/i.test(info.raw) && (
+                  <>
+                    <a
+                      href={info.raw}
+                      className={`inline-flex items-center gap-2 rounded-full px-5 py-3 md:py-2 text-base md:text-sm font-semibold active:scale-95 transition ${
+                        result.level === 'danger' ? 'bg-card text-scam border border-scam/40' : 'bg-forest text-card hover:bg-forest-2'
+                      }`}
+                    >
+                      {L(lang, 'Continue to pay in UPI app →', 'UPI ऐप में भुगतान जारी रखें →', 'UPI ऐप म पेमेंट करव →')}
+                    </a>
+                    <p className="text-xs text-muted">
+                      {L(
+                        lang,
+                        `Your UPI app (GPay, PhonePe, Paytm…) will open with: pay ${info.amount ? '₹' + info.amount.toLocaleString('en-IN') + ' ' : ''}to ${info.payeeName || info.upiId}. Check the name again there before entering your PIN. (Works on a phone with a UPI app.)`,
+                        `आपका UPI ऐप (GPay, PhonePe, Paytm…) खुलेगा: ${info.payeeName || info.upiId} को ${info.amount ? '₹' + info.amount.toLocaleString('en-IN') + ' ' : ''}भुगतान। पिन डालने से पहले वहाँ नाम फिर से देखें। (UPI ऐप वाले फ़ोन पर काम करता है।)`,
+                        `तुंहर UPI ऐप (GPay, PhonePe, Paytm…) खुलही: ${info.payeeName || info.upiId} ल ${info.amount ? '₹' + info.amount.toLocaleString('en-IN') + ' ' : ''}पेमेंट। पिन डाले ले पहिली उहाँ नाव फेर देखव। (UPI ऐप वाला फ़ोन म चलथे।)`,
+                      )}
+                    </p>
+                  </>
+                )}
+              </div>
+            </>
+          )}
 
           {info.kind === 'url' && (
             <button
