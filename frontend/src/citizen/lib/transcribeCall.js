@@ -70,12 +70,26 @@ export function looksLikeLoop(raw, cleaned) {
   return rawWords >= 12 && cleanWords / rawWords < 0.35
 }
 
-function transcribePart(samples, language) {
+function transcribePart(samples, language, pack) {
   const id = ++nextId
   return new Promise((resolve, reject) => {
     pending.set(id, { resolve, reject })
-    getWorker().postMessage({ id, audio: samples, language }, [samples.buffer])
+    getWorker().postMessage({ id, audio: samples, language, pack }, [samples.buffer])
   })
+}
+
+// Which speech packs are already on this phone (Transformers.js keeps them in this browser cache)
+export async function downloadedPacks() {
+  try {
+    const keys = await (await caches.open('transformers-cache')).keys()
+    const urls = keys.map((k) => k.url)
+    return {
+      fast: urls.some((u) => u.includes('whisper-base') && u.includes('.onnx')),
+      accurate: urls.some((u) => u.includes('whisper-small') && u.includes('.onnx')),
+    }
+  } catch {
+    return { fast: false, accurate: false }
+  }
 }
 
 // Decode any audio file the browser can play (mp3, m4a, wav, ogg; amr where supported)
@@ -105,7 +119,7 @@ async function decodeTo16kMono(file) {
  *   shouldStop(textSoFar) -> boolean   return true to stop early (e.g. clearly a scam already)
  * @returns {Promise<{ text: string, stoppedEarly: boolean, secondsDone: number, secondsTotal: number }>}
  */
-export async function transcribeCall(file, language, { onStatus = () => {}, onPartial = () => {}, shouldStop = async () => false } = {}) {
+export async function transcribeCall(file, language, { pack = 'accurate', onStatus = () => {}, onPartial = () => {}, shouldStop = async () => false } = {}) {
   onStatus({ stage: 'reading' })
   const audio = await decodeTo16kMono(file)
   if (audio.length < SAMPLE_RATE) throw new Error('too_short') // under 1 second
@@ -120,7 +134,7 @@ export async function transcribeCall(file, language, { onStatus = () => {}, onPa
   for (let i = 0; i < parts; i++) {
     current = { part: i + 1, parts }
     const piece = audio.slice(i * partLen, Math.min((i + 1) * partLen, audio.length)) // own copy, safe to transfer
-    const raw = await transcribePart(piece, language)
+    const raw = await transcribePart(piece, language, pack)
     const partText = collapseRepeats(raw)
     if (looksLikeLoop(raw, partText)) loopedParts++
     done = i + 1

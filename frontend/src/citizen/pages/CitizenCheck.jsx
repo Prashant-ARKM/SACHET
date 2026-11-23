@@ -4,7 +4,7 @@ import { analyzeMessage, SAMPLE_MESSAGES } from '../lib/scamDetector.js'
 import { saveRecentCheck } from '../lib/citizenStorage.js'
 import { PhoneIcon, AlertIcon, BookIcon } from '../components/CitizenIcons.jsx'
 import QrCheck from '../components/QrCheck.jsx'
-import { transcribeCall } from '../lib/transcribeCall.js'
+import { transcribeCall, downloadedPacks } from '../lib/transcribeCall.js'
 
 // Browser speech-to-text (Chrome / Android). Undefined where not supported: the mic button then hides.
 const SpeechRecognitionApi =
@@ -37,6 +37,26 @@ export default function CitizenCheck() {
   const recognitionRef = useRef(null)
   // Uploaded call recording -> on-device Whisper transcript
   const [upload, setUpload] = useState({ stage: '', progress: 0, part: 0, parts: 0, error: '', note: '' })
+  // Optional speech pack for recordings: 'fast' (~80 MB) or 'accurate' (~250 MB, better Hindi). Remembered.
+  const [speechPack, setSpeechPack] = useState(() => {
+    try {
+      return localStorage.getItem('sachet_speech_pack') || 'accurate'
+    } catch {
+      return 'accurate'
+    }
+  })
+  const [packsOnPhone, setPacksOnPhone] = useState({ fast: false, accurate: false })
+  useEffect(() => {
+    downloadedPacks().then(setPacksOnPhone)
+  }, [upload.stage])
+  const choosePack = (pack) => {
+    setSpeechPack(pack)
+    try {
+      localStorage.setItem('sachet_speech_pack', pack)
+    } catch {
+      // private mode: just don't remember
+    }
+  }
   // Live warning while a call is being listened to
   const [liveAlert, setLiveAlert] = useState(null)
   const liveTimerRef = useRef(null)
@@ -226,6 +246,7 @@ export default function CitizenCheck() {
       const language = speechLang === 'en-IN' ? 'english' : 'hindi'
       let scamPartsInARow = 0
       const out = await transcribeCall(file, language, {
+        pack: speechPack,
         onStatus: (st) => setUpload((u) => ({ ...u, ...st, progress: st.progress ?? u.progress })),
         onPartial: (textSoFar) => setCallText(textSoFar),
         shouldStop: async (textSoFar) => {
@@ -283,9 +304,9 @@ export default function CitizenCheck() {
           : /decode|audio|EncodingError/i.test(msg)
           ? L3("Couldn't read this audio file. Try MP3, M4A or WAV.", 'यह ऑडियो फ़ाइल पढ़ी नहीं जा सकी। MP3, M4A या WAV आज़माएँ।', 'ए ऑडियो फ़ाइल पढ़े नइ जा सकिस। MP3, M4A या WAV चलावव।')
           : L3(
-              'The first time, the speech model (about 250 MB) needs internet to download. After that it works offline.',
-              'पहली बार आवाज़ पहचानने वाला मॉडल (लगभग 250 MB) डाउनलोड करने के लिए इंटरनेट चाहिए। उसके बाद यह बिना इंटरनेट चलेगा।',
-              'पहिली बार आवाज़ पहचाने वाला मॉडल (लगभग 250 MB) डाउनलोड करे बर इंटरनेट लागही। ओकर बाद बिना इंटरनेट चलही।',
+              'The first time, the speech pack needs internet to download. After that it works offline.',
+              'पहली बार स्पीच पैक डाउनलोड करने के लिए इंटरनेट चाहिए। उसके बाद यह बिना इंटरनेट चलेगा।',
+              'पहिली बार स्पीच पैक डाउनलोड करे बर इंटरनेट लागही। ओकर बाद बिना इंटरनेट चलही।',
             )
       console.error('Call transcription failed', err)
       setUpload({ stage: '', progress: 0, part: 0, parts: 0, error, note: '' })
@@ -477,13 +498,35 @@ export default function CitizenCheck() {
               {L3('Upload call recording', 'कॉल रिकॉर्डिंग अपलोड करें', 'कॉल रिकॉर्डिंग अपलोड करव')}
               <input type="file" accept="audio/*" onChange={handleRecording} disabled={Boolean(upload.stage)} className="sr-only" />
             </label>
-            <p className="text-sm md:text-xs text-muted">
-              {L3(
-                'Transcribed on your phone with Whisper AI. The first time it downloads about 250 MB; after that it works offline.',
-                'आपके फ़ोन पर ही Whisper AI से लिखा जाता है। पहली बार लगभग 250 MB डाउनलोड होता है, उसके बाद बिना इंटरनेट चलता है।',
-                'तुंहर फ़ोन म ही Whisper AI ले लिखे जाथे। पहिली बार लगभग 250 MB डाउनलोड होथे, ओकर बाद बिना इंटरनेट चलथे।',
-              )}
-            </p>
+            {/* Optional speech pack: the core app never needs it */}
+            <div className="space-y-1.5">
+              <p className="text-sm md:text-xs text-muted">
+                {L3(
+                  'Transcribed on your phone with Whisper AI. The speech pack downloads only when you upload a recording; the rest of SACHET does not need it.',
+                  'आपके फ़ोन पर ही Whisper AI से लिखा जाता है। स्पीच पैक सिर्फ़ रिकॉर्डिंग अपलोड करने पर डाउनलोड होता है; बाकी SACHET को इसकी ज़रूरत नहीं।',
+                  'तुंहर फ़ोन म ही Whisper AI ले लिखे जाथे। स्पीच पैक खाली रिकॉर्डिंग अपलोड करे म डाउनलोड होथे; बाकी SACHET ल एकर जरूरत नइ।',
+                )}
+              </p>
+              <div className="flex flex-wrap gap-1.5 text-sm md:text-xs">
+                {[
+                  ['fast', L3('⚡ Fast · ~80 MB', '⚡ तेज़ · ~80 MB', '⚡ तेज · ~80 MB')],
+                  ['accurate', L3('🎯 Accurate Hindi · ~250 MB', '🎯 सटीक हिंदी · ~250 MB', '🎯 सटीक हिंदी · ~250 MB')],
+                ].map(([id, label]) => (
+                  <button
+                    key={id}
+                    type="button"
+                    disabled={Boolean(upload.stage)}
+                    onClick={() => choosePack(id)}
+                    className={`px-3 py-2 md:py-1 rounded-full border font-medium transition disabled:opacity-50 ${
+                      speechPack === id ? 'bg-mint text-forest border-leaf/40' : 'bg-card text-ink border-line hover:bg-beige'
+                    }`}
+                  >
+                    {label}
+                    {packsOnPhone[id] ? L3(' · ✓ downloaded', ' · ✓ डाउनलोड हो चुका', ' · ✓ डाउनलोड हो गे') : ''}
+                  </button>
+                ))}
+              </div>
+            </div>
             {upload.stage === 'reading' && (
               <p className="text-sm md:text-xs font-medium text-forest">{L3('Reading the recording…', 'रिकॉर्डिंग पढ़ी जा रही है…', 'रिकॉर्डिंग पढ़त हन…')}</p>
             )}
@@ -616,6 +659,28 @@ export default function CitizenCheck() {
               )}
             </div>
           </div>
+
+          {/* Plain-language reasons from the risk layer (what the message asks you to do) */}
+          {result.riskSignals?.length > 0 && (
+            <div className="space-y-1.5">
+              <div className="text-sm md:text-[11px] font-semibold tracking-[0.18em] uppercase text-muted">
+                {L3('What we noticed', 'हमने क्या देखा', 'हमन का देखेन')}
+              </div>
+              <ul className="space-y-1.5">
+                {result.riskSignals.map((sig) => (
+                  <li
+                    key={sig.id}
+                    className={`flex items-start gap-2 p-2.5 rounded-xl border text-sm md:text-xs font-medium ${
+                      sig.direction === 'scam' ? 'bg-blush/60 border-scam/20 text-scam' : 'bg-mint/40 border-leaf/20 text-forest'
+                    }`}
+                  >
+                    <span aria-hidden="true">{sig.direction === 'scam' ? '🚩' : '✓'}</span>
+                    <span className="text-ink">{sig[lang] || sig.en}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* 3 Action Steps */}
           <div className="space-y-1.5">

@@ -1,6 +1,7 @@
 // SACHET scam detector: runs the real on-device model (public/model.json) via src/ml/score.js.
 // Output shape is unchanged from the old regex version so the UI needs no changes.
 import { score } from '../../ml/score.js'
+import { applyRiskSignals } from './riskSignals.js'
 
 export const SAMPLE_MESSAGES = [
   {
@@ -237,20 +238,36 @@ function annotate(text, words) {
 }
 
 // NOTE: now async (the model is fetched once from /model.json, then cached).
+// Scam type to show when the risk layer (not the model) found the scam
+const TYPE_FROM_SIGNAL = {
+  fake_authority: 'digital_arrest',
+  asks_secret: 'otp',
+  lookalike_link: 'kyc',
+  pin_to_receive: 'fake_scheme',
+  pay_to_claim: 'fake_scheme',
+  apk_link: 'loan_app',
+}
+
 export async function analyzeMessage(rawText) {
   if (!rawText || !rawText.trim()) return null
   const text = rawText.trim()
 
   const r = await score(text)
-  const isScam = r.label === 'scam'
-  const scamType = isScam ? r.scam_type || 'other' : 'other'
-  const confidence = Math.round((isScam ? r.score : 1 - r.score) * 100)
+  // Model probability, adjusted by explainable real-world risk signals (riskSignals.js)
+  const { probability, signals } = applyRiskSignals(text, r.score, r.threshold)
+  const isScam = probability >= 0.5
+  const scamType = isScam ? r.scam_type || TYPE_FROM_SIGNAL[signals.find((x) => x.weight > 0 && TYPE_FROM_SIGNAL[x.id])?.id] || 'other' : 'other'
+  const confidence = Math.round((isScam ? probability : 1 - probability) * 100)
   const tokens = annotate(text, isScam ? r.highlights : [])
 
   return {
-    verdict: r.label,
+    verdict: isScam ? 'scam' : 'genuine',
     confidence,
     modelScore: r.score,
+    modelVerdict: r.label, // the ML model alone, before the risk layer
+    finalScore: probability,
+    // Plain-language reasons from the risk layer, shown on the result card
+    riskSignals: signals.map((x) => ({ id: x.id, direction: x.weight > 0 ? 'scam' : 'genuine', ...x.reason })),
     scamType,
     typeName: TYPE_NAMES[scamType] || TYPE_NAMES.other,
     annotatedTokens: tokens,

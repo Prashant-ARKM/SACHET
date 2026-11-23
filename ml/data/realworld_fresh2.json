@@ -1,0 +1,22 @@
+[
+{"label":"genuine","text":"Dear Customer, Rs.1,850.00 has been debited from your A/c XX2290 for Bill Payment to CSPDCL on 23-11-26. -Union Bank of India"},
+{"label":"genuine","text":"Your OTP to verify mobile number on MyAadhaar is 438291. Do not share this OTP with anyone. -UIDAI"},
+{"label":"genuine","text":"Hi! Your Blinkit order is out for delivery. Our partner Suresh will reach you in 8 minutes."},
+{"label":"genuine","text":"Dear Customer, your Kotak credit card bill of Rs 6,742 is due on 02-Dec-26. Pay via Kotak app or netbanking. Ignore if paid."},
+{"label":"genuine","text":"Your train 12855 is running late by 45 minutes. Expected arrival at Raipur 18:40. -IRCTC"},
+{"label":"genuine","text":"आपका मोबाइल रिचार्ज ₹239 सफल रहा। प्लान 22 दिसंबर तक मान्य है। -जियो"},
+{"label":"genuine","text":"Dear Policyholder, your premium of Rs 3,500 is due on 30-Nov-26. Pay at licindia.in or nearest branch."},
+{"label":"genuine","text":"Kal subah 6 baje kheti ke liye tractor aayega, tum khet pe rehna."},
+{"label":"genuine","text":"Your UPI PIN was changed successfully. If you did not do this, call 1800 1234 immediately. -SBI"},
+{"label":"genuine","text":"Your complaint no 4512 regarding street light has been resolved. -Nagar Nigam Raipur"},
+{"label":"scam","text":"Your Bank of Baroda account has been suspended. Reactivate now at http://bob-reactivate.online or call 9871234560."},
+{"label":"scam","text":"आपका बैंक खाता बंद होने वाला है। तुरंत लिंक पर क्लिक करें और अपना पैन नंबर अपडेट करें: bit.ly/pan-upd"},
+{"label":"scam","text":"Congratulations! You won Rs 50,000 from Jio lucky draw. Send Rs 1,500 registration fee to claim the prize money."},
+{"label":"scam","text":"Mam I am calling from Bluedart, your parcel has drugs, Narcotics department will call you, stay on video call."},
+{"label":"scam","text":"Earn Rs 2,000 per task by rating hotels on Google. Join our WhatsApp group and start today. Limited slots."},
+{"label":"scam","text":"Dear user your electricity meter KYC is pending. Download the CSPDCL Update app from http://cspdcl-update.apk.live to avoid disconnection."},
+{"label":"scam","text":"Bank Officer: To stop the wrong debit of Rs 9,999, please tell me the OTP you just received."},
+{"label":"scam","text":"Your SBI credit card limit is increased to Rs 2 lakh. To activate, share card number, CVV and OTP with our executive."},
+{"label":"scam","text":"Papa mera phone kho gaya, ye dost ka number hai. Jaldi 8000 is UPI pe bhej do, exam fees deni hai."},
+{"label":"scam","text":"₹2,500 refund aapke khate mein aana hai. Refund paane ke liye QR scan karke UPI PIN daalein."}
+]

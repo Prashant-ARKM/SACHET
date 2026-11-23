@@ -3,9 +3,10 @@
 // (first use) and then kept in the browser cache, so later transcriptions work offline.
 import { pipeline, env } from '@huggingface/transformers'
 
-// Multilingual Whisper "small" (Hindi + English), about 250 MB with 8-bit weights.
-// ("base" is smaller and faster but too weak for Hindi phone calls: it falls into repetition loops.)
-const MODEL = 'Xenova/whisper-small'
+// Two optional speech packs (multilingual Whisper, Hindi + English), downloaded only when used:
+//  fast     = whisper-base,  about 80 MB: quicker, but weaker on Hindi phone calls
+//  accurate = whisper-small, about 250 MB: much better Hindi
+export const SPEECH_PACKS = { fast: 'Xenova/whisper-base', accurate: 'Xenova/whisper-small' }
 
 env.allowLocalModels = false // fetch from the model hub on first use, then use the browser cache
 env.useBrowserCache = true
@@ -29,10 +30,11 @@ async function hasWebGPU() {
   }
 }
 
-let transcriberPromise = null
-function getTranscriber() {
-  if (!transcriberPromise) {
-    transcriberPromise = (async () => {
+const transcribers = {} // one loaded model per speech pack
+function getTranscriber(pack) {
+  const MODEL = SPEECH_PACKS[pack] || SPEECH_PACKS.accurate
+  if (!transcribers[MODEL]) {
+    transcribers[MODEL] = (async () => {
       self.postMessage({ type: 'loading' })
       // Graphics chip (WebGPU) is much faster where available; otherwise the processor (WASM).
       if (await hasWebGPU()) {
@@ -52,18 +54,18 @@ function getTranscriber() {
         progress_callback: reportProgress,
       })
     })().catch((err) => {
-      transcriberPromise = null // allow a retry (e.g. after coming online)
+      delete transcribers[MODEL] // allow a retry (e.g. after coming online)
       throw err
     })
   }
-  return transcriberPromise
+  return transcribers[MODEL]
 }
 
 // One message = one piece of audio (up to 30 s, 16 kHz mono)
 self.onmessage = async ({ data }) => {
-  const { id, audio, language } = data
+  const { id, audio, language, pack } = data
   try {
-    const transcriber = await getTranscriber()
+    const transcriber = await getTranscriber(pack)
     self.postMessage({ type: 'ready', id })
     const output = await transcriber(audio, {
       language,

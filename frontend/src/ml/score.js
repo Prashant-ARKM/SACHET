@@ -137,6 +137,7 @@ export async function score(text) {
   return {
     label: isScam ? "scam" : "genuine",
     score: probability,
+    threshold: model.threshold ?? 0.5,
     scam_type: isScam ? classifyType(features, model.type) : null,
     highlights: highlights(message, features, model.scam.coef),
   };
