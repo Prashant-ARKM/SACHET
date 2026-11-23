@@ -3,6 +3,8 @@ import { useLocation, useNavigate, useOutletContext } from 'react-router-dom'
 import { analyzeMessage, SAMPLE_MESSAGES } from '../lib/scamDetector.js'
 import { saveRecentCheck } from '../lib/citizenStorage.js'
 import { PhoneIcon, AlertIcon, BookIcon } from '../components/CitizenIcons.jsx'
+import QrCheck from '../components/QrCheck.jsx'
+import { transcribeCall } from '../lib/transcribeCall.js'
 
 // Browser speech-to-text (Chrome / Android). Undefined where not supported: the mic button then hides.
 const SpeechRecognitionApi =
@@ -23,7 +25,7 @@ export default function CitizenCheck() {
   const location = useLocation()
   const navigate = useNavigate()
 
-  const [activeTab, setActiveTab] = useState('message') // 'message' | 'call'
+  const [activeTab, setActiveTab] = useState('message') // 'message' | 'call' | 'qr'
   const [inputText, setInputText] = useState('')
   const [result, setResult] = useState(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
@@ -31,8 +33,14 @@ export default function CitizenCheck() {
   const [callText, setCallText] = useState('')
   const [listening, setListening] = useState(false)
   const [listenError, setListenError] = useState('')
-  const [speechLang, setSpeechLang] = useState(lang === 'en' ? 'en-IN' : 'hi-IN')
+  const [speechLang, setSpeechLang] = useState('hi-IN') // most calls are in Hindi
   const recognitionRef = useRef(null)
+  // Uploaded call recording -> on-device Whisper transcript
+  const [upload, setUpload] = useState({ stage: '', progress: 0, part: 0, parts: 0, error: '', note: '' })
+  // Live warning while a call is being listened to
+  const [liveAlert, setLiveAlert] = useState(null)
+  const liveTimerRef = useRef(null)
+  const L3 = (en, hi, cg) => (lang === 'hi' ? hi : lang === 'cg' ? cg : en)
 
   // Stop the microphone if the user leaves this page while listening
   useEffect(() => () => recognitionRef.current?.abort(), [])
@@ -160,7 +168,9 @@ export default function CitizenCheck() {
         .map((r) => r[0].transcript)
         .join(' ')
         .trim()
-      setCallText([before, heard].filter(Boolean).join(' '))
+      const soFar = [before, heard].filter(Boolean).join(' ')
+      setCallText(soFar)
+      scheduleLiveCheck(soFar)
     }
     rec.onerror = (event) => {
       if (event.error === 'aborted') return
@@ -169,11 +179,14 @@ export default function CitizenCheck() {
       else setListenError(t.listenNeedsNet)
     }
     rec.onend = () => {
+      clearTimeout(liveTimerRef.current)
+      liveTimerRef.current = null
       setListening(false)
       recognitionRef.current = null
       if (heard) runCallCheck([before, heard].filter(Boolean).join(' '))
     }
 
+    setLiveAlert(null)
     recognitionRef.current = rec
     rec.start()
     setListening(true)
@@ -181,11 +194,109 @@ export default function CitizenCheck() {
 
   const stopListening = () => recognitionRef.current?.stop()
 
+  // While listening: every 1.5 s (even while the caller keeps talking), re-check everything heard
+  // so far with the offline model, and warn the user during the call if it already sounds like a scam.
+  const liveTextRef = useRef('')
+  const scheduleLiveCheck = (textSoFar) => {
+    liveTextRef.current = textSoFar
+    if (liveTimerRef.current) return // a check is already scheduled; it will use the latest text
+    liveTimerRef.current = setTimeout(async () => {
+      liveTimerRef.current = null
+      const heardSoFar = liveTextRef.current
+      if (heardSoFar.split(/\s+/).length < 6) return
+      try {
+        const r = await analyzeMessage(normalizeSpokenText(heardSoFar))
+        if (r?.verdict === 'scam' && r.confidence >= 70) setLiveAlert(r)
+      } catch {
+        // the full check still runs when listening stops
+      }
+    }, 1500)
+  }
+
+  // Upload a recorded call: transcribe on the phone with Whisper in 30-second parts,
+  // show the transcript as it grows, and stop early once it is clearly a scam.
+  const handleRecording = async (e) => {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    setResult(null)
+    setCallText('')
+    setUpload({ stage: 'reading', progress: 0, part: 0, parts: 0, error: '', note: '' })
+    try {
+      const language = speechLang === 'en-IN' ? 'english' : 'hindi'
+      let scamPartsInARow = 0
+      const out = await transcribeCall(file, language, {
+        onStatus: (st) => setUpload((u) => ({ ...u, ...st, progress: st.progress ?? u.progress })),
+        onPartial: (textSoFar) => setCallText(textSoFar),
+        shouldStop: async (textSoFar) => {
+          try {
+            const r = await analyzeMessage(normalizeSpokenText(textSoFar))
+            const isScam = r?.verdict === 'scam'
+            scamPartsInARow = isScam ? scamPartsInARow + 1 : 0
+            // Stop early on a strong signal, or when two parts in a row look like a scam
+            // (spoken Hindi transcripts often score only 55-70% even when they are scams)
+            return (isScam && r.confidence >= 75) || scamPartsInARow >= 2
+          } catch {
+            return false
+          }
+        },
+      })
+      if (!out.text) throw new Error('no_speech')
+      if (out.unclear) {
+        setCallText(out.text)
+        setUpload({
+          stage: '',
+          progress: 0,
+          part: 0,
+          parts: 0,
+          note: '',
+          error: L3(
+            "Couldn't transcribe this recording clearly, so we won't guess. Try a clearer recording (speaker close to the phone), check the call language above, or type what the caller said.",
+            'यह रिकॉर्डिंग साफ़ नहीं लिखी जा सकी, इसलिए हम अंदाज़ा नहीं लगाएंगे। साफ़ रिकॉर्डिंग आज़माएँ, ऊपर कॉल की भाषा देखें, या कॉल करने वाले की बात खुद लिखें।',
+            'ए रिकॉर्डिंग साफ नइ लिखे जा सकिस, एकर सेती हम अंदाज़ा नइ लगावन। साफ रिकॉर्डिंग चलावव, ऊपर कॉल के भाखा देखव, या फोन करइया के बात खुद लिखव।',
+          ),
+        })
+        return
+      }
+      const mins = (sec) => `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`
+      setUpload({
+        stage: '',
+        progress: 0,
+        part: 0,
+        parts: 0,
+        error: '',
+        note: out.stoppedEarly
+          ? L3(
+              `Scam found in the first ${mins(out.secondsDone)} of ${mins(out.secondsTotal)}, so we stopped early to warn you sooner.`,
+              `${mins(out.secondsTotal)} में से पहले ${mins(out.secondsDone)} में ही ठगी मिल गई, इसलिए जल्दी चेतावनी देने के लिए हम रुक गए।`,
+              `${mins(out.secondsTotal)} म ले पहिली ${mins(out.secondsDone)} म ही ठगी मिल गे, एकर सेती जल्दी चेताए बर हम रुक गेन।`,
+            )
+          : '',
+      })
+      setCallText(out.text)
+      runCallCheck(out.text)
+    } catch (err) {
+      const msg = String(err?.message || '')
+      const error =
+        msg === 'too_short' || msg === 'no_speech'
+          ? L3('No clear speech found in this recording.', 'रिकॉर्डिंग में साफ़ आवाज़ नहीं मिली।', 'रिकॉर्डिंग म साफ आवाज़ नइ मिलिस।')
+          : /decode|audio|EncodingError/i.test(msg)
+          ? L3("Couldn't read this audio file. Try MP3, M4A or WAV.", 'यह ऑडियो फ़ाइल पढ़ी नहीं जा सकी। MP3, M4A या WAV आज़माएँ।', 'ए ऑडियो फ़ाइल पढ़े नइ जा सकिस। MP3, M4A या WAV चलावव।')
+          : L3(
+              'The first time, the speech model (about 250 MB) needs internet to download. After that it works offline.',
+              'पहली बार आवाज़ पहचानने वाला मॉडल (लगभग 250 MB) डाउनलोड करने के लिए इंटरनेट चाहिए। उसके बाद यह बिना इंटरनेट चलेगा।',
+              'पहिली बार आवाज़ पहचाने वाला मॉडल (लगभग 250 MB) डाउनलोड करे बर इंटरनेट लागही। ओकर बाद बिना इंटरनेट चलही।',
+            )
+      console.error('Call transcription failed', err)
+      setUpload({ stage: '', progress: 0, part: 0, parts: 0, error, note: '' })
+    }
+  }
+
   return (
     <div className="max-w-3xl mx-auto space-y-4">
       {/* Tab Switcher */}
-      <div className="flex items-center justify-between">
-        <div className="flex border border-line rounded-full overflow-hidden text-base md:text-sm bg-card p-0.5">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex min-w-0 overflow-x-auto whitespace-nowrap border border-line rounded-full text-base md:text-sm bg-card p-0.5">
           <button
             type="button"
             onClick={() => {
@@ -206,6 +317,18 @@ export default function CitizenCheck() {
             }`}
           >
             {t.tabCall}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              recognitionRef.current?.stop()
+              setActiveTab('qr')
+            }}
+            className={`px-4 py-3 md:py-1.5 rounded-full font-medium transition ${
+              activeTab === 'qr' ? 'bg-forest text-card' : 'text-ink hover:bg-beige'
+            }`}
+          >
+            {lang === 'hi' ? 'QR कोड' : lang === 'cg' ? 'QR कोड' : 'QR Code'}
           </button>
         </div>
 
@@ -322,6 +445,74 @@ export default function CitizenCheck() {
 
           {listenError && <p className="text-sm md:text-xs font-medium text-scam">{listenError}</p>}
 
+          {/* Live warning: shown during the call, as soon as it sounds like a scam */}
+          {listening && liveAlert && (
+            <div role="alert" className="p-3.5 rounded-2xl border border-scam/30 bg-blush space-y-1 animate-fadeIn">
+              <p className="text-base md:text-sm font-bold text-scam">
+                ⚠️ {L3('This sounds like a scam call', 'यह ठगी वाली कॉल लगती है', 'ए ठगी वाला कॉल लगथे')}:{' '}
+                {liveAlert.typeName?.[lang] || liveAlert.typeName?.en}
+              </p>
+              <p className="text-sm md:text-xs text-ink font-medium">
+                {L3(
+                  "Don't share OTP, PIN or money. Cut the call.",
+                  'OTP, पिन या पैसे न दें। फोन काट दें।',
+                  'ओटीपी, पिन या पैसा झन देवव। फोन काट देवव।',
+                )}
+              </p>
+              <p className="text-xs text-scam/80">
+                {L3('Heard', 'सुने गए शब्द', 'सुने गे शब्द')}:{' '}
+                {liveAlert.annotatedTokens.filter((tk) => tk.isFlagged).slice(0, 6).map((tk) => tk.text).join(', ')}
+              </p>
+            </div>
+          )}
+
+          {/* Upload a recorded call: transcribed on the phone (Whisper), then checked by the same model */}
+          <div className="border border-dashed border-line rounded-2xl p-4 bg-beige/30 space-y-2">
+            <label
+              className={`inline-flex items-center gap-2 rounded-full px-4 py-3 md:py-2 text-base md:text-sm font-semibold transition cursor-pointer ${
+                upload.stage ? 'bg-line text-muted pointer-events-none' : 'bg-forest text-card hover:bg-forest-2 active:scale-95'
+              }`}
+            >
+              <span aria-hidden="true">📁</span>
+              {L3('Upload call recording', 'कॉल रिकॉर्डिंग अपलोड करें', 'कॉल रिकॉर्डिंग अपलोड करव')}
+              <input type="file" accept="audio/*" onChange={handleRecording} disabled={Boolean(upload.stage)} className="sr-only" />
+            </label>
+            <p className="text-sm md:text-xs text-muted">
+              {L3(
+                'Transcribed on your phone with Whisper AI. The first time it downloads about 250 MB; after that it works offline.',
+                'आपके फ़ोन पर ही Whisper AI से लिखा जाता है। पहली बार लगभग 250 MB डाउनलोड होता है, उसके बाद बिना इंटरनेट चलता है।',
+                'तुंहर फ़ोन म ही Whisper AI ले लिखे जाथे। पहिली बार लगभग 250 MB डाउनलोड होथे, ओकर बाद बिना इंटरनेट चलथे।',
+              )}
+            </p>
+            {upload.stage === 'reading' && (
+              <p className="text-sm md:text-xs font-medium text-forest">{L3('Reading the recording…', 'रिकॉर्डिंग पढ़ी जा रही है…', 'रिकॉर्डिंग पढ़त हन…')}</p>
+            )}
+            {upload.stage === 'loading' && (
+              <p className="text-sm md:text-xs font-medium text-forest animate-pulse">
+                {L3('Starting the speech engine (first time: downloading, please wait)…', 'आवाज़ पहचानने वाला इंजन शुरू हो रहा है (पहली बार डाउनलोड, कृपया रुकें)…', 'आवाज़ पहचाने वाला इंजन चालू होवत हे (पहिली बार डाउनलोड, थोरकुन रुकव)…')}
+              </p>
+            )}
+            {upload.stage === 'download' && (
+              <div className="space-y-1">
+                <p className="text-sm md:text-xs font-medium text-forest">
+                  {L3('Downloading the speech model (first time only)…', 'आवाज़ का मॉडल डाउनलोड हो रहा है (सिर्फ़ पहली बार)…', 'आवाज़ के मॉडल डाउनलोड होवत हे (खाली पहिली बार)…')}{' '}
+                  {Math.round(upload.progress)}%
+                </p>
+                <div className="h-1.5 rounded-full bg-line overflow-hidden">
+                  <div className="h-full bg-forest transition-all" style={{ width: `${Math.round(upload.progress)}%` }} />
+                </div>
+              </div>
+            )}
+            {upload.stage === 'transcribing' && (
+              <p className="text-sm md:text-xs font-medium text-forest animate-pulse">
+                {L3('Transcribing on your phone', 'आपके फ़ोन पर लिखा जा रहा है', 'तुंहर फ़ोन म लिखे जावत हे')}
+                {upload.parts > 1 ? ` · ${L3('part', 'भाग', 'भाग')} ${upload.part}/${upload.parts}` : ''}…
+              </p>
+            )}
+            {upload.note && <p className="text-sm md:text-xs font-semibold text-scam">⚠️ {upload.note}</p>}
+            {upload.error && <p className="text-sm md:text-xs font-medium text-scam">{upload.error}</p>}
+          </div>
+
           <textarea
             rows="3"
             value={callText}
@@ -360,8 +551,20 @@ export default function CitizenCheck() {
         </section>
       )}
 
+      {/* TAB 3: QR CODE (fake-QR checker) */}
+      {activeTab === 'qr' && (
+        <QrCheck
+          lang={lang}
+          onCheckLink={(url) => {
+            setActiveTab('message')
+            setInputText(url)
+            runCheck(url)
+          }}
+        />
+      )}
+
       {/* RESULT CARD */}
-      {result && (
+      {result && activeTab !== 'qr' && (
         <section className="bg-card border border-line rounded-3xl p-5 sm:p-6 shadow-[0_1px_0_rgba(30,42,34,0.04)] space-y-4 animate-fadeIn">
           {/* Verdict Banner */}
           <div
