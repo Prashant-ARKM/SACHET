@@ -14,6 +14,7 @@ export default function CitizenCheck() {
   const [result, setResult] = useState(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [callAnalyzing, setCallAnalyzing] = useState(false)
+  const [callText, setCallText] = useState('')
   const [shared, setShared] = useState(false)
 
   const SAMPLES = [
@@ -68,20 +69,35 @@ export default function CitizenCheck() {
     setTimeout(() => setShared(false), 2500)
   }
 
-  const handleSampleCall = () => {
+  // Sample call transcripts (scam scripts named in the problem statement)
+  const CALL_SAMPLES = [
+    {
+      label: { en: 'Fake bank KYC call', hi: 'फर्जी बैंक KYC कॉल', cg: 'फर्जी बैंक KYC कॉल' },
+      text: 'नमस्ते, मैं SBI बैंक के KYC विभाग से बोल रहा हूँ। आपका खाता आज बंद हो जाएगा। अभी आपके मोबाइल पर एक OTP आया होगा, वो बता दीजिए ताकि KYC अपडेट हो सके।',
+    },
+    {
+      label: { en: '"Digital arrest" call', hi: 'डिजिटल अरेस्ट कॉल', cg: 'डिजिटल अरेस्ट कॉल' },
+      text: 'Hello sir, main Mumbai police se bol raha hoon. Aapke naam pe ek parcel pakda gaya hai jisme drugs hai. Aap digital arrest mein ho, video call cut mat karna, warna arrest warrant nikal jayega.',
+    },
+    {
+      label: { en: 'Fake courier / customs call', hi: 'फर्जी कूरियर कॉल', cg: 'फर्जी कूरियर कॉल' },
+      text: 'Hello madam, FedEx courier se bol rahe hain. Aapka parcel customs mein ruka hai, 2500 rupaye customs fee UPI karna padega nahi to parcel return ho jayega.',
+    },
+  ]
+
+  const runCallCheck = async (textToEvaluate) => {
+    const text = textToEvaluate ?? callText
+    if (!text.trim()) return
     setCallAnalyzing(true)
-    setTimeout(async () => {
-      const fakeCall =
-        'Call recording: Hello, I am calling from Cyber Crime Branch Delhi. A customs parcel under your Aadhaar contains illegal drugs. You must remain on video call under digital arrest.'
-      try {
-        const res = await analyzeMessage(fakeCall)
-        setResult(res)
-        setActiveTab('message')
-      } catch (err) {
-        console.error('SACHET model failed', err)
-      }
-      setCallAnalyzing(false)
-    }, 1200)
+    try {
+      const res = await analyzeMessage(text)
+      setResult(res)
+      if (res) saveRecentCheck(res)
+    } catch (err) {
+      console.error('SACHET model failed', err)
+      alert('Could not load the detection model. Please check your connection once and retry.')
+    }
+    setCallAnalyzing(false)
   }
 
   return (
@@ -109,10 +125,11 @@ export default function CitizenCheck() {
           </button>
         </div>
 
-        {inputText && (
+        {(inputText || callText) && (
           <button
             onClick={() => {
               setInputText('')
+              setCallText('')
               setResult(null)
             }}
             className="text-sm md:text-xs text-muted hover:text-scam font-medium"
@@ -169,33 +186,51 @@ export default function CitizenCheck() {
       {/* TAB 2: CALL RECORDING */}
       {activeTab === 'call' && (
         <section className="bg-card border border-line rounded-3xl p-5 shadow-[0_1px_0_rgba(30,42,34,0.04)] space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-sm md:text-xs font-semibold text-warn bg-sun-tint px-3 py-1 rounded-full">
-              ⏰ {t.callTabNoticeSub}
-            </span>
-            <button
-              onClick={handleSampleCall}
-              disabled={callAnalyzing}
-              className="text-sm md:text-xs font-semibold text-forest underline"
-            >
-              {callAnalyzing
-                ? (lang === 'hi' ? 'विश्लेषण...' : lang === 'cg' ? 'विश्लेषण...' : 'Analyzing…')
-                : `${t.callSampleBtn} →`}
-            </button>
-          </div>
+          <span className="inline-block text-sm md:text-xs font-semibold text-warn bg-sun-tint px-3 py-1 rounded-full">
+            {t.callTabNoticeSub}
+          </span>
 
-          <div className="border border-dashed border-line rounded-2xl p-6 text-center bg-beige/30 space-y-2">
-            <div className="grid place-items-center w-10 h-10 rounded-full bg-mint text-forest mx-auto">
-              <PhoneIcon size={18} />
+          <div className="flex items-center gap-2">
+            <div className="grid place-items-center w-8 h-8 rounded-full bg-mint text-forest shrink-0">
+              <PhoneIcon size={16} />
             </div>
             <p className="text-base md:text-xs font-semibold text-ink">{t.callUploadLabel}</p>
-            <p className="text-base md:text-[11px] text-muted">
-              {lang === 'hi'
-                ? 'हमारा वॉइस AI कॉल में धोखाधड़ी के शब्द व पैटर्न पहचानता है'
-                : lang === 'cg'
-                ? 'हमार वॉइस AI कॉल म ठगी के बात ल पहचानथे'
-                : 'Our voice AI model analyzes phone calls for extortion keywords and coercion'}
-            </p>
+          </div>
+
+          <textarea
+            rows="3"
+            value={callText}
+            onChange={(e) => setCallText(e.target.value)}
+            className="w-full p-3.5 rounded-2xl border border-line bg-beige/40 text-ink text-lg md:text-sm outline-none focus:border-forest resize-none min-h-[120px] md:min-h-0"
+          />
+
+          <div className="flex flex-col-reverse md:flex-row md:flex-wrap md:items-center md:justify-between gap-3 md:gap-2">
+            <div className="flex flex-wrap gap-1.5">
+              {CALL_SAMPLES.map((s, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => {
+                    setCallText(s.text)
+                    runCallCheck(s.text)
+                  }}
+                  className="text-sm md:text-xs bg-beige hover:bg-mint text-ink font-medium px-3 py-2.5 md:py-1 rounded-full border border-line transition"
+                >
+                  {s.label[lang] || s.label.en}
+                </button>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => runCallCheck()}
+              disabled={!callText.trim() || callAnalyzing}
+              className="w-full md:w-auto h-14 md:h-auto rounded-full bg-forest text-card text-lg md:text-sm font-semibold px-5 md:py-2 hover:bg-forest-2 active:scale-95 transition disabled:opacity-40"
+            >
+              {callAnalyzing
+                ? (lang === 'hi' ? 'जाँच हो रही है…' : lang === 'cg' ? 'जाँच चलत हे…' : 'Analyzing…')
+                : `${t.btnCheckNow} →`}
+            </button>
           </div>
         </section>
       )}

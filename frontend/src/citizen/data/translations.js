@@ -40,8 +40,8 @@ export const T = {
     btnPaste: 'पेस्ट करें',
     btnClear: 'साफ़ करें',
     callTabNoticeTitle: 'कॉल रिकॉर्डिंग जाँच केंद्र',
-    callTabNoticeSub: 'स्क्रीन अब तैयार है, सुबह 10:00 बजे के बाद पूर्ण रूप से सक्रिय होगी',
-    callUploadLabel: 'कॉल रिकॉर्डिंग फ़ाइल चुनें (MP3, WAV, M4A)',
+    callTabNoticeSub: 'प्रोटोटाइप: कॉल की बातचीत लिखकर जाँचें। ऑडियो से अपने-आप लिखना अगला चरण है',
+    callUploadLabel: 'कॉल करने वाले ने जो कहा, वह यहाँ लिखें या चिपकाएँ',
     callSampleBtn: 'नमूना फर्जी कॉल चलाकर देखें',
     callAnalyzing: 'आवाज़ और शब्दों का विश्लेषण हो रहा है...',
     
@@ -143,8 +143,8 @@ export const T = {
     btnPaste: 'पेस्ट करव',
     btnClear: 'साफ़ करव',
     callTabNoticeTitle: 'कॉल रिकॉर्डिंग जाँच केंद्र',
-    callTabNoticeSub: 'स्क्रीन अब तैयार हे, बिहनिया 10:00 बजे के बाद चालू होही',
-    callUploadLabel: 'कॉल रिकॉर्डिंग फ़ाइल चुनव (MP3, WAV, M4A)',
+    callTabNoticeSub: 'प्रोटोटाइप: कॉल के बात ल लिख के जाँचव। ऑडियो ले अपने-आप लिखे के काम आगू होही',
+    callUploadLabel: 'फोन करइया जउन कहिस, ओला इहाँ लिखव या चिपकावव',
     callSampleBtn: 'नमूना फर्जी कॉल चला के देखव',
     callAnalyzing: 'आवाज़ अउ बात के जाँच चलत हे...',
 
@@ -246,8 +246,8 @@ export const T = {
     btnPaste: 'Paste',
     btnClear: 'Clear',
     callTabNoticeTitle: 'Call Recording Analysis',
-    callTabNoticeSub: 'Screen built now, switched on after 10:00 AM',
-    callUploadLabel: 'Select call recording audio (MP3, WAV, M4A)',
+    callTabNoticeSub: 'Prototype: check a call from its transcript. Audio transcription is the next step',
+    callUploadLabel: 'Type or paste what the caller said',
     callSampleBtn: 'Play & test sample scam call',
     callAnalyzing: 'Analyzing audio waveform and voice tokens...',
 

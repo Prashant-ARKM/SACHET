@@ -148,14 +148,27 @@ Reference ID: ${refId || 'SACHET-CG'}`
             </div>
 
             {lostMoney === true && (
-              <div className="bg-blush/60 border border-scam/15 p-3 rounded-2xl flex items-center justify-between gap-3 text-sm md:text-xs">
-                <span className="text-scam font-medium">{t.lostStep1}</span>
-                <a
-                  href="tel:1930"
-                  className="rounded-full bg-scam text-card px-3 py-2.5 md:py-1 font-semibold hover:brightness-110 shrink-0"
-                >
-                  {t.callNow}
-                </a>
+              <div className="bg-blush/60 border border-scam/15 p-3 rounded-2xl space-y-2 text-sm md:text-xs">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-scam font-medium">{t.lostStep1}</span>
+                  <a
+                    href="tel:1930"
+                    className="rounded-full bg-scam text-card px-3 py-2.5 md:py-1 font-semibold hover:brightness-110 shrink-0"
+                  >
+                    {t.callNow}
+                  </a>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-scam font-medium">{t.lostStep2}</span>
+                  <a
+                    href="https://cybercrime.gov.in"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-full bg-card text-scam border border-scam/30 px-3 py-2.5 md:py-1 font-semibold hover:bg-blush shrink-0"
+                  >
+                    {t.btnGovPortal} →
+                  </a>
+                </div>
               </div>
             )}
 
