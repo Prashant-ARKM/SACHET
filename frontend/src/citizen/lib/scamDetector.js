@@ -39,41 +39,173 @@ const TYPE_NAMES = {
 // Which lesson to suggest (lesson ids used by the Learn page: otp, upi_pin, qr)
 const LESSON_FOR_TYPE = { fake_scheme: 'qr', kyc: 'otp', otp: 'otp', digital_arrest: 'otp', loan_app: 'otp', mule_recruitment: 'otp' }
 
-const SCAM_STEPS = [
+// ---- "What to do right now": built from the scam type and from what is in the message ----
+
+// Advice for each scam type the model can detect
+const TYPE_STEPS = {
+  fake_scheme: [
+    {
+      en: 'No real lottery, prize or government scheme asks you to pay a fee first.',
+      hi: 'कोई असली लॉटरी, इनाम या सरकारी योजना पहले पैसे नहीं मांगती।',
+      cg: 'कोनो सच के लॉटरी, इनाम या सरकारी योजना पहिली पैसा नइ मांगय।',
+    },
+    {
+      en: 'Check bills and schemes only on the official website, app or office, never through a link in a message.',
+      hi: 'बिल या योजना की जानकारी केवल आधिकारिक वेबसाइट, ऐप या दफ़्तर से जाँचें, मैसेज के लिंक से नहीं।',
+      cg: 'बिल या योजना ल खाली सरकारी वेबसाइट, ऐप या दफ़्तर ले जाँचव, मैसेज के लिंक ले नहीं।',
+    },
+  ],
+  kyc: [
+    {
+      en: "Banks never block your account by SMS or ask for KYC through a link. Visit your branch or use the bank's official app.",
+      hi: 'बैंक SMS से खाता ब्लॉक नहीं करता और न लिंक से KYC मांगता है। अपनी शाखा जाएँ या बैंक का आधिकारिक ऐप इस्तेमाल करें।',
+      cg: 'बैंक SMS ले खाता बंद नइ करय अउ लिंक ले KYC नइ मांगय। अपन शाखा जावव या बैंक के सरकारी ऐप चलावव।',
+    },
+  ],
+  otp: [
+    {
+      en: 'Never share an OTP with anyone, not even someone who says they are from the bank.',
+      hi: 'OTP किसी को न बताएं, बैंक का नाम लेने वाले को भी नहीं।',
+      cg: 'ओटीपी कोनो ल झन बतावव, बैंक के नाव लेवइया ल घलो नहीं।',
+    },
+  ],
+  digital_arrest: [
+    {
+      en: 'Police never arrest anyone over a video call or ask for money. Cut the call: you are not in trouble.',
+      hi: 'पुलिस कभी वीडियो कॉल पर गिरफ़्तार नहीं करती और पैसे नहीं मांगती। फोन काटें, आप किसी मुसीबत में नहीं हैं।',
+      cg: 'पुलिस कभू वीडियो कॉल म गिरफ़्तार नइ करय अउ पैसा नइ मांगय। फोन काट देवव, तुमन कोनो मुसीबत म नइ हव।',
+    },
+    {
+      en: "Tell a family member right away. Scammers keep you on the call so you can't ask anyone.",
+      hi: 'तुरंत परिवार के किसी सदस्य को बताएं। ठग आपको कॉल पर इसलिए रोकते हैं ताकि आप किसी से पूछ न सकें।',
+      cg: 'तुरते घर के कोनो ल बतावव। ठग कॉल म एकरे सेती रोकथें कि तुमन कोनो ले झन पूछ सकव।',
+    },
+  ],
+  loan_app: [
+    {
+      en: 'Do not install loan apps from links. Borrow only from an RBI-registered bank or company.',
+      hi: 'लिंक से लोन ऐप इंस्टॉल न करें। केवल RBI-पंजीकृत बैंक या कंपनी से ही लोन लें।',
+      cg: 'लिंक ले लोन ऐप झन डालव। खाली RBI म दर्ज बैंक या कंपनी ले लोन लेवव।',
+    },
+    {
+      en: 'If an app threatens you or your contacts, do not pay. Report it on cybercrime.gov.in.',
+      hi: 'अगर कोई ऐप आपको या आपके संपर्कों को धमकाए, तो पैसे न दें। cybercrime.gov.in पर शिकायत करें।',
+      cg: 'अगर कोनो ऐप तुमन ल या तुंहर चिन्हार मन ल धमकाय, त पैसा झन देवव। cybercrime.gov.in म सिकायत करव।',
+    },
+  ],
+  mule_recruitment: [
+    {
+      en: "Never lend or rent out your bank account, UPI or SIM. You can be arrested for the scammer's crime.",
+      hi: 'अपना बैंक खाता, UPI या सिम किसी को किराए पर न दें। ठग के अपराध में आप फँस सकते हैं।',
+      cg: 'अपन बैंक खाता, UPI या सिम कोनो ल किराया म झन देवव। ठग के अपराध म तुमन फँस सकथव।',
+    },
+    {
+      en: "An 'easy money' job that only needs your bank account is always a trap.",
+      hi: "जिस 'आसान कमाई' वाली नौकरी में सिर्फ़ आपका खाता चाहिए, वह हमेशा जाल होती है।",
+      cg: "जउन 'आसान कमाई' वाला काम म खाली तुंहर खाता लगथे, वो हमेशा जाल आय।",
+    },
+  ],
+  other: [
+    {
+      en: 'Do not reply, and do not share any personal or bank details.',
+      hi: 'जवाब न दें और कोई निजी या बैंक जानकारी साझा न करें।',
+      cg: 'जवाब झन देवव अउ कोनो निजी या बैंक जानकारी झन बतावव।',
+    },
+  ],
+}
+
+// Advice for things actually present in the message (checked in this order)
+const FEATURE_STEPS = [
   {
-    num: 1,
-    hi: 'इस संदेश में दिए गए किसी भी लिंक पर भूलकर भी क्लिक न करें।',
-    cg: 'ए मैसेज म देहे कोनो लिंक म भूल के घलो क्लिक झन करव।',
-    en: 'Do not click any link provided in this message.',
+    id: 'apk',
+    test: /\.apk\b|\bapk\b|एपीके/i,
+    en: 'Do not install any app (.apk) sent to you.',
+    hi: 'भेजा गया कोई ऐप (.apk) इंस्टॉल न करें।',
+    cg: 'भेजे गे कोनो ऐप (.apk) ल झन डालव।',
   },
   {
-    num: 2,
-    hi: 'संदेश में दिए गए मोबाइल नंबर पर कभी कॉल न करें और न ही कोई ऐप डाउनलोड करें।',
-    cg: 'ए नंबर म कभू फोन मत लगावा अउ कोनो ऐप डाउनलोड झन करव।',
-    en: 'Never call back on the phone number provided and do not install any APK.',
+    id: 'pin_qr',
+    test: /\bQR\b|क्यूआर|\bscan\b|स्कैन|\bPIN\b|पिन/i,
+    en: 'Never scan a QR code or enter your UPI PIN to receive money. The PIN is only for paying.',
+    hi: 'पैसे पाने के लिए कभी QR स्कैन न करें और UPI पिन न डालें। पिन केवल पैसे भेजने के लिए है।',
+    cg: 'पैसा पाए बर कभू QR स्कैन झन करव अउ UPI पिन झन डालव। पिन खाली पैसा भेजे बर होथे।',
   },
   {
-    num: 3,
-    hi: 'यदि किसी ने आपसे संपर्क किया है, तो उसे तुरंत ब्लॉक करें और नीचे "शिकायत दर्ज करें" बटन दबाएं।',
-    cg: 'अगर कोनो फोन करे हे त नंबर ल ब्लॉक करव अउ नीचे "रपट दर्ज करव" बटन दबावा।',
-    en: 'Block the sender immediately and tap "Report this Scam" below.',
+    id: 'bill',
+    test: /बिजली|electricity|power bill|bijli|बिल\b|\bbill\b|connection/i,
+    en: 'For electricity or other bills, check only on the official app, website or office. No one cuts power over SMS.',
+    hi: 'बिजली या दूसरे बिल केवल आधिकारिक ऐप, वेबसाइट या दफ़्तर से ही जाँचें। SMS पर कोई बिजली नहीं काटता।',
+    cg: 'बिजली या दूसर बिल ल खाली सरकारी ऐप, वेबसाइट या दफ़्तर ले जाँचव। SMS म कोनो बिजली नइ काटय।',
+  },
+  {
+    id: 'job',
+    test: /part[\s-]?time|\bjob\b|commission|earn\b|daily income|कमाई|नौकरी|किराए|rent your|account on rent/i,
+    en: "An 'easy money' job that only needs your bank account is always a trap.",
+    hi: "जिस 'आसान कमाई' वाली नौकरी में सिर्फ़ आपका खाता चाहिए, वह हमेशा जाल होती है।",
+    cg: "जउन 'आसान कमाई' वाला काम म खाली तुंहर खाता लगथे, वो हमेशा जाल आय।",
+  },
+  {
+    id: 'link',
+    test: /https?:\/\/|www\.|\b[a-z0-9-]+\.(com|in|online|xyz|top|site|link|pw|info|net|co|ly|me|app|live|click)\b/i,
+    en: 'Do not open the link in this message.',
+    hi: 'इस मैसेज का लिंक न खोलें।',
+    cg: 'ए मैसेज के लिंक ल झन खोलव।',
+  },
+  {
+    id: 'phone',
+    test: /(?:\+?91[\s-]?)?\b[6-9]\d{9}\b/,
+    en: 'Do not call or WhatsApp the number in this message.',
+    hi: 'इस मैसेज में दिए नंबर पर कॉल या WhatsApp न करें।',
+    cg: 'ए मैसेज के नंबर म फोन या WhatsApp झन करव।',
+  },
+  {
+    id: 'otp',
+    test: /\bOTP\b|ओटीपी/i,
+    en: 'Never share an OTP with anyone, not even someone who says they are from the bank.',
+    hi: 'OTP किसी को न बताएं, बैंक का नाम लेने वाले को भी नहीं।',
+    cg: 'ओटीपी कोनो ल झन बतावव, बैंक के नाव लेवइया ल घलो नहीं।',
   },
 ]
 
+// Always the last step for a scam: the official handoff
+const FINAL_SCAM_STEP = {
+  en: 'Already paid or shared an OTP? Call 1930 now. If not, tap "Report this Scam" below.',
+  hi: 'पैसे भेज दिए या OTP बता दिया? अभी 1930 पर कॉल करें। नहीं तो नीचे "इसकी शिकायत करें" दबाएं।',
+  cg: 'पैसा भेज दे हव या ओटीपी बता दे हव? अभी 1930 म फोन करव। नइ त नीचे "एकर रपट लिखावव" दबावव।',
+}
+
 const GENUINE_STEPS = [
   {
-    num: 1,
-    hi: 'यह एक सामान्य बैंक या सेवा का लेन-देन संदेश प्रतीत होता है।',
-    cg: 'ए सामान्य बैंक या सेवा के मैसेज लगथय।',
-    en: 'This appears to be a standard bank transaction or service update.',
+    en: 'This looks like a normal bank or service message.',
+    hi: 'यह एक सामान्य बैंक या सेवा का संदेश लगता है।',
+    cg: 'ए सामान्य बैंक या सेवा के मैसेज लगथे।',
   },
   {
-    num: 2,
-    hi: 'फिर भी याद रखें: कोई भी आधिकारिक संस्था आपसे फोन पर गुप्त पासवर्ड या OTP नहीं मांगती।',
-    cg: 'तभो ले सुरता रखव: कोनो बैंक फोन म पासवर्ड या ओटीपी नइ मांगे।',
-    en: 'Always remember: Never share one-time passwords with anyone.',
+    en: 'Still, never share an OTP, PIN or password with anyone.',
+    hi: 'फिर भी, OTP, पिन या पासवर्ड किसी को न बताएं।',
+    cg: 'तभो ले, ओटीपी, पिन या पासवर्ड कोनो ल झन बतावव।',
   },
 ]
+
+const GENUINE_LINK_STEP = {
+  en: "If you weren't expecting this message, open the official app instead of the link.",
+  hi: 'अगर आपको इस मैसेज की उम्मीद नहीं थी, तो लिंक के बजाय आधिकारिक ऐप खोलें।',
+  cg: 'अगर ए मैसेज के आस नइ रिहिस, त लिंक के जगह सरकारी ऐप खोलव।',
+}
+
+function buildActionSteps(isScam, scamType, text) {
+  const numbered = (steps) => steps.map((s, i) => ({ num: i + 1, en: s.en, hi: s.hi, cg: s.cg }))
+  const hasLink = FEATURE_STEPS.find((f) => f.id === 'link').test.test(text)
+
+  if (!isScam) return numbered(hasLink ? [...GENUINE_STEPS, GENUINE_LINK_STEP] : GENUINE_STEPS)
+
+  const core = TYPE_STEPS[scamType] || TYPE_STEPS.other
+  const features = FEATURE_STEPS.filter((f) => f.test.test(text))
+    // don't repeat what the type advice already says
+    .filter((f) => !core.some((c) => c.en === f.en))
+  // At most 3 specific steps, then the official handoff
+  return numbered([...core, ...features].slice(0, 3).concat(FINAL_SCAM_STEP))
+}
 
 const REASON = 'मॉडल ने इस शब्द को संदेह का मुख्य कारण पाया (Model flagged)'
 
@@ -126,7 +258,7 @@ export async function analyzeMessage(rawText) {
     explanation: isScam
       ? 'हमारे ऑन-डिवाइस मॉडल ने इस संदेश में ठगी वाले शब्दों और पैटर्न की पहचान की है। हाइलाइट किए गए शब्द सबसे बड़े संकेत हैं।'
       : 'इस संदेश में ठगी के मज़बूत संकेत नहीं मिले, फिर भी किसी लिंक या नंबर पर भरोसा करने से पहले सावधानी रखें।',
-    actionSteps: isScam ? SCAM_STEPS : GENUINE_STEPS,
+    actionSteps: buildActionSteps(isScam, scamType, text),
     relatedLessonId: LESSON_FOR_TYPE[scamType] || 'otp',
     originalText: text,
   }
