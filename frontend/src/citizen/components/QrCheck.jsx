@@ -46,15 +46,12 @@ export default function QrCheck({ lang, onCheckLink }) {
       setSpeechError(L(lang, 'This browser does not support reading aloud.', 'इस ब्राउज़र में आवाज़ में पढ़ने की सुविधा नहीं है।', 'ए ब्राउज़र म बोल के पढ़े के सुविधा नइ हे।'))
       return
     }
-    if (!voice) {
-      setSpeechError(L(
-        lang,
-        'No on-device English voice was found. Install English voice data in your phone’s text-to-speech settings, then reopen SACHET.',
-        'फ़ोन में स्थानीय हिंदी आवाज़ नहीं मिली। टेक्स्ट-टू-स्पीच सेटिंग में हिंदी आवाज़ इंस्टॉल करें और SACHET फिर खोलें।',
-        'फ़ोन म स्थानीय हिंदी आवाज नइ मिलिस। टेक्स्ट-टू-स्पीच सेटिंग म हिंदी आवाज इंस्टॉल करव अउ SACHET फेर खोलव।',
-      ))
-      return
-    }
+    if (!voice && !window.confirm(L(
+      lang,
+      'No on-device voice is available. Use the system voice? It may send the payee name to its speech service.',
+      'फ़ोन की स्थानीय आवाज़ उपलब्ध नहीं है। सिस्टम की आवाज़ इस्तेमाल करें? यह पाने वाले का नाम अपनी स्पीच सेवा को भेज सकती है।',
+      'फ़ोन के स्थानीय आवाज उपलब्ध नइ हे। सिस्टम के आवाज चलावन? ए पवइया के नाव अपन स्पीच सेवा ल भेज सकथे।',
+    ))) return
 
     const utterance = new window.SpeechSynthesisUtterance(L(
       lang,
@@ -62,8 +59,8 @@ export default function QrCheck({ lang, onCheckLink }) {
       `इस QR में पाने वाले का नाम ${info.payeeName} दिख रहा है। भुगतान से पहले अपने UPI ऐप में नाम की पुष्टि करें।`,
       `ए QR म पवइया के नाव ${info.payeeName} दिखत हे। पेमेंट ले पहिली अपन UPI ऐप म नाव जाँचव।`,
     ))
-    utterance.lang = voice.lang
-    utterance.voice = voice
+    utterance.lang = voice?.lang ?? speechLocale
+    if (voice) utterance.voice = voice
     utterance.rate = 0.9
     utterance.onerror = (event) => {
       if (event.error !== 'canceled' && event.error !== 'interrupted') showSpeechError()
@@ -116,9 +113,9 @@ export default function QrCheck({ lang, onCheckLink }) {
         <p className="text-sm md:text-xs text-muted mt-0.5">
           {L(
             lang,
-            'See the real UPI ID and name hidden in the QR. Works offline; nothing is uploaded.',
-            'QR में छिपी असली UPI ID और नाम देखें। बिना इंटरनेट काम करता है, कुछ भी अपलोड नहीं होता।',
-            'QR म लुकाय असली UPI ID अउ नाव देखव। बिना इंटरनेट चलथे, कुछु अपलोड नइ होवय।',
+            'See the real UPI ID and name hidden in the QR. QR scanning works offline.',
+            'QR में छिपी असली UPI ID और नाम देखें। QR स्कैनिंग बिना इंटरनेट काम करती है।',
+            'QR म लुकाय असली UPI ID अउ नाव देखव। QR स्कैनिंग बिना इंटरनेट चलथे।',
           )}
         </p>
       </div>
