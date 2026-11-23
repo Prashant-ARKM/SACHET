@@ -10,9 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@huggingface/transformers": "^4.3.2",
     "echarts": "^6.1.0",
     "echarts-for-react": "^3.1.0",
     "idb": "^8.0.4",
+    "jsqr": "^1.4.0",
     "leaflet": "^1.9.4",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",

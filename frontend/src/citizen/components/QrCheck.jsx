@@ -1,0 +1,169 @@
+import { useState } from 'react'
+import { decodeQrFromFile, parseQr, checkQr } from '../lib/qrCheck.js'
+
+const L = (lang, en, hi, cg) => (lang === 'hi' ? hi : lang === 'cg' ? cg : en)
+
+const LEVEL_STYLE = {
+  danger: 'bg-blush border-scam/20 text-scam',
+  warn: 'bg-sun-tint border-warn/30 text-warn',
+  ok: 'bg-mint/50 border-leaf/20 text-forest',
+}
+
+// Fake-QR checker: photo or screenshot of a QR -> UPI ID, payee name, amount + red flags.
+// Runs on the phone, offline. onCheckLink(url) sends a website QR to the message checker.
+export default function QrCheck({ lang, onCheckLink }) {
+  const [info, setInfo] = useState(null)
+  const [preview, setPreview] = useState('')
+  const [expected, setExpected] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+
+  const handleFile = async (e) => {
+    const file = e.target.files?.[0]
+    e.target.value = '' // allow picking the same file again
+    if (!file) return
+    setBusy(true)
+    setError('')
+    setInfo(null)
+    setPreview(URL.createObjectURL(file))
+    try {
+      const raw = await decodeQrFromFile(file)
+      if (!raw) {
+        setError(
+          L(
+            lang,
+            'No QR code found in this image. Try a clearer, closer photo.',
+            'इस फ़ोटो में कोई QR कोड नहीं मिला। साफ़ और पास से फ़ोटो लें।',
+            'ए फ़ोटो म कोनो QR कोड नइ मिलिस। साफ अउ पास ले फ़ोटो लेवव।',
+          ),
+        )
+      } else {
+        setInfo(parseQr(raw))
+      }
+    } catch (err) {
+      console.error('QR read failed', err)
+      setError(L(lang, 'Could not read this image.', 'यह फ़ोटो पढ़ी नहीं जा सकी।', 'ए फ़ोटो पढ़े नइ जा सकिस।'))
+    }
+    setBusy(false)
+  }
+
+  const result = info ? checkQr(info, expected) : null
+  const pickBtn =
+    'relative inline-flex items-center justify-center gap-2 rounded-full px-4 py-3 md:py-2 text-base md:text-sm font-semibold active:scale-95 transition cursor-pointer'
+
+  return (
+    <section className="bg-card border border-line rounded-3xl p-5 shadow-[0_1px_0_rgba(30,42,34,0.04)] space-y-4">
+      <div>
+        <p className="text-base md:text-sm font-semibold text-ink">
+          {L(lang, 'Check a QR code before you pay', 'भुगतान से पहले QR कोड जाँचें', 'पेमेंट ले पहिली QR कोड जाँचव')}
+        </p>
+        <p className="text-sm md:text-xs text-muted mt-0.5">
+          {L(
+            lang,
+            'See the real UPI ID and name hidden in the QR. Works offline; nothing is uploaded.',
+            'QR में छिपी असली UPI ID और नाम देखें। बिना इंटरनेट काम करता है, कुछ भी अपलोड नहीं होता।',
+            'QR म लुकाय असली UPI ID अउ नाव देखव। बिना इंटरनेट चलथे, कुछु अपलोड नइ होवय।',
+          )}
+        </p>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        <label className={`${pickBtn} bg-forest text-card hover:bg-forest-2`}>
+          <span aria-hidden="true">📷</span>
+          {L(lang, 'Take photo of QR', 'QR की फ़ोटो लें', 'QR के फ़ोटो लेवव')}
+          <input type="file" accept="image/*" capture="environment" onChange={handleFile} className="sr-only" />
+        </label>
+        <label className={`${pickBtn} bg-beige text-ink border border-line hover:bg-mint`}>
+          <span aria-hidden="true">🖼️</span>
+          {L(lang, 'Upload screenshot', 'स्क्रीनशॉट चुनें', 'स्क्रीनशॉट चुनव')}
+          <input type="file" accept="image/*" onChange={handleFile} className="sr-only" />
+        </label>
+      </div>
+
+      <label className="block text-sm md:text-xs">
+        <span className="font-semibold text-ink">
+          {L(
+            lang,
+            'Who are you paying? (optional: shop or person name)',
+            'आप किसे भुगतान कर रहे हैं? (वैकल्पिक: दुकान या व्यक्ति का नाम)',
+            'तुमन काकर ल पेमेंट करत हव? (मन होय त: दुकान या मनखे के नाव)',
+          )}
+        </span>
+        <input
+          value={expected}
+          onChange={(e) => setExpected(e.target.value)}
+          placeholder={L(lang, 'e.g. Sharma Kirana Store', 'जैसे: शर्मा किराना स्टोर', 'जइसे: शर्मा किराना स्टोर')}
+          className="mt-1 w-full border border-line rounded-xl px-3 py-2.5 bg-beige/40 text-ink outline-none focus:border-forest"
+        />
+      </label>
+
+      {busy && <p className="text-sm text-muted">{L(lang, 'Reading QR…', 'QR पढ़ा जा रहा है…', 'QR पढ़त हन…')}</p>}
+      {error && <p className="text-sm font-medium text-scam">{error}</p>}
+
+      {result && (
+        <div className="space-y-3 animate-fadeIn">
+          <div className="flex gap-3 items-start">
+            {preview && (
+              <img src={preview} alt="" className="w-20 h-20 object-contain rounded-xl border border-line bg-white shrink-0" />
+            )}
+            {info.kind === 'upi' ? (
+              <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm md:text-xs min-w-0">
+                <dt className="text-muted">{L(lang, 'UPI ID', 'UPI ID', 'UPI ID')}</dt>
+                <dd className="font-mono font-semibold text-ink break-all">{info.upiId || '—'}</dd>
+                <dt className="text-muted">{L(lang, 'Payee name', 'पाने वाले का नाम', 'पवइया के नाव')}</dt>
+                <dd className="font-semibold text-ink">{info.payeeName || '—'}</dd>
+                {info.amount && (
+                  <>
+                    <dt className="text-muted">{L(lang, 'Amount', 'राशि', 'रकम')}</dt>
+                    <dd className="font-semibold text-ink">₹{info.amount.toLocaleString('en-IN')}</dd>
+                  </>
+                )}
+                {info.note && (
+                  <>
+                    <dt className="text-muted">{L(lang, 'Note', 'संदेश', 'संदेस')}</dt>
+                    <dd className="text-ink">{info.note}</dd>
+                  </>
+                )}
+              </dl>
+            ) : (
+              <p className="text-sm md:text-xs font-mono text-ink break-all">{info.raw}</p>
+            )}
+          </div>
+
+          <div className="space-y-1.5">
+            {result.flags.map((f, i) => (
+              <div key={i} className={`p-3 rounded-2xl border text-sm md:text-xs font-medium ${LEVEL_STYLE[f.level]}`}>
+                {f.level === 'danger' ? '🚨 ' : f.level === 'warn' ? '⚠️ ' : '✓ '}
+                {f[lang] || f.en}
+              </div>
+            ))}
+            {result.level === 'ok' && result.flags.length === 0 && (
+              <div className={`p-3 rounded-2xl border text-sm md:text-xs font-medium ${LEVEL_STYLE.ok}`}>
+                {L(lang, '✓ No red flags found.', '✓ कोई ख़तरे का संकेत नहीं मिला।', '✓ कोनो खतरा के संकेत नइ मिलिस।')}
+              </div>
+            )}
+          </div>
+
+          <p className="text-sm md:text-xs text-ink/80">
+            {L(
+              lang,
+              'Before entering your PIN, check that the name shown in your UPI app is the person or shop you want to pay.',
+              'पिन डालने से पहले देखें कि UPI ऐप में दिखा नाम उसी व्यक्ति या दुकान का है जिसे आप भुगतान करना चाहते हैं।',
+              'पिन डाले ले पहिली देखव कि UPI ऐप म दिखे नाव उही मनखे या दुकान के हे जेला तुमन पेमेंट करना चाहथव।',
+            )}
+          </p>
+
+          {info.kind === 'url' && (
+            <button
+              type="button"
+              onClick={() => onCheckLink(info.raw)}
+              className="rounded-full bg-forest text-card text-sm md:text-xs font-semibold px-4 py-3 md:py-2 hover:bg-forest-2 active:scale-95 transition"
+            >
+              {L(lang, 'Check this link for scam →', 'इस लिंक की जाँच करें →', 'ए लिंक के जाँच करव →')}
+            </button>
+          )}
+        </div>
+      )}
+    </section>
+  )
+}
