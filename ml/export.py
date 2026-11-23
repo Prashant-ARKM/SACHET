@@ -28,6 +28,7 @@ def main():
 
     model = {
         "version": 1,
+        "threshold": a.get("threshold", 0.5),
         "analyzer": "char_wb",
         "ngram_range": [2, 5],
         "lowercase": True,

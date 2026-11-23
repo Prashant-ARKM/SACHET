@@ -132,7 +132,7 @@ export async function score(text) {
   const message = text || "";
   const features = vectorize(message, model);
   const probability = sigmoid(dot(features, model.scam.coef, model.scam.intercept));
-  const isScam = probability >= 0.5;
+  const isScam = probability >= (model.threshold ?? 0.5);
 
   return {
     label: isScam ? "scam" : "genuine",

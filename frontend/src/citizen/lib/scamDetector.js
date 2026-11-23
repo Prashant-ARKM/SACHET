@@ -176,9 +176,9 @@ const FINAL_SCAM_STEP = {
 
 const GENUINE_STEPS = [
   {
-    en: 'This looks like a normal bank or service message.',
-    hi: 'यह एक सामान्य बैंक या सेवा का संदेश लगता है।',
-    cg: 'ए सामान्य बैंक या सेवा के मैसेज लगथे।',
+    en: 'The model found no strong scam signals in this message.',
+    hi: 'मॉडल को इस संदेश में ठगी के मज़बूत संकेत नहीं मिले।',
+    cg: 'मॉडल ल ए मैसेज म ठगी के मजबूत संकेत नइ मिलिस।',
   },
   {
     en: 'Still, never share an OTP, PIN or password with anyone.',
