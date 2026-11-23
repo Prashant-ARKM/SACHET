@@ -53,7 +53,9 @@ export const T = {
     
     // Result
     verdictScam: 'ख़तरा: धोखाधड़ी (SCAM)',
-    verdictGenuine: 'ठगी के मज़बूत संकेत नहीं मिले',
+    verdictGenuine: 'कोई ख़तरा नहीं मिला',
+    verdictGenuineBadge: 'सुरक्षित लगता है',
+    checkedMessageTitle: 'जाँचा गया संदेश',
     whyTitle: 'मॉडल ने इसे क्यों पकड़ा (AI टोकन विश्लेषण):',
     whySubtitle: 'हमारे प्रशिक्षित मॉडल ने इन शब्दों और पैटर्न को संदिग्ध पाया:',
     scamTypeLabel: 'धोखाधड़ी का प्रकार',
@@ -162,7 +164,9 @@ export const T = {
 
     // Result
     verdictScam: 'खतरा: ठगी आय (SCAM)',
-    verdictGenuine: 'ठगी के मजबूत संकेत नइ मिलिस',
+    verdictGenuine: 'कोनो खतरा नइ मिलिस',
+    verdictGenuineBadge: 'सुरक्षित लगथे',
+    checkedMessageTitle: 'जांचे गे मैसेज',
     whyTitle: 'मॉडल ह एला काबर ठगी बताइस (AI टोकन विश्लेषण):',
     whySubtitle: 'हमार प्रशिक्षित मॉडल ह ए शब्द अउ तरीका ल संदेही मानिस:',
     scamTypeLabel: 'ठगी के प्रकार',
@@ -271,7 +275,9 @@ export const T = {
 
     // Result
     verdictScam: 'Warning: SCAM DETECTED',
-    verdictGenuine: 'No strong scam signals',
+    verdictGenuine: 'No threat detected',
+    verdictGenuineBadge: 'Safe',
+    checkedMessageTitle: 'Checked message',
     whyTitle: 'Why the model flagged this (AI Token Attention):',
     whySubtitle: 'Our trained model identified high-risk urgency and deceptive tokens:',
     scamTypeLabel: 'Scam Classification',

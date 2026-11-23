@@ -634,14 +634,14 @@ export default function CitizenCheck() {
             <span className="text-sm md:text-xs font-semibold px-3 py-1 rounded-full bg-card/80 border border-current">
               {result.verdict === 'scam'
                 ? (lang === 'hi' ? 'ख़तरा' : lang === 'cg' ? 'खतरा' : 'Threat')
-                : (lang === 'hi' ? 'कम संकेत' : lang === 'cg' ? 'कम संकेत' : 'Low signal')}
+                : t.verdictGenuineBadge}
             </span>
           </div>
 
           {/* AI Token Attention Highlighting */}
           <div className="space-y-1.5">
             <div className="text-sm md:text-[11px] font-semibold tracking-[0.18em] uppercase text-muted">
-              {t.whyTitle}
+              {result.verdict === 'scam' ? t.whyTitle : t.checkedMessageTitle}
             </div>
             <div className="p-3.5 rounded-2xl bg-beige/60 border border-line text-sm sm:text-sm leading-relaxed text-ink font-mono break-words">
               {result.annotatedTokens.map((tok, idx) =>
