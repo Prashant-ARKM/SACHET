@@ -1,0 +1,28 @@
+{
+  "n": 1918,
+  "accuracy": 0.9807,
+  "scam_precision": 0.9965,
+  "scam_recall": 0.9615,
+  "scam_f1": 0.9787,
+  "confusion_matrix_labels": [
+    "genuine",
+    "scam"
+  ],
+  "confusion_matrix": [
+    [
+      1032,
+      3
+    ],
+    [
+      34,
+      849
+    ]
+  ],
+  "threshold": 0.36,
+  "by_language": {
+    "en": 0.9762,
+    "hi": 0.9688,
+    "hinglish": 0.9947
+  },
+  "type_accuracy_on_dev_scams": 0.9354
+}

@@ -6,7 +6,7 @@ Rules (agreed defaults, sync 1):
 - Analyzer: sklearn char_wb, lowercase, ngram 2-5 (we call sklearn's own analyzer
   so this file IS the reference).
 - x = counts * idf, L2-normalised. score = sigmoid(coef . x + intercept).
-- label = "scam" if score >= 0.5 else "genuine".
+- label = "scam" if score >= the exported threshold (default 0.5) else "genuine".
 - scam_type: argmax over classes of (coef_k . x + intercept_k); ties -> first class
   in "classes" order. null for genuine. "other" if the model has no "type".
 - highlights: n-grams with contribution x_j*coef_j > 0, top 5 by contribution
@@ -78,13 +78,13 @@ def _inv_vocab(path=str(MODEL_PATH)):
     return {i: g for g, i in m["vocab"].items()}
 
 
-def predict(text: str) -> dict:
-    m, analyzer = _load()
+def predict(text: str, *, model_path: str = str(MODEL_PATH)) -> dict:
+    m, analyzer = _load(model_path)
     x = vectorize(text or "", m, analyzer)
     coef = m["scam"]["coef"]
     z = sum(v * coef[j] for j, v in x.items()) + m["scam"]["intercept"]
     score = _sigmoid(z)
-    label = "scam" if score >= THRESHOLD else "genuine"
+    label = "scam" if score >= m.get("threshold", THRESHOLD) else "genuine"
 
     scam_type = None
     if label == "scam":
@@ -100,7 +100,7 @@ def predict(text: str) -> dict:
             scam_type = best
 
     return {"label": label, "score": score, "scam_type": scam_type,
-            "highlights": _highlights(text or "", x, coef, _inv_vocab())}
+            "highlights": _highlights(text or "", x, coef, _inv_vocab(model_path))}
 
 
 if __name__ == "__main__":

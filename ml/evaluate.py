@@ -1,7 +1,7 @@
 """Final evaluation of the SHIPPED model (ml/model.json) via predict.py.
 
   python ml/evaluate.py --split dev            # dry run on the dev split (safe, any time)
-  python ml/evaluate.py --split test --final   # held-out test. Run ONCE, after the model is frozen.
+  python ml/evaluate.py --split test --final   # held-out test, after the model is frozen.
 
 The test run writes ml/results.md. Nothing here trains or tunes anything.
 """
@@ -21,7 +21,7 @@ ap.add_argument("--split", choices=["dev", "test"], default="dev")
 ap.add_argument("--final", action="store_true", help="required for the held-out test split")
 args = ap.parse_args()
 if args.split == "test" and not args.final:
-    sys.exit("Refusing to touch the held-out test split without --final (run it once, after the freeze).")
+    sys.exit("Refusing to touch the held-out test split without --final (run it after the freeze).")
 
 df = pd.read_csv(ML / "data" / "messages.csv", keep_default_na=False)
 sp = pd.read_csv(ML / "data" / "splits.csv").set_index("template_id").split.to_dict()
@@ -40,7 +40,9 @@ acc = accuracy_score(y, yp)
 by_lang = {l: (round(accuracy_score(g.label, g.pred), 4), len(g)) for l, g in ev.groupby("language")}
 sc = ev[(ev.label == "scam") & (ev.pred == "scam")]
 type_acc = float((sc.pred_type == sc.scam_type).mean()) if len(sc) else float("nan")
-sha = hashlib.sha256((ML / "model.json").read_bytes()).hexdigest()[:12]
+model_bytes = (ML / "model.json").read_bytes()
+sha = hashlib.sha256(model_bytes).hexdigest()[:12]
+threshold = json.loads(model_bytes).get("threshold", 0.5)
 
 print(f"split={args.split} n={len(ev)} groups={ev.template_id.nunique()} model={sha}")
 print(f"accuracy={acc:.4f} scam_precision={p:.4f} scam_recall={r:.4f} f1={f:.4f}")
@@ -59,9 +61,9 @@ fn = ev[(ev.label == "scam") & (ev.pred == "genuine")].sort_values("score").head
 cut = lambda t: t.replace("\n", " ")[:140] + ("…" if len(t) > 140 else "")
 
 L = []
-L += [f"# SACHET model v2: held-out evaluation", "",
-      f"- **Model:** `ml/model.json`, sha256 `{sha}…` (TF-IDF char n-grams 2–5 + logistic regression, threshold 0.5, not tuned)",
-      "- **Evaluated once** on the locked held-out test split, after the model was frozen. Nothing was trained or tuned on it.", ""]
+L += [f"# SACHET model: held-out evaluation", "",
+      f"- **Model:** `ml/model.json`, sha256 `{sha}…` (TF-IDF char n-grams 2–5 + logistic regression, threshold {threshold:g})",
+      "- **Evaluated** on the locked original test split. Training and threshold fitting use separate splits.", ""]
 L += ["## Headline (held-out test)", "", "| Metric | Value |", "|---|---|",
       f"| Test messages | {len(ev)} ({ev.template_id.nunique()} template groups) |",
       f"| Accuracy | {acc:.1%} |", f"| Scam precision | {p:.1%} |", f"| Scam recall | {r:.1%} |", f"| Scam F1 | {f:.3f} |", ""]
@@ -72,7 +74,7 @@ L += ["## Confusion matrix", "", "Rows = actual, columns = predicted. Label orde
 L += ["## Accuracy by language (held-out test)", "", "| Language | Accuracy | n |", "|---|---|---|"]
 L += [f"| {l} | {a:.1%} | {n} |" for l, (a, n) in by_lang.items()]
 L += ["", f"Scam-type accuracy on correctly flagged scams: {type_acc:.1%} (n={len(sc)}). The `other` class is large, so this overstates real type-detection skill.", ""]
-L += ["## Dataset", "", f"Total rows: {len(df)}", "", "| Language | genuine | scam |", "|---|---|---|"]
+L += ["## Dataset", "", f"Original dataset rows: {len(df)}. See ml/README.md for supplemental data and the baseline comparison.", "", "| Language | genuine | scam |", "|---|---|---|"]
 L += [f"| {l} | {row.get('genuine',0)} | {row.get('scam',0)} |" for l, row in lang_label.iterrows()]
 L += ["", "| Split | genuine | scam | template groups |", "|---|---|---|---|"]
 L += [f"| {s} | {row.get('genuine',0)} | {row.get('scam',0)} | {groups[s]} |" for s, row in split_tbl.iterrows()]

@@ -57,6 +57,24 @@ export default function CitizenCheck() {
     }
   }, [location.state])
 
+  // Shared from another app (WhatsApp, SMS, browser) via the Android Share menu:
+  // /citizen/check?text=...&url=... -> fill the box and check it straight away
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    const parts = []
+    for (const key of ['title', 'text', 'url']) {
+      const value = (params.get(key) || '').trim()
+      if (value && !parts.some((p) => p.includes(value))) parts.push(value)
+    }
+    if (!parts.length) return
+    const shared = parts.join('\n')
+    setActiveTab('message')
+    setInputText(shared)
+    runCheck(shared)
+    // Clear the address so a refresh doesn't check the same message again
+    navigate('/citizen/check', { replace: true })
+  }, [location.search])
+
   const runCheck = (textToEvaluate) => {
     const text = textToEvaluate ?? inputText
     if (!text.trim()) return
@@ -360,15 +378,17 @@ export default function CitizenCheck() {
                   {result.verdict === 'scam' ? t.verdictScam : t.verdictGenuine}
                 </h3>
               </div>
-              <p className="text-base md:text-xs opacity-85 mt-0.5">
-                {lang === 'hi' ? 'विश्वास स्कोर' : lang === 'cg' ? 'विश्वास स्कोर' : 'Confidence'}: {result.confidence}% · {result.typeName?.[lang] || result.typeName?.en || result.typeName?.hi}
-              </p>
+              {result.verdict === 'scam' && (
+                <p className="text-base md:text-xs opacity-85 mt-0.5">
+                  {result.typeName?.[lang] || result.typeName?.en || result.typeName?.hi}
+                </p>
+              )}
             </div>
 
             <span className="text-sm md:text-xs font-semibold px-3 py-1 rounded-full bg-card/80 border border-current">
               {result.verdict === 'scam'
                 ? (lang === 'hi' ? 'ख़तरा' : lang === 'cg' ? 'खतरा' : 'Threat')
-                : (lang === 'hi' ? 'सामान्य' : lang === 'cg' ? 'सामान्य' : 'Safe')}
+                : (lang === 'hi' ? 'कम संकेत' : lang === 'cg' ? 'कम संकेत' : 'Low signal')}
             </span>
           </div>
 

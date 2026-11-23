@@ -53,7 +53,7 @@ export const T = {
     
     // Result
     verdictScam: 'ख़तरा: धोखाधड़ी (SCAM)',
-    verdictGenuine: 'सुरक्षित (GENUINE)',
+    verdictGenuine: 'ठगी के मज़बूत संकेत नहीं मिले',
     whyTitle: 'मॉडल ने इसे क्यों पकड़ा (AI टोकन विश्लेषण):',
     whySubtitle: 'हमारे प्रशिक्षित मॉडल ने इन शब्दों और पैटर्न को संदिग्ध पाया:',
     scamTypeLabel: 'धोखाधड़ी का प्रकार',
@@ -100,10 +100,10 @@ export const T = {
     audioChhattisgarhi: 'छत्तीसगढ़ी',
     btnListen: 'ऑडियो सुनें',
     btnPause: 'रोकें',
-    quizTitle: 'डिजिटल सुरक्षा क्विज़',
+    quizTitle: 'डिजिटल वित्तीय साक्षरता क्विज़',
     quizDesc: '8 आसान सवालों के जवाब दें और अपना सुरक्षा स्कोर बढ़ाएं!',
     btnStartQuiz: 'क्विज़ शुरू करें',
-    yourScore: 'आपका स्कोर:',
+    yourScore: 'डिजिटल वित्तीय साक्षरता स्कोर:',
     congratsTitle: 'बधाई! आप एक सचेत नागरिक हैं!',
     btnRetryQuiz: 'पुनः क्विज़ दें',
   },
@@ -162,7 +162,7 @@ export const T = {
 
     // Result
     verdictScam: 'खतरा: ठगी आय (SCAM)',
-    verdictGenuine: 'सुरक्षित आय (GENUINE)',
+    verdictGenuine: 'ठगी के मजबूत संकेत नइ मिलिस',
     whyTitle: 'मॉडल ह एला काबर ठगी बताइस (AI टोकन विश्लेषण):',
     whySubtitle: 'हमार प्रशिक्षित मॉडल ह ए शब्द अउ तरीका ल संदेही मानिस:',
     scamTypeLabel: 'ठगी के प्रकार',
@@ -209,10 +209,10 @@ export const T = {
     audioChhattisgarhi: 'छत्तीसगढ़ी',
     btnListen: 'ऑडियो सुनव',
     btnPause: 'रोकव',
-    quizTitle: 'डिजिटल सुरक्षा क्विज़',
+    quizTitle: 'डिजिटल वित्तीय साक्षरता क्विज़',
     quizDesc: '8 सीधा सवाल के जवाब देवव अउ अपन स्कोर बढ़ावव!',
     btnStartQuiz: 'क्विज़ चालू करव',
-    yourScore: 'तुंहर स्कोर:',
+    yourScore: 'डिजिटल वित्तीय साक्षरता स्कोर:',
     congratsTitle: 'बधाई! तुमन सचेत नागरिक हव!',
     btnRetryQuiz: 'फेर क्विज़ देवव',
   },
@@ -271,7 +271,7 @@ export const T = {
 
     // Result
     verdictScam: 'Warning: SCAM DETECTED',
-    verdictGenuine: 'Safe: GENUINE MESSAGE',
+    verdictGenuine: 'No strong scam signals',
     whyTitle: 'Why the model flagged this (AI Token Attention):',
     whySubtitle: 'Our trained model identified high-risk urgency and deceptive tokens:',
     scamTypeLabel: 'Scam Classification',
@@ -321,7 +321,7 @@ export const T = {
     quizTitle: 'Digital Financial Literacy Quiz',
     quizDesc: 'Answer 8 quick scenarios to test your fraud defense score!',
     btnStartQuiz: 'Start Quiz',
-    yourScore: 'Your Score:',
+    yourScore: 'Digital Financial Literacy Score:',
     congratsTitle: 'Congratulations! Certified Sachet Citizen',
     btnRetryQuiz: 'Retake Quiz',
   },

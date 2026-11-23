@@ -1,17 +1,17 @@
-# SACHET model v2: held-out evaluation
+# SACHET model: held-out evaluation
 
-- **Model:** `ml/model.json`, sha256 `9493ac4f49de…` (TF-IDF char n-grams 2–5 + logistic regression, threshold 0.5, not tuned)
-- **Evaluated once** on the locked held-out test split, after the model was frozen. Nothing was trained or tuned on it.
+- **Model:** `ml/model.json`, sha256 `af98425845ac…` (TF-IDF char n-grams 2–5 + logistic regression, threshold 0.36)
+- **Evaluated** on the locked original test split. Training and threshold fitting use separate splits.
 
 ## Headline (held-out test)
 
 | Metric | Value |
 |---|---|
 | Test messages | 3586 (2143 template groups) |
-| Accuracy | 92.9% |
-| Scam precision | 89.1% |
-| Scam recall | 96.3% |
-| Scam F1 | 0.926 |
+| Accuracy | 92.4% |
+| Scam precision | 89.2% |
+| Scam recall | 95.0% |
+| Scam F1 | 0.920 |
 
 ## Confusion matrix
 
@@ -19,22 +19,22 @@ Rows = actual, columns = predicted. Label order: genuine, scam.
 
 | | pred genuine | pred scam |
 |---|---|---|
-| **actual genuine** | 1731 | 195 (false alarms) |
-| **actual scam** | 61 (missed scams) | 1599 |
+| **actual genuine** | 1736 | 190 (false alarms) |
+| **actual scam** | 83 (missed scams) | 1577 |
 
 ## Accuracy by language (held-out test)
 
 | Language | Accuracy | n |
 |---|---|---|
-| en | 98.1% | 1915 |
-| hi | 99.3% | 965 |
-| hinglish | 70.0% | 706 |
+| en | 98.0% | 1915 |
+| hi | 99.1% | 965 |
+| hinglish | 68.1% | 706 |
 
-Scam-type accuracy on correctly flagged scams: 92.3% (n=1599). The `other` class is large, so this overstates real type-detection skill.
+Scam-type accuracy on correctly flagged scams: 92.5% (n=1577). The `other` class is large, so this overstates real type-detection skill.
 
 ## Dataset
 
-Total rows: 16867
+Original dataset rows: 16867. See ml/README.md for supplemental data and the baseline comparison.
 
 | Language | genuine | scam |
 |---|---|---|
@@ -62,22 +62,22 @@ Total rows: 16867
 
 **False alarms (genuine flagged as scam):**
 
-- (0.98, en) Dear TOSIN   Fund your account and win N1000 when you download and carry out a transaction with the Diamond Mobile App. For enquiries call 0…
-- (0.98, en) Free Msg Wells Fargo: Recently, we discovered unusual activity or updates on your account that we believe may be unauthorized. For your secu…
-- (0.96, hi) URGENT: आपका पार्सल कस्टम्स में फंस गया है। ड्यूटी जमा न करने पर वापस भेज दिया जाएगा। भुगतान करें: indiapost-tracking-update.xyz/pay
-- (0.96, en) Hello, I'm Michael Hendrix from OPN Architects Inc, We found your contact on Indeed employment resume. We need a virtual Data clerk employee…
-- (0.96, en) Discount of Rs 100 is now YOURS! Get 126 Channels, worth Rs 319 in just Rs 219 on your Airtel Digital TV account 3037252019! Limited Period …
-- (0.95, en) Get a SPECIAL DATA DEAL of 2GB for Sh100 valid 24hrs by clicking on https://bit.ly/Safaricomapp or Dial *544*21# and keep the connections go…
-- (0.85, en) Hey mum, i've just broken my phone im messaging from a friends phone please contact my new number on whatsapp its urgent 0485 862 540 xx
-- (0.80, en) Transfer 08XXXXXX08 200 2580
+- (0.97, hi) URGENT: आपका पार्सल कस्टम्स में फंस गया है। ड्यूटी जमा न करने पर वापस भेज दिया जाएगा। भुगतान करें: indiapost-tracking-update.xyz/pay
+- (0.95, en) Discount of Rs 100 is now YOURS! Get 126 Channels, worth Rs 319 in just Rs 219 on your Airtel Digital TV account 3037252019! Limited Period …
+- (0.91, hinglish) Dhyan se suniye Aapka order deliver ho chuka hai. Feedback de dena.
+- (0.88, hinglish) Ji haan suniye Aapka order deliver ho chuka hai. Feedback de dena.
+- (0.87, hinglish) Ji namaskar Aapka order deliver ho chuka hai. Feedback de dena.
+- (0.87, hinglish) Namaste sir Aapka order deliver ho chuka hai. Feedback de dena.
+- (0.86, hinglish) Sir ek minute suniye Aapka order deliver ho chuka hai. Feedback de dena.
+- (0.86, hinglish) Hello ji Aapka order deliver ho chuka hai. Feedback de dena.
 
 **Missed scams (scam passed as genuine):**
 
-- (0.08, en) Namaste, this is ICICI Bank. A debit of INR 7,850 was made today. To cancel, reply with OTP 642913 within 5 minutes. Regards, Customer Care.
-- (0.14, en) Friendship is a prized gift that gives our heart a lift  a blessing we just cant do without because friendship is what living is all about!
-- (0.15, en) Hi this be Donald Trump Jr The Democrats be obsess with impeach my father We CA N'T let them succeed Take a stand NOW givered.co/ Standwith …
-- (0.16, en) <#> Your OTP code is 537005. We welcome you to Fi! We're excited that you're about to see what financial freedom looks like. 82275JXpmM1 -Ep…
-- (0.19, hi) हाय, यह Mandddy SOMIX FM से कॉल कर रहा है...... आप हमारे ईस्टर इनाम के लिए $05 डॉलर प्राप्त करने के लिए चुना जाता है...
-- (0.20, hi) किसी आईपोड को जीतने का मौका देने के लिए 2 सप्ताह में मुफ्त प्रविष्टि. टी. टी. वी.
-- (0.24, hi) G8METCHES का स्वर 4 सभी भीड़ के सामने ८०० से लेकर 8007 रुपये के शीर्षकों के साथ प्रतिक्रिया: कमीन, SELYICT, HELCT: GS. Govoviviviva.
-- (0.24, en) <#> 1347 is your OTP to login into Airtel Thanks app. OTP valid for 15 mins. Do not share with anyone. If this was not you click i.airtel.in…
+- (0.02, en) <#> Your OTP code is 537005. We welcome you to Fi! We're excited that you're about to see what financial freedom looks like. 82275JXpmM1 -Ep…
+- (0.02, en) Namaste, this is ICICI Bank. A debit of INR 7,850 was made today. To cancel, reply with OTP 642913 within 5 minutes. Regards, Customer Care.
+- (0.02, en) Friendship is a prized gift that gives our heart a lift  a blessing we just cant do without because friendship is what living is all about!
+- (0.03, hi) G8METCHES का स्वर 4 सभी भीड़ के सामने ८०० से लेकर 8007 रुपये के शीर्षकों के साथ प्रतिक्रिया: कमीन, SELYICT, HELCT: GS. Govoviviviva.
+- (0.07, en) Hi this be Donald Trump Jr The Democrats be obsess with impeach my father We CA N'T let them succeed Take a stand NOW givered.co/ Standwith …
+- (0.07, hi) किसी आईपोड को जीतने का मौका देने के लिए 2 सप्ताह में मुफ्त प्रविष्टि. टी. टी. वी.
+- (0.08, en) FreeMsg: [Emma] What do you think boys? myporndebut.mp4 hitip:// verl.me/e.php?uid=4c375997 18+ Stop? h3lp@mobjizz.com Mobjizz
+- (0.10, hi) हाय, यह Mandddy SOMIX FM से कॉल कर रहा है...... आप हमारे ईस्टर इनाम के लिए $05 डॉलर प्राप्त करने के लिए चुना जाता है...
