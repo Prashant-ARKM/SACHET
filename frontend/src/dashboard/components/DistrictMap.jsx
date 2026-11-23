@@ -1,25 +1,42 @@
-import { MapContainer, TileLayer, CircleMarker, Tooltip } from 'react-leaflet'
+import { geoJSON } from 'leaflet'
+import { MapContainer, GeoJSON, CircleMarker, Tooltip } from 'react-leaflet'
+import boundary from '../../shared/chhattisgarh-boundary.json'
 import { DISTRICTS } from '../../shared/districts.js'
 import { countBy } from '../lib/stats.js'
 import { C } from '../lib/theme.js'
 
+const stateBounds = geoJSON(boundary).getBounds()
+const boundaryStyle = {
+  color: C.forest,
+  weight: 2,
+  fillColor: C.mint,
+  fillOpacity: 1,
+}
+const boundaryAttribution =
+  '<a href="https://www.geoboundaries.org/api/current/gbOpen/IND/ADM1/">geoBoundaries</a> / ' +
+  'DataMeet India and Election Commission of India ' +
+  '(<a href="https://creativecommons.org/licenses/by/2.5/in/">CC BY 2.5 IN</a>)'
+
 // Circle size + strength = report count. Click a district to filter everything.
 // Fills its parent: give the parent a height.
-export default function DistrictMap({ reports, selected, onSelect, zoom = 7, t }) {
+export default function DistrictMap({ reports, selected, onSelect, t }) {
   const counts = countBy(reports, 'district')
   const max = Math.max(1, ...Object.values(counts))
 
   return (
     <MapContainer
-      center={[21.3, 82.0]}
-      zoom={zoom}
+      bounds={stateBounds}
+      boundsOptions={{ padding: [28, 28] }}
+      maxBounds={stateBounds.pad(0.2)}
+      maxBoundsViscosity={1}
       scrollWheelZoom={false}
       style={{ height: '100%', width: '100%', borderRadius: 12, background: C.beige }}
     >
-      {/* CARTO Voyager: soft but colourful basemap */}
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+      <GeoJSON
+        data={boundary}
+        style={boundaryStyle}
+        interactive={false}
+        attribution={boundaryAttribution}
       />
       {DISTRICTS.map((d) => {
         const n = counts[d.name] ?? 0
