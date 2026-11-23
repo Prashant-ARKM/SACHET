@@ -20,7 +20,7 @@
 
 SACHET is an offline, local-language platform that helps people in Chhattisgarh spot scam messages and calls, learn payment safety in Hindi and Chhattisgarhi, and reach the right official help fast, while giving district administration and banks a live view of where scams are spreading. *Built with React, FastAPI and a scikit-learn model that runs in the browser, for **Hackasol 5.0 · Track 5 Gov-Tech · GT-02: Cyber Fraud Detection & Digital Financial Literacy Platform**.*
 
-> Created by [Prashant](https://github.com/Prashant-ARKM), [Praptee](https://github.com/iammissmiller), [TEAMMATE_3](https://github.com/USERNAME_3) & [TEAMMATE_4](https://github.com/USERNAME_4)
+> Created by [Prashant](https://github.com/Prashant-ARKM), Piyush, [Praptee](https://github.com/iammissmiller) & Pranay
 
 ## ■ Problem
 
@@ -227,10 +227,10 @@ For a deployed server, set `VITE_API_BASE` in the frontend and `SACHET_CORS_ORIG
 
 ## ■ Team
 
-* **Prashant** – ROLE
-* **Praptee** – UI/UX, officials dashboard
-* **TEAMMATE_3** – ROLE
-* **TEAMMATE_4** – ROLE
+* **Prashant** – Backend and machine learning
+* **Piyush** – Backend and machine learning
+* **Praptee** – Frontend (citizen app and officials dashboard)
+* **Pranay** – Frontend (citizen app and officials dashboard)
 
 ---
 <br>
