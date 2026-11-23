@@ -4,6 +4,7 @@ import { getRecentChecks } from '../lib/citizenStorage.js'
 import { DISTRICTS } from '../../shared/districts.js'
 import { getSavedAlerts } from '../../shared/alertSign.js'
 import { buildCampaign } from '../../dashboard/data/campaignTemplates.js'
+import parliament from '../assets/parliament.webp'
 import { AlertIcon, BookIcon, PhoneIcon, ShieldCheckIcon } from '../components/CitizenIcons.jsx'
 
 export default function CitizenHome() {
@@ -81,6 +82,33 @@ export default function CitizenHome() {
 
   return (
     <div className="grid grid-cols-12 gap-4">
+      {/* WELCOME BAND: heading + Parliament line drawing (decorative).
+          Phone: drawing as a strip under the heading. Laptop: drawing on the right, heading on the left. */}
+      <section className="welcome-band col-span-12 relative overflow-hidden flex flex-col md:flex-row md:items-center md:min-h-[150px] -mb-1">
+        <div className="relative z-10 border-l-4 border-forest pl-3 md:pl-4 py-0.5 md:py-1 min-w-0">
+          <h2 className="wb-title font-display leading-tight font-bold text-ink whitespace-nowrap">
+            {lang === 'hi' ? 'सतर्क रहें।' : lang === 'cg' ? 'सचेत रहव।' : 'Stay alert.'}{' '}
+            <span className={`text-forest ${lang === 'en' ? 'italic font-medium' : ''}`}>
+              {lang === 'hi' ? 'ऑनलाइन सुरक्षित रहें।' : lang === 'cg' ? 'ऑनलाइन सुरक्छित रहव।' : 'Stay safe online.'}
+            </span>
+          </h2>
+          <p className="wb-sub hidden md:block max-w-[34rem] text-base text-muted mt-1.5 leading-snug">
+            {lang === 'hi'
+              ? 'संदिग्ध संदेश और लिंक जाँचें, ठगी की शिकायत करें और सुरक्षित रहना सीखें, अपनी भाषा में, बिना इंटरनेट भी।'
+              : lang === 'cg'
+              ? 'शक वाला संदेस अउ लिंक जाँचव, ठगी के सिकायत करव अउ सुरक्छित रहे बर सीखव, अपन भाखा म, बिना इंटरनेट घलो।'
+              : 'Check suspicious messages and links, report fraud and learn to stay safe, in your language, even offline.'}
+          </p>
+        </div>
+        <img
+          src={parliament}
+          alt=""
+          aria-hidden="true"
+          draggable="false"
+          className="pointer-events-none select-none block self-center w-full max-w-[340px] h-auto mt-2 opacity-80 md:absolute md:right-0 md:bottom-0 md:mt-0 md:w-auto md:max-w-none md:h-[150px] md:opacity-60 md:[mask-image:linear-gradient(to_right,transparent,black_35%)]"
+        />
+      </section>
+
       {/* PHONE ONLY: pick your district once, here (header has no district on phones) */}
       <label className="md:hidden col-span-12 flex items-center gap-3 bg-card border border-line rounded-3xl px-4 py-3">
         <span className="grid place-items-center w-11 h-11 rounded-xl bg-mint text-forest shrink-0" aria-hidden="true">

@@ -246,3 +246,9 @@ body {
   }
   #poster-print-root > * { width: 210mm !important; height: 297mm !important; }
 }
+
+/* Citizen Home welcome band: heading always on ONE line (phones: size follows screen width) */
+.welcome-band .wb-title { font-size: clamp(17px, 5.6vw, 24px); }
+@media (min-width: 768px) {
+  .welcome-band .wb-title { font-size: clamp(2rem, 3.2vw, 2.75rem); }
+}
