@@ -22,56 +22,17 @@ PY
 - `ALERT_PRIVATE_KEY` goes **only** in the Render/server environment. Never commit it, never put it in Vercel.
 - `VITE_ALERT_PUBLIC_KEY` goes in the Vercel frontend environment (a public key is safe to be public).
 
-## 2. Endpoint
+## 2. Enable official signing
 
-`POST /api/alerts/sign`  body `{ "payload": "<base64url string>" }` → `{ "signature": "<base64url>" }`
+- Set an independently generated random `ALERT_SIGNING_TOKEN` in Render. For example, generate one locally with `python -c "import secrets; print(secrets.token_urlsafe(32))"`.
+- Share the token privately with authorized campaign operators. In the Campaign kit, enter it under **Official signing token** and select **Apply token**. It stays in memory for the current page.
+- Deploy the backend and frontend with their respective environment variables. Publish only after the Campaign kit shows the official signature and a citizen device verifies the QR.
+- `POST /api/alerts/sign` accepts a bearer token and a JSON body with a base64url `payload` field. It signs the encoded text with ECDSA P-256/SHA-256 and returns a base64url raw 64-byte signature.
+- Rotate the shared token when access changes. Use individual operator accounts for a production multi-operator deployment.
 
-The signature is ECDSA P-256 / SHA-256 over the **payload string's bytes** (the base64url text itself, not the decoded JSON),
-returned as raw `r||s` (64 bytes), base64url without `=`. Python gives DER, so convert:
+## 3. Seed campaign reports
 
-```python
-import base64, json, os
-from fastapi import HTTPException
-from pydantic import BaseModel
-from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import ec
-from cryptography.hazmat.primitives.asymmetric.utils import decode_dss_signature
-
-_KEY = serialization.load_pem_private_key(os.environ["ALERT_PRIVATE_KEY"].encode(), password=None) \
-    if os.environ.get("ALERT_PRIVATE_KEY") else None
-
-class SignIn(BaseModel):
-    payload: str
-
-def _b64u_decode(s: str) -> bytes:
-    return base64.urlsafe_b64decode(s + "=" * (-len(s) % 4))
-
-def _unpack(b: bytes) -> str:
-    # Frontend packing: ASCII as is, 0x80-0xFF = Devanagari U+0900+(b-0x80), 0x01 + 3 bytes = any other char
-    out, i = [], 0
-    while i < len(b):
-        if b[i] == 1:
-            out.append(chr(int.from_bytes(b[i + 1:i + 4], "big"))); i += 4
-        else:
-            out.append(chr(b[i]) if b[i] < 0x80 else chr(0x900 + b[i] - 0x80)); i += 1
-    return "".join(out)
-
-@app.post("/api/alerts/sign")
-def sign_alert(body: SignIn):
-    if _KEY is None:
-        raise HTTPException(503, "signing key not configured")
-    data = json.loads(_unpack(_b64u_decode(body.payload)))  # check it is a SACHET alert
-    if data.get("v") != 1 or not data.get("d") or not data.get("t"):
-        raise HTTPException(400, "bad payload")
-    der = _KEY.sign(body.payload.encode(), ec.ECDSA(hashes.SHA256()))
-    r, s = decode_dss_signature(der)
-    raw = r.to_bytes(32, "big") + s.to_bytes(32, "big")
-    return {"signature": base64.urlsafe_b64encode(raw).rstrip(b"=").decode()}
-```
-
-Add `cryptography>=42` to `server/requirements.txt`.
-
-Before a real launch, put this endpoint behind official login: right now anyone who can reach the server could ask it to sign.
+Run `python server/seed_from_model.py` against a demo database. To include phones, pass `--demo-phones NUMBER NUMBER NUMBER` with three controlled test numbers approved for public posters. The seed reuses district-specific demo UPI IDs and reserved example links.
 
 ## Payload (for reference)
 

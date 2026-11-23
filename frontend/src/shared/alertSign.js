@@ -175,19 +175,19 @@ export function makePayload({ district, type, days = 30, message = '', keywords 
 
 // Returns { token, url, mode: 'official' | 'demo' }.
 // Tries the server first: POST /api/alerts/sign { payload } -> { signature }.
-export async function signAlert(payloadObj) {
+export async function signAlert(payloadObj, signingToken) {
   // WebCrypto only exists on https:// or localhost (not on http://192.168.x.x from a phone)
   if (!hasCrypto()) throw new Error('insecure-context')
   const payload = toB64u(pack(JSON.stringify(payloadObj)))
   const { official } = await getKeys()
 
-  if (official) {
+  if (official && signingToken) {
     try {
       const ctrl = new AbortController()
       const timer = setTimeout(() => ctrl.abort(), 8000)
       const res = await fetch(`${API_BASE}/api/alerts/sign`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${signingToken}` },
         body: JSON.stringify({ payload }),
         signal: ctrl.signal,
       })

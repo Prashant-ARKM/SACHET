@@ -1,3 +1,7 @@
+import base64
+import binascii
+import hmac
+import json
 import os
 import sqlite3
 import uuid
@@ -5,7 +9,10 @@ from contextlib import closing, asynccontextmanager
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Query
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives.asymmetric.utils import decode_dss_signature
+from fastapi import FastAPI, Header, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -53,8 +60,62 @@ app.add_middleware(
         if origin.strip()
     ],
     allow_methods=["GET", "POST"],
-    allow_headers=["Content-Type"],
+    allow_headers=["Content-Type", "Authorization"],
 )
+
+
+class AlertSignRequest(BaseModel):
+    payload: str = Field(min_length=1, max_length=8192, pattern=r"^[A-Za-z0-9_-]+$")
+
+
+def unpack_alert(packed: bytes) -> str:
+    chars = []
+    i = 0
+    while i < len(packed):
+        byte = packed[i]
+        i += 1
+        if byte == 1:
+            escaped = packed[i:i + 3]
+            if len(escaped) != 3:
+                raise ValueError("truncated character")
+            chars.append(chr(int.from_bytes(escaped, "big")))
+            i += 3
+        else:
+            chars.append(chr(byte if byte < 128 else 0x900 + byte - 128))
+    return "".join(chars)
+
+
+@app.post("/api/alerts/sign")
+def sign_alert(body: AlertSignRequest, authorization: str = Header(default="")):
+    token = os.environ.get("ALERT_SIGNING_TOKEN")
+    pem = os.environ.get("ALERT_PRIVATE_KEY")
+    if not token or not pem:
+        raise HTTPException(503, "Alert signing is unavailable")
+    if not hmac.compare_digest(authorization.encode(), f"Bearer {token}".encode()):
+        raise HTTPException(401, "Alert signing requires authorization")
+
+    payload = body.payload
+    try:
+        packed = base64.urlsafe_b64decode(payload + "=" * (-len(payload) % 4))
+        data = json.loads(unpack_alert(packed))
+    except (ValueError, binascii.Error, RecursionError):
+        raise HTTPException(400, "Invalid alert payload") from None
+    if (
+        not isinstance(data, dict) or type(data.get("v")) is not int or data["v"] != 1
+        or any(not isinstance(data.get(field), str) or not data[field] for field in ("d", "t"))
+    ):
+        raise HTTPException(400, "Invalid alert payload")
+
+    try:
+        key = serialization.load_pem_private_key(pem.encode(), password=None)
+    except (ValueError, TypeError):
+        raise HTTPException(503, "Alert signing key is invalid") from None
+    if not isinstance(key, ec.EllipticCurvePrivateKey) or not isinstance(key.curve, ec.SECP256R1):
+        raise HTTPException(503, "Alert signing key must use P-256")
+    der = key.sign(payload.encode(), ec.ECDSA(hashes.SHA256()))
+    r, s = decode_dss_signature(der)
+    raw = r.to_bytes(32, "big") + s.to_bytes(32, "big")
+    return {"signature": base64.urlsafe_b64encode(raw).rstrip(b"=").decode()}
 
 
 class Scammer(BaseModel):

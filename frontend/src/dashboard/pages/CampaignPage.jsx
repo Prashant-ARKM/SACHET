@@ -223,6 +223,7 @@ export default function CampaignPage() {
   })
   const [posterLang, setPosterLang] = useState('hi')
   const [style, setStyle] = useState('B')
+  const [signingToken, setSigningToken] = useState('')
   const [qrOn, setQrOn] = useState(true)
   // Real scam message, analysed by the same on-device ML model citizens use
   const [realText, setRealText] = useState('')
@@ -293,7 +294,7 @@ export default function CampaignPage() {
     }
     let live = true
     setSigned(null)
-    signAlert(makePayload({ district, type, days: validDays, message: quote, keywords, blocked }))
+    signAlert(makePayload({ district, type, days: validDays, message: quote, keywords, blocked }), signingToken)
       .then((res) => live && setSigned(res))
       .catch((err) => {
         console.error('Alert signing failed', err)
@@ -303,7 +304,7 @@ export default function CampaignPage() {
       live = false
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [qrOn, district, type, validDays, quote, keywords.join('|'), picked.join(',')])
+  }, [qrOn, signingToken, district, type, validDays, quote, keywords.join('|'), picked.join(',')])
 
   const evidence = useMemo(() => evidenceFor(reports, district, type), [reports, district, type])
   const kit = useMemo(
@@ -536,6 +537,18 @@ export default function CampaignPage() {
                 {!signed ? ui.signing : signed.error ? ui.noCrypto : signed.mode === 'official' ? ui.official : ui.demo}
               </div>
               <p className="text-xs text-muted leading-relaxed">{ui.qrHelp}</p>
+              <form onSubmit={(event) => {
+                event.preventDefault()
+                const form = event.currentTarget
+                setSigningToken(new FormData(form).get('signingToken').trim())
+                form.reset()
+              }} className="flex flex-wrap items-end gap-2">
+                <label className="text-xs text-muted">
+                  Official signing token
+                  <input name="signingToken" type="password" autoComplete="off" className="block rounded-lg border border-line px-2 py-1" />
+                </label>
+                <button type="submit" className="rounded-lg border border-line px-2 py-1 text-xs">Apply token</button>
+              </form>
             </>
           )}
         </div>

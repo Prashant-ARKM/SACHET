@@ -274,3 +274,14 @@ SACHET is built on open-source software, open data and public services. Thank yo
 <p align="center">
 Built with 💚 for Chhattisgarh at Hackasol 5.0.
 </p>
+### Campaign alert word-match smoke test
+
+With the existing model and six saved sample alerts (KYC, OTP, digital arrest,
+loan app, fake QR, and courier/customs), the citizen matcher flagged **3 of
+1,926 held-out genuine messages (0.16%)** and **5 of 6 manually reworded scam
+examples (83.3%)**. These rates describe this small alert set and depend on the
+saved alerts and paraphrases. The fake QR and courier/customs alerts used the
+binary model's keyword weights because the type model has no rows for them.
+
+The existing model scored **99.29% on 561 Hinglish development messages**
+(model only, repository split). Real WhatsApp-forward accuracy remains unmeasured.
