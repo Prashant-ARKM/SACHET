@@ -231,6 +231,37 @@ For a deployed server, set `VITE_API_BASE` in the frontend and `SACHET_CORS_ORIG
 - **Call checking:** writing speech down uses the phone's speech engine, which needs internet on most phones. The scam check itself runs offline.
 - **Not a government service:** SACHET links to official channels (1930, cybercrime.gov.in, Chakshu) but is a hackathon prototype, not an official app.
 
+## ■ Credits & Acknowledgements
+
+SACHET is built on open-source software, open data and public services. Thank you to everyone behind them.
+
+| Area | What we used |
+|---|---|
+| **Frontend** | [React](https://react.dev) · [React Router](https://reactrouter.com) · [Vite](https://vite.dev) · [Tailwind CSS](https://tailwindcss.com) · [vite-plugin-pwa](https://vite-pwa-org.netlify.app) (Workbox) · [idb](https://github.com/jakearchibald/idb) · [Oxlint](https://oxc.rs) |
+| **Charts and map** | [Apache ECharts](https://echarts.apache.org) + [echarts-for-react](https://github.com/hustcc/echarts-for-react) · [Leaflet](https://leafletjs.com) + [React Leaflet](https://react-leaflet.js.org) |
+| **Backend** | [FastAPI](https://fastapi.tiangolo.com) · [Uvicorn](https://www.uvicorn.org) · [Pydantic](https://docs.pydantic.dev) · [SQLite](https://sqlite.org) |
+| **Machine learning** | [scikit-learn](https://scikit-learn.org) · [pandas](https://pandas.pydata.org) · [NumPy](https://numpy.org) · [SciPy](https://scipy.org) · [joblib](https://joblib.readthedocs.io) |
+| **Fonts** | [Fraunces](https://fonts.google.com/specimen/Fraunces) and [Plus Jakarta Sans](https://fonts.google.com/specimen/Plus+Jakarta+Sans) via Google Fonts (SIL Open Font License) |
+| **Map data** | Chhattisgarh district boundaries: LGD 2024 via [bharatlas](https://bharatlas.com/view/lgd_districts) ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)), simplified |
+| **Browser APIs** | Web Speech API: speech-to-text for call checks and text-to-speech for lesson audio · Service Workers (offline) |
+| **Data sources** | [Hugging Face](https://huggingface.co/datasets) and [Kaggle](https://www.kaggle.com/datasets) open datasets (see below) |
+| **Design inspiration** | [Pinterest](https://www.pinterest.com) |
+| **AI assistants** | Claude Opus 5.5 and Claude Sonnet 5.5 ([Anthropic](https://www.anthropic.com)) · Flash 3.5 · GPT Sol 6.2, used for coding help, design iteration and documentation |
+| **Dev tools** | [VS Code](https://code.visualstudio.com) · [GitHub](https://github.com) |
+| **Hosting and demo** | [Vercel](https://vercel.com) (frontend) · [Render](https://render.com) and [ngrok](https://ngrok.com) (server) |
+| **Docs** | [Mermaid](https://mermaid.js.org) diagrams · [shields.io](https://shields.io) badges |
+
+**Training data:** open datasets from Hugging Face and Kaggle, plus our own templates. Names below are as recorded in `ml/data/messages_with_source.csv`; full details in [`ml/results.md`](ml/results.md).
+
+- [SMS Spam Collection](https://archive.ics.uci.edu/dataset/228/sms+spam+collection), UCI Machine Learning Repository, by Tiago A. Almeida and José María Gómez Hidalgo (CC BY 4.0)
+- `ysangam/Indian_Cyber_Scam_Hinglish` (Hugging Face)
+- `Smishing_Dataset`, `Kaggle_Hindi_Merged`, `Indian_Telecom_SMS`, `indian-scam-sms-synthetic-audited`
+- Synthetic and team-written templates (`Synthetic_Tier_C`, gap-fill rows), plus a few real contributed messages (`real_contributed.csv`)
+
+<!-- TODO (ML team): add source links and licences for each dataset above -->
+
+**Official services we link to:** National Cyber Crime Helpline **1930** and [cybercrime.gov.in](https://cybercrime.gov.in) (Indian Cyber Crime Coordination Centre, MHA) · [Chakshu on Sanchar Saathi](https://sancharsaathi.gov.in) (Department of Telecommunications). SACHET is not affiliated with them.
+
 ## ■ Team
 
 * **Prashant** – Backend and machine learning
