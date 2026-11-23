@@ -82,15 +82,15 @@ export default function LaunchPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-beige text-ink px-5 py-6 sm:px-10 sm:py-8">
+    <div className="min-h-[100dvh] flex flex-col justify-between bg-beige text-ink px-4 py-4 sm:px-10 sm:py-8">
       {/* Top Header */}
-      <header className="max-w-6xl w-full mx-auto flex flex-wrap items-center justify-between gap-3">
+      <header className="max-w-6xl w-full mx-auto flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-forest text-card flex items-center justify-center font-display font-bold text-xl">
             स
           </div>
           <div>
-            <span className="font-display font-bold text-xl text-ink">SACHET</span>
+            <span className="font-display font-bold text-xl text-ink hidden min-[400px]:inline sm:inline">SACHET</span>
             <span className="ml-2 text-[11px] font-semibold tracking-wider uppercase text-muted hidden sm:inline">
               CHHATTISGARH
             </span>
@@ -99,13 +99,13 @@ export default function LaunchPage() {
 
         <div className="flex flex-wrap items-center gap-2">
           {/* Language switch (same style as inside the apps) */}
-          <div className="flex border border-line rounded-full overflow-hidden text-xs sm:text-sm bg-card p-0.5" role="group" aria-label="Language">
+          <div className="flex border border-line rounded-full overflow-hidden text-sm bg-card p-0.5" role="group" aria-label="Language">
             {LANGS.map((l) => (
               <button
                 key={l.id}
                 onClick={() => changeLang(l.id)}
                 aria-pressed={lang === l.id}
-                className={`px-3 py-1 rounded-full font-medium transition ${
+                className={`px-3.5 py-2 sm:px-3 sm:py-1 rounded-full font-medium transition ${
                   lang === l.id ? 'bg-forest text-card' : 'text-ink hover:bg-beige'
                 }`}
               >
@@ -117,7 +117,7 @@ export default function LaunchPage() {
           {/* 1930 helpline */}
           <a
             href="tel:1930"
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold bg-blush text-scam border border-scam/20 hover:brightness-95 transition-all"
+            className="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-sm font-semibold bg-blush text-scam border border-scam/20 hover:brightness-95 transition-all"
           >
             <span className="relative flex w-2 h-2">
               <span className="absolute inline-flex w-full h-full rounded-full bg-scam opacity-60 animate-ping" />
@@ -129,25 +129,29 @@ export default function LaunchPage() {
       </header>
 
       {/* Main Persona Selector */}
-      <main className="max-w-4xl w-full mx-auto my-auto text-center py-8">
-        <div className="text-xs sm:text-sm font-semibold tracking-[0.2em] uppercase text-muted">{t.eyebrow}</div>
-        <h1 className="text-4xl sm:text-6xl font-bold font-display text-ink mt-3 leading-tight">{t.title}</h1>
-        <p className="text-sm sm:text-lg text-muted mt-3">{t.subtitle}</p>
+      <main className="max-w-4xl w-full mx-auto my-auto text-center py-5 sm:py-8">
+        <div className="hidden sm:block text-sm font-semibold tracking-[0.2em] uppercase text-muted">{t.eyebrow}</div>
+        <h1 className="text-[34px] sm:text-6xl font-bold font-display text-ink sm:mt-3 leading-tight">{t.title}</h1>
+        <p className="text-base sm:text-lg text-muted mt-2 sm:mt-3">{t.subtitle}</p>
 
         {/* 2 Bento Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6 text-left mt-9 sm:mt-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6 text-left mt-6 sm:mt-10">
           {/* Citizen Portal */}
           <Link
             to="/citizen"
-            className="group bg-card border border-line rounded-3xl p-6 sm:p-8 min-h-[240px] sm:min-h-[270px] shadow-[0_1px_0_rgba(30,42,34,0.04)] hover:-translate-y-1 hover:shadow-[0_16px_40px_-16px_rgba(31,77,51,0.3)] transition duration-200 flex flex-col justify-between gap-6"
+            className="group bg-card border border-line rounded-3xl p-4 sm:p-8 sm:min-h-[270px] shadow-[0_1px_0_rgba(30,42,34,0.04)] hover:-translate-y-1 hover:shadow-[0_16px_40px_-16px_rgba(31,77,51,0.3)] transition duration-200 flex flex-row sm:flex-col items-center sm:items-stretch justify-between gap-4 sm:gap-6"
           >
-            <div>
-              <span className="grid place-items-center w-12 h-12 rounded-2xl bg-mint text-forest mb-5 text-2xl">🛡️</span>
-              <h2 className="text-2xl sm:text-3xl font-bold font-display text-ink leading-tight">{t.citizenTitle}</h2>
-              <p className="text-sm sm:text-base text-muted mt-2 leading-relaxed">{t.citizenDesc}</p>
+            <div className="flex items-center sm:block gap-4 min-w-0 flex-1">
+              <span className="grid place-items-center w-14 h-14 sm:w-12 sm:h-12 shrink-0 rounded-2xl bg-mint text-forest sm:mb-5 text-2xl">🛡️</span>
+              <div className="min-w-0">
+                <h2 className="text-2xl sm:text-3xl font-bold font-display text-ink leading-tight">{t.citizenTitle}</h2>
+                <p className="text-base text-muted mt-1 sm:mt-2 leading-snug sm:leading-relaxed line-clamp-2 [@media(min-height:700px)]:line-clamp-none sm:line-clamp-none">{t.citizenDesc}</p>
+              </div>
             </div>
 
-            <div className="rounded-full bg-forest text-card text-sm sm:text-base font-semibold py-3 px-5 text-center group-hover:bg-forest-2 transition-colors">
+            {/* phones: the whole card is the button; arrow shows it */}
+            <span className="sm:hidden grid place-items-center w-12 h-12 shrink-0 rounded-full bg-forest text-card text-xl" aria-hidden="true">→</span>
+            <div className="hidden sm:block rounded-full bg-forest text-card text-lg sm:text-base font-semibold py-3.5 sm:py-3 px-5 text-center group-hover:bg-forest-2 transition-colors">
               {t.citizenBtn}
             </div>
           </Link>
@@ -155,22 +159,36 @@ export default function LaunchPage() {
           {/* Official Dashboard */}
           <Link
             to="/official"
-            className="group bg-card border border-line rounded-3xl p-6 sm:p-8 min-h-[240px] sm:min-h-[270px] shadow-[0_1px_0_rgba(30,42,34,0.04)] hover:-translate-y-1 hover:shadow-[0_16px_40px_-16px_rgba(31,77,51,0.3)] transition duration-200 flex flex-col justify-between gap-6"
+            className="group bg-card border border-line rounded-3xl p-4 sm:p-8 sm:min-h-[270px] shadow-[0_1px_0_rgba(30,42,34,0.04)] hover:-translate-y-1 hover:shadow-[0_16px_40px_-16px_rgba(31,77,51,0.3)] transition duration-200 flex flex-row sm:flex-col items-center sm:items-stretch justify-between gap-4 sm:gap-6"
           >
-            <div>
-              <span className="grid place-items-center w-12 h-12 rounded-2xl bg-sun-tint text-warn mb-5 text-2xl">🏛️</span>
-              <h2 className="text-2xl sm:text-3xl font-bold font-display text-ink leading-tight">{t.officialTitle}</h2>
-              <p className="text-sm sm:text-base text-muted mt-2 leading-relaxed">{t.officialDesc}</p>
+            <div className="flex items-center sm:block gap-4 min-w-0 flex-1">
+              <span className="grid place-items-center w-14 h-14 sm:w-12 sm:h-12 shrink-0 rounded-2xl bg-sun-tint text-warn sm:mb-5 text-2xl">🏛️</span>
+              <div className="min-w-0">
+                <h2 className="text-2xl sm:text-3xl font-bold font-display text-ink leading-tight">{t.officialTitle}</h2>
+                <p className="text-base text-muted mt-1 sm:mt-2 leading-snug sm:leading-relaxed line-clamp-2 [@media(min-height:700px)]:line-clamp-none sm:line-clamp-none">{t.officialDesc}</p>
+              </div>
             </div>
 
-            <div className="rounded-full bg-beige border border-line text-ink text-sm sm:text-base font-semibold py-3 px-5 text-center group-hover:bg-line transition-colors">
+            {/* phones: the whole card is the button; arrow shows it */}
+            <span className="sm:hidden grid place-items-center w-12 h-12 shrink-0 rounded-full bg-beige border border-line text-ink text-xl" aria-hidden="true">→</span>
+            <div className="hidden sm:block rounded-full bg-beige border border-line text-ink text-lg sm:text-base font-semibold py-3.5 sm:py-3 px-5 text-center group-hover:bg-line transition-colors">
               {t.officialBtn}
             </div>
           </Link>
         </div>
 
         {/* Helpline notice */}
-        <p className="text-sm sm:text-base text-muted mt-8">
+        <a
+          href="tel:1930"
+          className="sm:hidden mt-4 flex items-center justify-center gap-3 w-full h-14 rounded-2xl bg-scam text-card text-lg font-semibold active:scale-[0.98] transition"
+        >
+          <span className="relative flex w-2.5 h-2.5">
+            <span className="absolute inline-flex w-full h-full rounded-full bg-card opacity-60 animate-ping" />
+            <span className="relative inline-flex w-2.5 h-2.5 rounded-full bg-card" />
+          </span>
+          {t.helplinePill}
+        </a>
+        <p className="hidden sm:block text-base text-muted mt-8">
           {t.helplineBefore}{' '}
           <a href="tel:1930" className="text-scam font-bold underline">
             1930
@@ -180,7 +198,7 @@ export default function LaunchPage() {
       </main>
 
       {/* Minimal Footer */}
-      <footer className="max-w-6xl w-full mx-auto text-center text-xs text-muted">{t.footer}</footer>
+      <footer className="max-w-6xl w-full mx-auto text-center text-[11px] sm:text-xs text-muted">{t.footer}</footer>
     </div>
   )
 }

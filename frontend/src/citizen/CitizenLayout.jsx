@@ -1,12 +1,13 @@
 import { useState, useMemo } from 'react'
 import { Outlet, NavLink, Link, useLocation } from 'react-router-dom'
 import { DISTRICTS } from '../shared/districts.js'
+import BackToStart from '../shared/BackToStart.jsx'
 import { T } from './data/translations.js'
 import ScanLoader from '../shared/loading/ScanLoader.jsx'
 import PageGate from '../shared/loading/PageGate.jsx'
 import { useEntryLoader } from '../shared/loading/useEntryLoader.js'
 import { CitizenHomeSkeleton, CitizenPageSkeleton } from '../shared/loading/Skeletons.jsx'
-import { HomeIcon, SearchIcon, AlertIcon, BookIcon, ExitIcon } from './components/CitizenIcons.jsx'
+import { HomeIcon, SearchIcon, AlertIcon, BookIcon, ExitIcon, PhoneIcon } from './components/CitizenIcons.jsx'
 import {
   getSavedDistrict,
   saveDistrict,
@@ -14,6 +15,54 @@ import {
   saveLanguage,
   getSavedScore,
 } from './lib/citizenStorage.js'
+
+const LANGS = [
+  { id: 'en', label: 'English', short: 'EN' },
+  { id: 'hi', label: 'हिंदी', short: 'हिं' },
+  { id: 'cg', label: 'छत्तीसगढ़ी', short: 'छ.ग.' },
+]
+
+// Phone only: one language button that opens a list of big options.
+function LangMenu({ lang, onChange }) {
+  const [open, setOpen] = useState(false)
+  const current = LANGS.find((l) => l.id === lang) || LANGS[0]
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        aria-label="Language"
+        className="flex items-center gap-2 h-12 px-4 rounded-full bg-card border border-line text-base font-semibold text-ink"
+      >
+        <span className="grid place-items-center w-7 h-7 rounded-full bg-mint text-forest text-sm font-bold">अ</span>
+        {current.short}
+      </button>
+      {open && (
+        <>
+          <button type="button" aria-label="Close" className="fixed inset-0 z-40 cursor-default" onClick={() => setOpen(false)} />
+          <div className="absolute right-0 top-14 z-50 w-56 bg-card border border-line rounded-2xl p-2 shadow-[0_16px_40px_-12px_rgba(31,77,51,0.35)]">
+            {LANGS.map((l) => (
+              <button
+                key={l.id}
+                type="button"
+                onClick={() => {
+                  onChange(l.id)
+                  setOpen(false)
+                }}
+                className={`w-full text-left h-14 px-4 rounded-xl text-lg font-semibold ${
+                  lang === l.id ? 'bg-forest text-card' : 'text-ink hover:bg-beige'
+                }`}
+              >
+                {l.label}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
 
 const Hint = ({ children }) => (
   <span className="pointer-events-none absolute left-full ml-3 px-2.5 py-1 rounded-md bg-ink text-card text-xs font-medium whitespace-nowrap opacity-0 -translate-x-1 transition group-hover:opacity-100 group-hover:translate-x-0 group-focus-visible:opacity-100 z-[1000]">
@@ -87,27 +136,17 @@ export default function CitizenLayout() {
 
       {/* 2. MAIN CONTENT WRAPPER */}
       <div className="flex-1 min-w-0 flex flex-col">
-        {/* Mobile top nav bar */}
-        <nav className="md:hidden flex gap-1 overflow-x-auto bg-forest p-2">
-          {navItems.map(({ to, label, Icon, end }) => (
-            <NavLink
-              key={to}
-              to={to}
-              end={end}
-              className={({ isActive }) =>
-                `flex items-center gap-2 px-3 py-2 rounded-xl text-sm whitespace-nowrap ${
-                  isActive ? 'bg-card/20 text-card' : 'text-card/70'
-                }`
-              }
-            >
-              <Icon size={18} />
-              {label}
-            </NavLink>
-          ))}
-        </nav>
+        {/* PHONE HEADER: logo + page title + one language button */}
+        <header className="md:hidden flex items-center justify-between gap-3 px-4 pt-4 pb-3 shrink-0">
+          <div className="flex items-center gap-3 min-w-0">
+            <BackToStart lang={lang} />
+            <span className="font-display text-xl min-[380px]:text-2xl font-bold text-ink truncate">{pageTitle}</span>
+          </div>
+          <LangMenu lang={lang} onChange={handleLangChange} />
+        </header>
 
         {/* 3. MINIMAL TOP BAR */}
-        <header className="px-5 py-4 flex flex-wrap items-center justify-between gap-3 shrink-0">
+        <header className="hidden md:flex px-5 py-4 flex-wrap items-center justify-between gap-3 shrink-0">
           {/* Left: Title + Emergency 1930 Pill */}
           <div className="flex items-center gap-3">
             <h1 className="font-display text-2xl lg:text-3xl font-bold text-ink">{pageTitle}</h1>
@@ -143,11 +182,7 @@ export default function CitizenLayout() {
 
             {/* Language Selector: English (Default), Hindi, Chhattisgarhi */}
             <div className="flex border border-line rounded-full overflow-hidden text-xs bg-card p-0.5">
-              {[
-                { id: 'en', label: 'English' },
-                { id: 'hi', label: 'हिंदी' },
-                { id: 'cg', label: 'छ.ग.' },
-              ].map((l) => (
+              {LANGS.map((l) => (
                 <button
                   key={l.id}
                   onClick={() => handleLangChange(l.id)}
@@ -155,7 +190,7 @@ export default function CitizenLayout() {
                     lang === l.id ? 'bg-forest text-card' : 'text-ink hover:bg-beige'
                   }`}
                 >
-                  {l.label}
+                  {l.id === 'cg' ? 'छ.ग.' : l.label}
                 </button>
               ))}
             </div>
@@ -171,16 +206,55 @@ export default function CitizenLayout() {
         </header>
 
         {/* 4. MAIN PAGE VIEWPORT */}
-        <main className="flex-1 min-h-0 px-5 pb-5 overflow-y-auto">
+        <main className="flex-1 min-h-0 px-4 md:px-5 pb-32 md:pb-5 overflow-y-auto">
           <PageGate
             key={location.pathname}
             hold={entering}
             skeleton={isHome ? <CitizenHomeSkeleton /> : <CitizenPageSkeleton />}
           >
-            <Outlet context={{ district, lang, t, score, setScore }} />
+            <Outlet context={{ district, setDistrict: handleDistrictChange, lang, t, score, setScore }} />
           </PageGate>
         </main>
       </div>
+
+      {/* PHONE BOTTOM BAR: Home · Check · [Call 1930] · Report · Learn */}
+      <nav
+        className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-forest text-card px-2 pt-2"
+        style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}
+        aria-label="Citizen Navigation"
+      >
+        <div className="grid grid-cols-5 items-end">
+          {navItems.slice(0, 2).map((item) => (
+            <BottomTab key={item.to} {...item} />
+          ))}
+          <a href="tel:1930" className="flex flex-col items-center gap-1 -mt-7" aria-label={t.callNow}>
+            <span className="grid place-items-center w-16 h-16 rounded-full bg-scam text-card border-4 border-beige shadow-[0_8px_20px_-6px_rgba(179,38,30,0.7)]">
+              <PhoneIcon size={26} />
+            </span>
+            <span className="text-[13px] font-bold leading-none pb-1">1930</span>
+          </a>
+          {navItems.slice(2).map((item) => (
+            <BottomTab key={item.to} {...item} />
+          ))}
+        </div>
+      </nav>
     </div>
+  )
+}
+
+function BottomTab({ to, label, Icon, end }) {
+  return (
+    <NavLink
+      to={to}
+      end={end}
+      className={({ isActive }) =>
+        `flex flex-col items-center justify-center gap-1 h-16 mx-0.5 rounded-2xl text-[13px] font-semibold leading-none transition-colors ${
+          isActive ? 'bg-card/20 text-card' : 'text-card/75'
+        }`
+      }
+    >
+      <Icon size={24} />
+      <span className="truncate max-w-full px-1">{label}</span>
+    </NavLink>
   )
 }

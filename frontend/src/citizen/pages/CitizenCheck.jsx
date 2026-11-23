@@ -88,11 +88,11 @@ export default function CitizenCheck() {
     <div className="max-w-3xl mx-auto space-y-4">
       {/* Tab Switcher */}
       <div className="flex items-center justify-between">
-        <div className="flex border border-line rounded-full overflow-hidden text-sm bg-card p-0.5">
+        <div className="flex border border-line rounded-full overflow-hidden text-base md:text-sm bg-card p-0.5">
           <button
             type="button"
             onClick={() => setActiveTab('message')}
-            className={`px-4 py-1.5 rounded-full font-medium transition ${
+            className={`px-4 py-3 md:py-1.5 rounded-full font-medium transition ${
               activeTab === 'message' ? 'bg-forest text-card' : 'text-ink hover:bg-beige'
             }`}
           >
@@ -101,7 +101,7 @@ export default function CitizenCheck() {
           <button
             type="button"
             onClick={() => setActiveTab('call')}
-            className={`px-4 py-1.5 rounded-full font-medium transition ${
+            className={`px-4 py-3 md:py-1.5 rounded-full font-medium transition ${
               activeTab === 'call' ? 'bg-forest text-card' : 'text-ink hover:bg-beige'
             }`}
           >
@@ -115,7 +115,7 @@ export default function CitizenCheck() {
               setInputText('')
               setResult(null)
             }}
-            className="text-xs text-muted hover:text-scam font-medium"
+            className="text-sm md:text-xs text-muted hover:text-scam font-medium"
           >
             {t.btnClear}
           </button>
@@ -130,10 +130,10 @@ export default function CitizenCheck() {
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             placeholder={t.checkInputPlaceholder}
-            className="w-full p-3.5 rounded-2xl border border-line bg-beige/40 text-ink text-sm outline-none focus:border-forest resize-none placeholder:text-muted/60"
+            className="w-full p-3.5 rounded-2xl border border-line bg-beige/40 text-ink text-lg md:text-sm outline-none focus:border-forest resize-none placeholder:text-muted/60 min-h-[140px] md:min-h-0"
           />
 
-          <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+          <div className="flex flex-col-reverse md:flex-row md:flex-wrap md:items-center md:justify-between gap-3 md:gap-2 pt-1">
             {/* Quick chips */}
             <div className="flex flex-wrap gap-1.5">
               {SAMPLES.map((s, idx) => (
@@ -144,7 +144,7 @@ export default function CitizenCheck() {
                     setInputText(s.text)
                     runCheck(s.text)
                   }}
-                  className="text-xs bg-beige hover:bg-mint text-ink font-medium px-3 py-1 rounded-full border border-line transition"
+                  className="text-sm md:text-xs bg-beige hover:bg-mint text-ink font-medium px-3 py-2.5 md:py-1 rounded-full border border-line transition"
                 >
                   {s.label[lang] || s.label.en}
                 </button>
@@ -156,7 +156,7 @@ export default function CitizenCheck() {
               type="button"
               onClick={() => runCheck()}
               disabled={!inputText.trim() || isAnalyzing}
-              className="rounded-full bg-forest text-card text-xs sm:text-sm font-semibold px-5 py-2 hover:bg-forest-2 active:scale-95 transition disabled:opacity-40"
+              className="w-full md:w-auto h-14 md:h-auto rounded-full bg-forest text-card text-lg md:text-sm font-semibold px-5 md:py-2 hover:bg-forest-2 active:scale-95 transition disabled:opacity-40"
             >
               {isAnalyzing
                 ? (lang === 'hi' ? 'जाँच हो रही है…' : lang === 'cg' ? 'जाँच चलत हे…' : 'Analyzing…')
@@ -170,13 +170,13 @@ export default function CitizenCheck() {
       {activeTab === 'call' && (
         <section className="bg-card border border-line rounded-3xl p-5 shadow-[0_1px_0_rgba(30,42,34,0.04)] space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-warn bg-sun-tint px-3 py-1 rounded-full">
+            <span className="text-sm md:text-xs font-semibold text-warn bg-sun-tint px-3 py-1 rounded-full">
               ⏰ {t.callTabNoticeSub}
             </span>
             <button
               onClick={handleSampleCall}
               disabled={callAnalyzing}
-              className="text-xs font-semibold text-forest underline"
+              className="text-sm md:text-xs font-semibold text-forest underline"
             >
               {callAnalyzing
                 ? (lang === 'hi' ? 'विश्लेषण...' : lang === 'cg' ? 'विश्लेषण...' : 'Analyzing…')
@@ -188,8 +188,8 @@ export default function CitizenCheck() {
             <div className="grid place-items-center w-10 h-10 rounded-full bg-mint text-forest mx-auto">
               <PhoneIcon size={18} />
             </div>
-            <p className="text-xs font-semibold text-ink">{t.callUploadLabel}</p>
-            <p className="text-[11px] text-muted">
+            <p className="text-base md:text-xs font-semibold text-ink">{t.callUploadLabel}</p>
+            <p className="text-base md:text-[11px] text-muted">
               {lang === 'hi'
                 ? 'हमारा वॉइस AI कॉल में धोखाधड़ी के शब्द व पैटर्न पहचानता है'
                 : lang === 'cg'
@@ -218,12 +218,12 @@ export default function CitizenCheck() {
                   {result.verdict === 'scam' ? t.verdictScam : t.verdictGenuine}
                 </h3>
               </div>
-              <p className="text-xs opacity-85 mt-0.5">
+              <p className="text-base md:text-xs opacity-85 mt-0.5">
                 {lang === 'hi' ? 'विश्वास स्कोर' : lang === 'cg' ? 'विश्वास स्कोर' : 'Confidence'}: {result.confidence}% · {result.typeName?.[lang] || result.typeName?.en || result.typeName?.hi}
               </p>
             </div>
 
-            <span className="text-xs font-semibold px-3 py-1 rounded-full bg-card/80 border border-current">
+            <span className="text-sm md:text-xs font-semibold px-3 py-1 rounded-full bg-card/80 border border-current">
               {result.verdict === 'scam'
                 ? (lang === 'hi' ? 'ख़तरा' : lang === 'cg' ? 'खतरा' : 'Threat')
                 : (lang === 'hi' ? 'सामान्य' : lang === 'cg' ? 'सामान्य' : 'Safe')}
@@ -232,10 +232,10 @@ export default function CitizenCheck() {
 
           {/* AI Token Attention Highlighting */}
           <div className="space-y-1.5">
-            <div className="text-[11px] font-semibold tracking-[0.18em] uppercase text-muted">
+            <div className="text-sm md:text-[11px] font-semibold tracking-[0.18em] uppercase text-muted">
               {t.whyTitle}
             </div>
-            <div className="p-3.5 rounded-2xl bg-beige/60 border border-line text-xs sm:text-sm leading-relaxed text-ink font-mono break-words">
+            <div className="p-3.5 rounded-2xl bg-beige/60 border border-line text-sm sm:text-sm leading-relaxed text-ink font-mono break-words">
               {result.annotatedTokens.map((tok, idx) =>
                 tok.isFlagged ? (
                   <mark
@@ -254,12 +254,12 @@ export default function CitizenCheck() {
 
           {/* 3 Action Steps */}
           <div className="space-y-1.5">
-            <div className="text-[11px] font-semibold tracking-[0.18em] uppercase text-muted">
+            <div className="text-sm md:text-[11px] font-semibold tracking-[0.18em] uppercase text-muted">
               {t.whatToDoTitle}
             </div>
             <div className="space-y-1">
               {result.actionSteps.map((step) => (
-                <div key={step.num} className="text-xs text-ink flex items-start gap-2 py-0.5">
+                <div key={step.num} className="text-sm md:text-xs text-ink flex items-start gap-2 py-0.5">
                   <span className="font-bold text-forest">{step.num}.</span>
                   <span>{step[lang] || step.en || step.hi}</span>
                 </div>
@@ -279,7 +279,7 @@ export default function CitizenCheck() {
                   },
                 })
               }
-              className="inline-flex items-center gap-1.5 rounded-full bg-scam text-card text-xs font-semibold px-4 py-2 hover:brightness-110 active:scale-95 transition"
+              className="inline-flex items-center gap-1.5 rounded-full bg-scam text-card text-sm md:text-xs font-semibold px-4 py-3 md:py-2 hover:brightness-110 active:scale-95 transition"
             >
               <AlertIcon size={14} />
               <span>{t.btnReportThis}</span>
@@ -292,7 +292,7 @@ export default function CitizenCheck() {
                   state: { highlightLessonId: result.relatedLessonId },
                 })
               }
-              className="inline-flex items-center gap-1.5 rounded-full bg-forest text-card text-xs font-semibold px-4 py-2 hover:bg-forest-2 active:scale-95 transition"
+              className="inline-flex items-center gap-1.5 rounded-full bg-forest text-card text-sm md:text-xs font-semibold px-4 py-3 md:py-2 hover:bg-forest-2 active:scale-95 transition"
             >
               <BookIcon size={14} />
               <span>{t.btnRelatedLesson}</span>
@@ -301,7 +301,7 @@ export default function CitizenCheck() {
             <button
               type="button"
               onClick={handleShare}
-              className="inline-flex items-center gap-1.5 rounded-full bg-sun text-ink text-xs font-semibold px-4 py-2 hover:brightness-105 active:scale-95 transition"
+              className="inline-flex items-center gap-1.5 rounded-full bg-sun text-ink text-sm md:text-xs font-semibold px-4 py-3 md:py-2 hover:brightness-105 active:scale-95 transition"
             >
               <span>{shared ? '✓ ' + t.shareTextSuccess : t.btnShareFamily}</span>
             </button>

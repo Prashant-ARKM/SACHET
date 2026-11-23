@@ -68,7 +68,7 @@ export default function DashboardLayout() {
           onLangChange={handleLangChange}
           t={t}
         />
-        <main className="flex-1 min-h-0 px-5 pb-5">
+        <main className="flex-1 min-h-0 px-4 md:px-5 pb-28 md:pb-5">
           <PageGate
             key={pathname}
             hold={entering}

@@ -77,7 +77,7 @@ Reference ID: ${refId || 'SACHET-CG'}`
             <h2 className="font-display text-2xl font-bold text-forest">
               {t.reportSuccess}
             </h2>
-            <p className="text-xs text-muted mt-1">
+            <p className="text-base md:text-xs text-muted mt-1">
               {lang === 'hi' ? 'संदर्भ संख्या' : lang === 'cg' ? 'संदर्भ नंबर' : 'Reference ID'}: <span className="font-mono font-bold text-ink">{refId}</span> · {district} {lang === 'hi' ? 'डैशबोर्ड पर प्रेषित' : lang === 'cg' ? 'डैशबोर्ड म भेज दे गे' : 'sent to dashboard'}
             </p>
           </div>
@@ -85,7 +85,7 @@ Reference ID: ${refId || 'SACHET-CG'}`
           <div className="flex justify-center gap-2 pt-2">
             <button
               onClick={() => setShowLetter(!showLetter)}
-              className="rounded-full bg-forest text-card text-xs font-semibold px-4 py-2 hover:bg-forest-2 transition"
+              className="rounded-full bg-forest text-card text-sm md:text-xs font-semibold px-4 py-3 md:py-2 hover:bg-forest-2 transition"
             >
               {showLetter
                 ? (lang === 'hi' ? 'पत्र छुपाएं' : lang === 'cg' ? 'पत्र लुकावव' : 'Hide Letter')
@@ -93,14 +93,14 @@ Reference ID: ${refId || 'SACHET-CG'}`
             </button>
             <Link
               to="/citizen"
-              className="rounded-full bg-card border border-line text-ink text-xs font-semibold px-4 py-2 hover:bg-beige transition"
+              className="rounded-full bg-card border border-line text-ink text-sm md:text-xs font-semibold px-4 py-3 md:py-2 hover:bg-beige transition"
             >
               {lang === 'hi' ? 'होम पर जाएं' : lang === 'cg' ? 'घर जावव' : 'Back to Home'}
             </Link>
           </div>
 
           {showLetter && (
-            <div className="text-left bg-beige/60 p-4 rounded-2xl border border-line space-y-2 mt-3 text-xs font-mono">
+            <div className="text-left bg-beige/60 p-4 rounded-2xl border border-line space-y-2 mt-3 text-sm md:text-xs font-mono">
               <div className="flex justify-between items-center">
                 <span className="font-semibold text-ink font-sans">
                   {t.complaintWriterTitle}:
@@ -117,7 +117,7 @@ Reference ID: ${refId || 'SACHET-CG'}`
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* STEP 1: DID YOU LOSE MONEY */}
           <section className="bg-card border border-line rounded-3xl p-5 shadow-[0_1px_0_rgba(30,42,34,0.04)] space-y-3">
-            <div className="text-[11px] font-semibold tracking-[0.18em] uppercase text-muted">
+            <div className="text-sm md:text-[11px] font-semibold tracking-[0.18em] uppercase text-muted">
               {lang === 'hi' ? 'चरण 1 · क्या आपके पैसे कटे?' : lang === 'cg' ? 'पहिला पायदान · पैसा कट गे का?' : 'STEP 1 · DID YOU LOSE MONEY?'}
             </div>
             <h3 className="font-display text-xl font-bold text-ink">{t.qLostMoney}</h3>
@@ -126,7 +126,7 @@ Reference ID: ${refId || 'SACHET-CG'}`
               <button
                 type="button"
                 onClick={() => setLostMoney(true)}
-                className={`flex-1 py-2.5 px-3 rounded-full text-xs font-semibold border transition ${
+                className={`flex-1 py-2.5 px-3 rounded-full text-sm md:text-xs font-semibold border transition ${
                   lostMoney === true
                     ? 'bg-blush border-scam text-scam shadow-xs'
                     : 'bg-card border-line text-ink hover:bg-beige'
@@ -137,7 +137,7 @@ Reference ID: ${refId || 'SACHET-CG'}`
               <button
                 type="button"
                 onClick={() => setLostMoney(false)}
-                className={`flex-1 py-2.5 px-3 rounded-full text-xs font-semibold border transition ${
+                className={`flex-1 py-2.5 px-3 rounded-full text-sm md:text-xs font-semibold border transition ${
                   lostMoney === false
                     ? 'bg-mint border-leaf text-forest shadow-xs'
                     : 'bg-card border-line text-ink hover:bg-beige'
@@ -148,11 +148,11 @@ Reference ID: ${refId || 'SACHET-CG'}`
             </div>
 
             {lostMoney === true && (
-              <div className="bg-blush/60 border border-scam/15 p-3 rounded-2xl flex items-center justify-between gap-3 text-xs">
+              <div className="bg-blush/60 border border-scam/15 p-3 rounded-2xl flex items-center justify-between gap-3 text-sm md:text-xs">
                 <span className="text-scam font-medium">{t.lostStep1}</span>
                 <a
                   href="tel:1930"
-                  className="rounded-full bg-scam text-card px-3 py-1 font-semibold hover:brightness-110 shrink-0"
+                  className="rounded-full bg-scam text-card px-3 py-2.5 md:py-1 font-semibold hover:brightness-110 shrink-0"
                 >
                   {t.callNow}
                 </a>
@@ -160,13 +160,13 @@ Reference ID: ${refId || 'SACHET-CG'}`
             )}
 
             {lostMoney === false && (
-              <div className="bg-mint/40 border border-leaf/15 p-3 rounded-2xl flex items-center justify-between gap-3 text-xs">
+              <div className="bg-mint/40 border border-leaf/15 p-3 rounded-2xl flex items-center justify-between gap-3 text-sm md:text-xs">
                 <span className="text-forest font-medium">{t.noLostMoneyDesc}</span>
                 <a
                   href="https://sancharsaathi.gov.in/sfc/"
                   target="_blank"
                   rel="noreferrer"
-                  className="rounded-full bg-forest text-card px-3 py-1 font-semibold hover:bg-forest-2 shrink-0"
+                  className="rounded-full bg-forest text-card px-3 py-2.5 md:py-1 font-semibold hover:bg-forest-2 shrink-0"
                 >
                   {t.btnChakshu} →
                 </a>
@@ -176,17 +176,17 @@ Reference ID: ${refId || 'SACHET-CG'}`
 
           {/* STEP 2: EVIDENCE */}
           <section className="bg-card border border-line rounded-3xl p-5 shadow-[0_1px_0_rgba(30,42,34,0.04)] space-y-3">
-            <div className="text-[11px] font-semibold tracking-[0.18em] uppercase text-muted">
+            <div className="text-sm md:text-[11px] font-semibold tracking-[0.18em] uppercase text-muted">
               {t.evidenceTitle}
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm md:text-xs">
               <div>
                 <label className="font-semibold text-ink block mb-1">{t.scamTypeLabel}</label>
                 <select
                   value={scamType}
                   onChange={(e) => setScamType(e.target.value)}
-                  className="w-full border border-line rounded-xl px-3 py-2 bg-beige/40 text-ink"
+                  className="w-full border border-line rounded-xl px-3 py-3 md:py-2 bg-beige/40 text-ink"
                 >
                   {SCAM_TYPES.map((st) => (
                     <option key={st.id} value={st.id}>
@@ -203,7 +203,7 @@ Reference ID: ${refId || 'SACHET-CG'}`
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="+91 98765 43210"
-                  className="w-full border border-line rounded-xl px-3 py-2 bg-beige/40 text-ink"
+                  className="w-full border border-line rounded-xl px-3 py-3 md:py-2 bg-beige/40 text-ink"
                 />
               </div>
 
@@ -214,7 +214,7 @@ Reference ID: ${refId || 'SACHET-CG'}`
                   value={upi}
                   onChange={(e) => setUpi(e.target.value)}
                   placeholder="scammer@upi"
-                  className="w-full border border-line rounded-xl px-3 py-2 bg-beige/40 text-ink"
+                  className="w-full border border-line rounded-xl px-3 py-3 md:py-2 bg-beige/40 text-ink"
                 />
               </div>
 
@@ -228,14 +228,14 @@ Reference ID: ${refId || 'SACHET-CG'}`
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                     placeholder="5000"
-                    className="w-full border border-scam/30 rounded-xl px-3 py-2 bg-blush/30 text-ink font-semibold"
+                    className="w-full border border-scam/30 rounded-xl px-3 py-3 md:py-2 bg-blush/30 text-ink font-semibold"
                   />
                 </div>
               )}
             </div>
 
             <div>
-              <label className="font-semibold text-ink block mb-1 text-xs">
+              <label className="font-semibold text-ink block mb-1 text-base md:text-xs">
                 {lang === 'hi' ? 'घटना का संक्षिप्त विवरण' : lang === 'cg' ? 'विवरण' : 'Brief Description'}
               </label>
               <textarea
@@ -243,14 +243,14 @@ Reference ID: ${refId || 'SACHET-CG'}`
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder={lang === 'hi' ? 'संदेश या घटना की मुख्य बात लिखें...' : lang === 'cg' ? 'मैसेज या ठगी के बात लिखव...' : 'Paste message text or describe what happened...'}
-                className="w-full border border-line rounded-xl p-3 bg-beige/40 text-xs text-ink outline-none focus:border-forest resize-none"
+                className="w-full border border-line rounded-xl p-3 bg-beige/40 text-base md:text-xs text-ink outline-none focus:border-forest resize-none"
               />
             </div>
           </section>
 
           {/* STEP 3: CONSENT & SUBMIT */}
           <section className="bg-card border border-line rounded-3xl p-5 shadow-[0_1px_0_rgba(30,42,34,0.04)] space-y-3">
-            <label className="flex items-center gap-2.5 text-xs text-ink font-medium cursor-pointer">
+            <label className="flex items-center gap-2.5 text-base md:text-xs text-ink font-medium cursor-pointer">
               <input
                 type="checkbox"
                 checked={consent}
@@ -262,7 +262,7 @@ Reference ID: ${refId || 'SACHET-CG'}`
 
             <button
               type="submit"
-              className="w-full rounded-full bg-forest text-card text-xs sm:text-sm font-semibold py-2.5 hover:bg-forest-2 active:scale-95 transition"
+              className="w-full rounded-full bg-forest text-card text-sm sm:text-sm font-semibold py-2.5 hover:bg-forest-2 active:scale-95 transition"
             >
               {t.btnSubmitReport} →
             </button>

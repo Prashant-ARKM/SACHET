@@ -25,7 +25,7 @@ export default function DistrictModal({ isOpen, onClose, currentDistrict, onSele
             <h3 className="text-xl font-bold font-display text-ink flex items-center gap-2">
               <span>📍</span> {t.title}
             </h3>
-            <p className="text-xs text-muted mt-1">{t.sub}</p>
+            <p className="text-base md:text-xs text-muted mt-1">{t.sub}</p>
           </div>
           <button
             type="button"
@@ -43,7 +43,7 @@ export default function DistrictModal({ isOpen, onClose, currentDistrict, onSele
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t.placeholder}
-            className="w-full px-3.5 py-2.5 rounded-xl border border-line bg-beige text-ink text-sm focus:outline-hidden focus:border-forest"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-line bg-beige text-ink text-base md:text-sm focus:outline-hidden focus:border-forest"
           />
         </div>
 
@@ -58,14 +58,14 @@ export default function DistrictModal({ isOpen, onClose, currentDistrict, onSele
                   onSelect(d.name)
                   onClose()
                 }}
-                className={`w-full text-left px-4 py-3 rounded-xl text-sm font-semibold transition-colors flex items-center justify-between cursor-pointer ${
+                className={`w-full text-left px-4 py-3 rounded-xl text-base md:text-sm font-semibold transition-colors flex items-center justify-between cursor-pointer ${
                   isSelected
                     ? 'bg-forest text-card shadow-xs'
                     : 'bg-beige/60 hover:bg-mint text-ink'
                 }`}
               >
                 <span>{d.name}</span>
-                {isSelected && <span className="text-xs bg-leaf px-2 py-0.5 rounded-full text-card">चयनित</span>}
+                {isSelected && <span className="text-sm md:text-xs bg-leaf px-2 py-0.5 rounded-full text-card">चयनित</span>}
               </button>
             )
           })}

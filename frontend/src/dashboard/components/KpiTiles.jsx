@@ -28,7 +28,7 @@ function Kpi({ label, value, format, change, upIsBad = true, spark, color, tint,
             </div>
           )}
         </div>
-        <Sparkline values={spark} color={color} className="w-16 h-8 shrink-0" />
+        <Sparkline values={spark} color={color} className="hidden min-[420px]:block w-16 h-8 shrink-0" />
       </div>
     </div>
   )

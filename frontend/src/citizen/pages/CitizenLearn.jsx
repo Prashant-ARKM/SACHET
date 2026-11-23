@@ -77,13 +77,13 @@ export default function CitizenLearn() {
             <span className="grid place-items-center w-7 h-7 rounded-lg bg-mint text-forest">
               <BookIcon size={16} />
             </span>
-            <h2 className="text-sm font-semibold text-ink">
+            <h2 className="text-base md:text-sm font-semibold text-ink">
               {lang === 'hi' ? '4 बुनियादी सुरक्षा नियम' : lang === 'cg' ? '4 बुनियादी सुरक्षा नियम' : '4 Core Safety Rules'}
             </h2>
           </div>
 
           {/* Audio Dialect Switcher */}
-          <div className="flex border border-line rounded-full overflow-hidden text-xs bg-card p-0.5">
+          <div className="flex border border-line rounded-full overflow-hidden text-sm md:text-xs bg-card p-0.5">
             {[
               { id: 'en', label: 'Audio: EN' },
               { id: 'hi', label: 'ऑडियो: हिंदी' },
@@ -96,7 +96,7 @@ export default function CitizenLearn() {
                   setPlayingId(null)
                   setAudioLang(al.id)
                 }}
-                className={`px-3 py-1 rounded-full font-medium transition ${
+                className={`px-3 py-2.5 md:py-1 rounded-full font-medium transition ${
                   audioLang === al.id ? 'bg-forest text-card' : 'text-ink hover:bg-beige'
                 }`}
               >
@@ -122,7 +122,7 @@ export default function CitizenLearn() {
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-1">
                     <span
-                      className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                      className="text-sm md:text-[10px] font-bold px-2 py-0.5 rounded-full"
                       style={{ backgroundColor: lesson.bgColor, color: lesson.accent }}
                     >
                       {badgeText}
@@ -130,7 +130,7 @@ export default function CitizenLearn() {
                     <button
                       type="button"
                       onClick={() => toggleAudio(lesson)}
-                      className={`inline-flex items-center gap-1.5 rounded-full text-xs font-semibold px-3 py-1 transition ${
+                      className={`inline-flex items-center gap-1.5 rounded-full text-sm md:text-xs font-semibold px-3 py-2.5 md:py-1 transition ${
                         isPlaying
                           ? 'bg-scam text-card animate-pulse'
                           : 'bg-forest text-card hover:bg-forest-2'
@@ -144,21 +144,21 @@ export default function CitizenLearn() {
                   <h3 className="font-display text-xl font-bold text-ink mt-1">
                     {lesson.title[lang] || lesson.title.en || lesson.title.hi}
                   </h3>
-                  <p className="text-xs text-muted mt-0.5">
+                  <p className="text-base md:text-xs text-muted mt-0.5">
                     {lesson.tagline[lang] || lesson.tagline.en || lesson.tagline.hi}
                   </p>
 
                   {/* Concise DOs and DONTs */}
-                  <div className="mt-3 space-y-1 text-xs">
+                  <div className="mt-3 space-y-1 text-sm md:text-xs">
                     <div className="flex items-center gap-1.5 text-safe">
                       <span className="font-bold">✓</span>
-                      <span className="text-ink font-medium truncate">
+                      <span className="text-ink font-medium md:truncate">
                         {lesson.dos[0][lang] || lesson.dos[0].en || lesson.dos[0].hi}
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5 text-scam">
                       <span className="font-bold">✕</span>
-                      <span className="text-ink font-medium truncate">
+                      <span className="text-ink font-medium md:truncate">
                         {lesson.donts[0][lang] || lesson.donts[0].en || lesson.donts[0].hi}
                       </span>
                     </div>
@@ -166,7 +166,7 @@ export default function CitizenLearn() {
                 </div>
 
                 <div
-                  className="mt-3 p-2.5 rounded-xl text-xs font-semibold"
+                  className="mt-3 p-2.5 rounded-xl text-sm md:text-xs font-semibold"
                   style={{ backgroundColor: lesson.bgColor, color: lesson.accent }}
                 >
                   {lesson.goldenRule[lang] || lesson.goldenRule.en || lesson.goldenRule.hi}
@@ -181,7 +181,7 @@ export default function CitizenLearn() {
       <section className="bg-card border border-line rounded-3xl p-5 shadow-[0_1px_0_rgba(30,42,34,0.04)] space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-[11px] font-semibold tracking-[0.18em] uppercase text-muted">
+            <div className="text-sm md:text-[11px] font-semibold tracking-[0.18em] uppercase text-muted">
               {lang === 'hi' ? 'आत्म-परीक्षण · SELF TEST' : lang === 'cg' ? 'जाँच · SELF TEST' : 'SELF TEST · KNOWLEDGE CHECK'}
             </div>
             <h3 className="font-display text-xl font-bold text-ink mt-0.5">
@@ -190,17 +190,17 @@ export default function CitizenLearn() {
           </div>
 
           <div className="text-right">
-            <span className="text-xs text-muted">{t.yourScore}</span>
+            <span className="text-sm md:text-xs text-muted">{t.yourScore}</span>
             <div className="font-display text-2xl font-bold text-forest leading-none">{score}/100</div>
           </div>
         </div>
 
         {!quizStarted && !quizDone ? (
           <div className="bg-beige/50 border border-line rounded-2xl p-4 flex items-center justify-between gap-4">
-            <p className="text-xs text-muted">{t.quizDesc}</p>
+            <p className="text-base md:text-xs text-muted">{t.quizDesc}</p>
             <button
               onClick={() => setQuizStarted(true)}
-              className="rounded-full bg-forest text-card text-xs font-semibold px-4 py-2 hover:bg-forest-2 shrink-0 transition"
+              className="rounded-full bg-forest text-card text-sm md:text-xs font-semibold px-4 py-3 md:py-2 hover:bg-forest-2 shrink-0 transition"
             >
               {t.btnStartQuiz} →
             </button>
@@ -210,7 +210,7 @@ export default function CitizenLearn() {
             <h4 className="font-display text-2xl font-bold text-forest">
               {t.congratsTitle}
             </h4>
-            <p className="text-xs text-ink">
+            <p className="text-base md:text-xs text-ink">
               {t.yourScore} <span className="font-bold text-forest text-base">{score}/100</span>
             </p>
             <button
@@ -221,17 +221,17 @@ export default function CitizenLearn() {
                 setCorrectList([])
                 setQuizDone(false)
               }}
-              className="rounded-full bg-forest text-card text-xs font-semibold px-4 py-1.5 hover:bg-forest-2 transition"
+              className="rounded-full bg-forest text-card text-sm md:text-xs font-semibold px-4 py-3 md:py-1.5 hover:bg-forest-2 transition"
             >
               {t.btnRetryQuiz}
             </button>
           </div>
         ) : (
           <div className="space-y-3 animate-fadeIn">
-            <div className="text-xs font-semibold text-muted">
+            <div className="text-sm md:text-xs font-semibold text-muted">
               {lang === 'hi' ? 'प्रश्न' : lang === 'cg' ? 'सवाल' : 'Question'} {qIndex + 1} / {QUIZ_QUESTIONS.length}
             </div>
-            <p className="text-sm font-semibold text-ink bg-beige/40 p-3.5 rounded-2xl border border-line">
+            <p className="text-base md:text-sm font-semibold text-ink bg-beige/40 p-3.5 rounded-2xl border border-line">
               {QUIZ_QUESTIONS[qIndex].question[lang] || QUIZ_QUESTIONS[qIndex].question.en || QUIZ_QUESTIONS[qIndex].question.hi}
             </p>
 
@@ -249,7 +249,7 @@ export default function CitizenLearn() {
                     key={idx}
                     onClick={() => handleAnswer(opt, idx)}
                     disabled={chosenOpt !== null}
-                    className={`w-full p-3 rounded-2xl border text-left text-xs font-medium transition flex items-center justify-between ${cls}`}
+                    className={`w-full p-3 rounded-2xl border text-left text-sm md:text-xs font-medium transition flex items-center justify-between ${cls}`}
                   >
                     <span>{opt.text[lang] || opt.text.en || opt.text.hi}</span>
                     {chosenOpt !== null && opt.correct && <CheckIcon size={14} />}

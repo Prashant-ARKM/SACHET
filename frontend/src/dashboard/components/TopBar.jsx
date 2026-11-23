@@ -1,4 +1,5 @@
 import { DISTRICTS } from '../../shared/districts.js'
+import BackToStart from '../../shared/BackToStart.jsx'
 import { SCAM_TYPES } from '../../shared/scamTypes.js'
 
 // One compact row: title + status on the left, filters + language on the right.
@@ -32,6 +33,7 @@ export default function TopBar({
   return (
     <header className="px-5 py-4 flex flex-wrap items-center justify-between gap-3">
       <div className="flex items-center gap-3">
+        <BackToStart lang={lang} />
         <h1 className="font-display text-3xl font-bold text-ink">{title}</h1>
         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${badge.cls}`}>
           <span className="relative flex w-2 h-2">

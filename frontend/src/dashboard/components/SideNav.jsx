@@ -49,20 +49,24 @@ export default function SideNav({ t }) {
 export function MobileNav({ t }) {
   const navItems = getNav(t)
   return (
-    <nav className="md:hidden flex gap-1 overflow-x-auto bg-forest p-2">
+    <nav
+      className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-forest text-card px-2 pt-2 grid grid-cols-5"
+      style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}
+      aria-label="Dashboard"
+    >
       {navItems.map(({ to, label, Icon, end }) => (
         <NavLink
           key={to}
           to={to}
           end={end}
           className={({ isActive }) =>
-            `flex items-center gap-2 px-3 py-2 rounded-xl text-sm whitespace-nowrap ${
-              isActive ? 'bg-card/20 text-card' : 'text-card/70'
+            `flex flex-col items-center justify-center gap-1 h-16 mx-0.5 rounded-2xl text-[12px] font-semibold leading-tight text-center transition-colors ${
+              isActive ? 'bg-card/20 text-card' : 'text-card/75'
             }`
           }
         >
-          <Icon size={18} />
-          {label}
+          <Icon size={22} />
+          <span className="px-0.5 line-clamp-2">{label}</span>
         </NavLink>
       ))}
     </nav>
