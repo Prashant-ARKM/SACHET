@@ -18,11 +18,51 @@ export default function QrCheck({ lang, onCheckLink }) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [payAnyway, setPayAnyway] = useState(false)
+  const [speechError, setSpeechError] = useState('')
+
+  const readPayee = () => {
+    const synth = window.speechSynthesis
+    const speechLocale = lang === 'hi' || lang === 'cg' ? 'hi-IN' : 'en-IN'
+    const voices = synth?.getVoices().filter((voice) => voice.localService) ?? []
+    // Chhattisgarhi uses a Hindi voice when the device has no Chhattisgarhi voice.
+    const voice =
+      (lang === 'cg' && voices.find((voice) => /^hne(?:-|$)/i.test(voice.lang))) ||
+      voices.find((voice) => voice.lang.toLowerCase() === speechLocale.toLowerCase()) ||
+      voices.find((voice) => voice.lang.toLowerCase().split('-')[0] === speechLocale.split('-')[0])
+    const showSpeechError = () => setSpeechError(L(
+      lang,
+      'Could not read the name aloud. Check the displayed name and confirm it in your UPI app.',
+      'नाम बोलकर नहीं पढ़ सके। दिखाया गया नाम देखें और अपने UPI ऐप में पुष्टि करें।',
+      'नाव बोल के नई पढ़ सकेन। दिखत नाव ल देखव अउ अपन UPI ऐप म जाँचव।',
+    ))
+
+    setSpeechError('')
+    if (!voice || !window.SpeechSynthesisUtterance) {
+      showSpeechError()
+      return
+    }
+
+    const utterance = new window.SpeechSynthesisUtterance(L(
+      lang,
+      `This QR shows ${info.payeeName} as the recipient. Please confirm the name in your UPI app before paying.`,
+      `इस QR में पाने वाले का नाम ${info.payeeName} दिख रहा है। भुगतान से पहले अपने UPI ऐप में नाम की पुष्टि करें।`,
+      `ए QR म पवइया के नाव ${info.payeeName} दिखत हे। पेमेंट ले पहिली अपन UPI ऐप म नाव जाँचव।`,
+    ))
+    utterance.lang = voice.lang
+    utterance.voice = voice
+    utterance.rate = 0.9
+    utterance.onerror = (event) => {
+      if (event.error !== 'canceled' && event.error !== 'interrupted') showSpeechError()
+    }
+    synth.cancel()
+    synth.speak(utterance)
+  }
 
   const handleFile = async (e) => {
     const file = e.target.files?.[0]
     e.target.value = '' // allow picking the same file again
     if (!file) return
+    setSpeechError('')
     setBusy(true)
     setError('')
     setInfo(null)
@@ -131,6 +171,19 @@ export default function QrCheck({ lang, onCheckLink }) {
               <p className="text-sm md:text-xs font-mono text-ink break-all">{info.raw}</p>
             )}
           </div>
+
+          {info.kind === 'upi' && info.payeeName && (
+            <div>
+              <button
+                type="button"
+                onClick={readPayee}
+                className="rounded-full border border-line bg-beige px-4 py-2.5 text-sm font-semibold text-ink hover:bg-mint"
+              >
+                {L(lang, 'Read aloud', 'नाम सुनें', 'नाव सुनव')}
+              </button>
+              {speechError && <p role="status" className="mt-1 text-sm text-muted">{speechError}</p>}
+            </div>
+          )}
 
           <div className="space-y-1.5">
             {result.flags.map((f, i) => (
