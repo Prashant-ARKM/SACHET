@@ -29,3 +29,23 @@ The decision threshold of 0.36 was selected on development data. Selection minim
 Both models passed 9 of 10 jokes, 10 of 10 casual chats, and 9 of 10 routine messages in the authored check. This small check does not establish a joke-specific improvement. The original test mixes fraud with legacy spam labels. The filtered ScamShield results apply to the dataset subset used here, while the original test shows the tradeoff in recall on legacy messages.
 
 Python and browser model parity passed on 56 samples. The citizen checker flagged all four built-in scam examples and correctly passed its legitimate bank SMS. The frontend production build succeeded.
+
+## Card-alert update
+
+The current export adds 40 labeled card-alert training examples (24 genuine and
+16 simulated scams) with a sample weight of 25. The examples contrast card
+status notifications and ordinary banking instructions with requests for
+credentials, payments, or app installation. The reported RuPay message was
+reserved for the targeted regression check. The current threshold is 0.38.
+The commands above reproduce the current export when supplied the original
+model and ScamShield inputs. The table above describes the first retraining.
+
+| Test set | False alarms, first retraining → card-alert update | Scams detected, first retraining → card-alert update |
+|---|---:|---:|
+| Card-alert check (16 examples including the reported SMS) | 4 → 2 of 8 | 4 → 7 of 8 |
+| Original test | 190 → 54 of 1,926 | 1,577 → 1,563 of 1,660 |
+| Filtered ScamShield test | 47 → 42 of 4,585 | 164 → 164 of 165 |
+| Authored everyday check | 2 → 1 of 30 | — |
+
+The card-alert check is small and targeted to the reported failure. The
+original test lost 14 correct scam detections while false alarms decreased.

@@ -1,0 +1,41 @@
+label	text
+genuine	Dear customer, your RuPay card ending in 1234 is temporarily blocked. YONO SBI
+genuine	Dear customer your SBI debit card ending 7812 has been temporarily blocked. State Bank of India
+genuine	Dear customer, your RuPay debit card ending in 4162 was temporarily disabled after multiple incorrect PIN attempts. SBI
+genuine	Your RuPay card ending 7854 has been temporarily blocked as requested. Team SBI
+genuine	SBI Alert: Debit card ending 8182 has been temporarily locked for your protection.
+genuine	YONO SBI: Card ending 4271 is blocked temporarily. This is a status notification.
+genuine	Your SBI debit card ending 2395 is temporarily blocked due to three incorrect PIN attempts.
+genuine	Card ending in 0174 has been blocked on your request. Bank of Baroda
+genuine	Dear cardholder, we have disabled international transactions on your card ending 6201 as requested.
+genuine	Your RuPay debit card ending 4721 has been permanently blocked following your request. A replacement will be dispatched.
+genuine	Your card ending 4152 has been locked. To review card settings, sign in to the banking app directly.
+genuine	ICICI Bank: Your card ending 2176 has been disabled. If you did not request this, contact us using the number printed on the back of your card.
+genuine	Your debit card was blocked following repeated incorrect PIN entries. Please visit your branch with identification.
+genuine	HDFC Bank: The card ending 5558 is temporarily suspended. You can check card status under Manage Cards in the app.
+genuine	Your card has been unblocked. You can now use it for transactions. SBI
+genuine	Dear customer, online transactions on your card are currently disabled. View card controls in your bank app.
+genuine	प्रिय ग्राहक, आपका रुपे डेबिट कार्ड अस्थायी रूप से ब्लॉक कर दिया गया है। भारतीय स्टेट बैंक
+genuine	तीन बार गलत पिन डालने के कारण आपका डेबिट कार्ड अस्थायी रूप से बंद किया गया है।
+genuine	आपके अनुरोध पर कार्ड के अंतिम अंक 8923 वाले कार्ड को ब्लॉक कर दिया गया है। एसबीआई
+genuine	आपके कार्ड की स्थिति देखने के लिए अपना बैंकिंग ऐप खोलें।
+genuine	Aapka SBI debit card filhaal block kar diya gaya hai. Ye bank ki status notification hai.
+genuine	Aapke request par card ending 2188 ko block kar diya gaya hai. YONO SBI
+genuine	Galat PIN attempts ki wajah se debit card temporary lock hai. Status apne banking app mein dekh sakte hain.
+genuine	SBI: Your card ending 0271 is temporarily blocked. Do not share your OTP, PIN or CVV with anyone.
+scam	Dear customer, your RuPay card ending in 1234 is temporarily blocked. To unblock it, share your OTP with our agent. YONO SBI
+scam	Dear customer your SBI debit card ending 7812 has been temporarily blocked. Confirm your card PIN by reply to restore access.
+scam	Dear customer, your RuPay debit card ending in 4162 was temporarily disabled. Submit your card number and CVV at sbi-update.example to reactivate it.
+scam	Your RuPay card ending 7854 has been temporarily blocked. Pay the reactivation charge through the UPI request we sent.
+scam	SBI Alert: Debit card ending 8182 has been temporarily locked. Install the attached APK to unlock your YONO profile.
+scam	YONO SBI: Card ending 4271 is blocked temporarily. Reply with the OTP you just received so we can unlock it.
+scam	Your debit card is disabled. Call our helpdesk and read out your full card number, expiry date and CVV.
+scam	SBI card block alert. Scan the QR we sent and enter your UPI PIN to verify your identity.
+scam	Your debit card has been blocked. Send your ATM PIN on WhatsApp to avoid permanent closure.
+scam	Card usage is suspended. Transfer the verification deposit now to reactivate your card.
+scam	Dear cardholder, your payment card remains locked. Verify your net banking password on the form attached to this message.
+scam	प्रिय ग्राहक, आपका रुपे कार्ड ब्लॉक हो गया है। कार्ड चालू करने के लिए ओटीपी हमारे एजेंट को बताएं।
+scam	आपका डेबिट कार्ड अस्थायी रूप से बंद है। चालू करने के लिए अपना एटीएम पिन और सीवीवी भेजें।
+scam	Aapka SBI debit card filhaal block hai. Unblock ke liye agent ko OTP forward karo.
+scam	Debit card temporary lock hai. KYC ke liye apna card number aur CVV is message ka reply karke bhejo.
+scam	Aapka RuPay card block ho gaya hai. Jo UPI collect request bheji hai use approve karke unlock karo.

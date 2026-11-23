@@ -116,10 +116,13 @@ def main():
     everyday = pd.read_csv(ML / "data" / "everyday_train.txt", sep="\t", names=["text"])
     everyday = everyday[~everyday.text.map(message_key).isin(set(df.text.map(message_key)))]
     everyday = everyday.assign(label="genuine", weight=5.0)
-    extra = everyday
+    card_alerts = pd.read_csv(ML / "data" / "card_alert_train.tsv", sep="\t")
+    card_alerts = card_alerts[~card_alerts.text.map(message_key).isin(holdout_keys)]
+    authored = pd.concat([everyday, card_alerts.assign(weight=25.0)], ignore_index=True)
+    extra = authored
     if args.supplement:
-        supplement = load_supplement(args.supplement, pd.concat([df, everyday]))
-        extra = pd.concat([supplement[supplement.split == "train"].assign(weight=0.65), everyday])
+        supplement = load_supplement(args.supplement, pd.concat([df, authored]))
+        extra = pd.concat([supplement[supplement.split == "train"].assign(weight=0.65), authored])
         print("Supplement counts:", supplement.groupby(["split", "label"]).size().to_dict())
     vec, scam_clf, type_clf = fit(train, extra)
 

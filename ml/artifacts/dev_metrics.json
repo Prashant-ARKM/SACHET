@@ -1,28 +1,28 @@
 {
   "n": 1918,
-  "accuracy": 0.9807,
-  "scam_precision": 0.9965,
+  "accuracy": 0.9812,
+  "scam_precision": 0.9976,
   "scam_recall": 0.9615,
-  "scam_f1": 0.9787,
+  "scam_f1": 0.9792,
   "confusion_matrix_labels": [
     "genuine",
     "scam"
   ],
   "confusion_matrix": [
     [
-      1032,
-      3
+      1033,
+      2
     ],
     [
       34,
       849
     ]
   ],
-  "threshold": 0.36,
+  "threshold": 0.38,
   "by_language": {
-    "en": 0.9762,
+    "en": 0.9779,
     "hi": 0.9688,
-    "hinglish": 0.9947
+    "hinglish": 0.9929
   },
-  "type_accuracy_on_dev_scams": 0.9354
+  "type_accuracy_on_dev_scams": 0.9388
 }

@@ -1,0 +1,17 @@
+label	text
+genuine	Dear customer your rupay card ending with 6450 has been temporarily blocked.YONO SBI
+genuine	SBI: Temporary hold placed on your card ending 7719 after unusual activity.
+genuine	Your RuPay card ending 9922 has been suspended at your request. State Bank of India
+genuine	Dear customer, your debit card ending in 1601 is temporarily unavailable for ATM withdrawals.
+genuine	YONO SBI: The debit card linked to your account has been locked. You can review its status in the app.
+genuine	प्रिय ग्राहक, आपका एसबीआई कार्ड गलत पिन की वजह से कुछ समय के लिए लॉक हो गया है।
+genuine	SBI update: Aapke bolne par aapka RuPay card abhi ke liye band kar diya hai.
+genuine	Your RuPay debit card is temporarily blocked. Never disclose your PIN or verification code.
+scam	Dear customer, your RuPay card ending with 4064 has been temporarily blocked. Forward the bank verification code to our agent to restore your card.
+scam	YONO SBI alert: Your debit card has been temporarily locked. Pay Rs 10 to the UPI ID shown on the attached notice to unlock it.
+scam	State Bank of India: Your card ending 3706 is suspended. Reply with your card expiry date and security code to verify.
+scam	Your debit card is blocked. Install our emergency card verification app from the attachment and sign in with your banking password.
+scam	Dear customer, your RuPay card is blocked. Fill in your full card number, PIN and CVV on the attached page.
+scam	प्रिय ग्राहक, आपका एसबीआई कार्ड लॉक हो गया है। उसे खोलने के लिए अभी अपना ओटीपी भेजें।
+scam	SBI update: Aapka RuPay card lock hai. Chalu karne ke liye WhatsApp pe apna PIN bhejo.
+scam	Your card is blocked. A bank officer will call shortly. Read them the one-time code to cancel the block.
