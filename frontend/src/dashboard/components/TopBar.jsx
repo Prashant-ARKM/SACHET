@@ -53,48 +53,50 @@ export default function TopBar({
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        {/* Filters are hidden on pages that have their own controls (Campaign kit) */}
-        {showFilters && (<>
-        {(filters.district || filters.type) && (
-          <button className="text-sm text-forest underline" onClick={() => set({ district: '', type: '' })}>
-            {t?.clear || 'Clear'}
-          </button>
+        {/* Filters are hidden on pages that have their own controls (Map and Campaign kit) */}
+        {showFilters && (
+          <>
+            {(filters.district || filters.type) && (
+              <button className="text-sm text-forest underline" onClick={() => set({ district: '', type: '' })}>
+                {t?.clear || 'Clear'}
+              </button>
+            )}
+
+            <select className={sel} value={filters.district} onChange={(e) => set({ district: e.target.value })}>
+              <option value="">{t?.allDistricts || 'All districts'}</option>
+              {DISTRICTS.map((d) => (
+                <option key={d.id} value={d.name}>
+                  {d.name}
+                </option>
+              ))}
+            </select>
+
+            <select className={sel} value={filters.type} onChange={(e) => set({ type: e.target.value })}>
+              <option value="">{t?.allScamTypes || 'All scam types'}</option>
+              {SCAM_TYPES.map((st) => (
+                <option key={st.id} value={st.id}>
+                  {st[lang] || st.en}
+                </option>
+              ))}
+            </select>
+
+            {/* Time range pills */}
+            <div className="flex border border-line rounded-full overflow-hidden text-sm bg-card p-0.5">
+              {ranges.map((r) => (
+                <button
+                  key={r.days}
+                  type="button"
+                  onClick={() => set({ days: r.days })}
+                  className={`px-3 py-1 rounded-full transition ${
+                    filters.days === r.days ? 'bg-forest text-card' : 'text-ink hover:bg-beige'
+                  }`}
+                >
+                  {r.label}
+                </button>
+              ))}
+            </div>
+          </>
         )}
-
-        <select className={sel} value={filters.district} onChange={(e) => set({ district: e.target.value })}>
-          <option value="">{t?.allDistricts || 'All districts'}</option>
-          {DISTRICTS.map((d) => (
-            <option key={d.id} value={d.name}>
-              {d.name}
-            </option>
-          ))}
-        </select>
-
-        <select className={sel} value={filters.type} onChange={(e) => set({ type: e.target.value })}>
-          <option value="">{t?.allScamTypes || 'All scam types'}</option>
-          {SCAM_TYPES.map((st) => (
-            <option key={st.id} value={st.id}>
-              {st[lang] || st.en}
-            </option>
-          ))}
-        </select>
-
-        {/* Time range pills */}
-        <div className="flex border border-line rounded-full overflow-hidden text-sm bg-card p-0.5">
-          {ranges.map((r) => (
-            <button
-              key={r.days}
-              type="button"
-              onClick={() => set({ days: r.days })}
-              className={`px-3 py-1 rounded-full transition ${
-                filters.days === r.days ? 'bg-forest text-card' : 'text-ink hover:bg-beige'
-              }`}
-            >
-              {r.label}
-            </button>
-          ))}
-        </div>
-        </>)}
 
         {/* Official Language Selector: English (Default), Hindi, Chhattisgarhi */}
         {onLangChange && (
