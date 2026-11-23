@@ -248,7 +248,7 @@ SACHET is built on open-source software, open data and public services. Thank yo
 | **Design inspiration** | [Pinterest](https://www.pinterest.com) |
 | **AI assistants** | Claude Opus 5.5 and Claude Sonnet 5.5 ([Anthropic](https://www.anthropic.com)) · Flash 3.5 · GPT Sol 6.2, used for coding help, design iteration and documentation |
 | **Dev tools** | [VS Code](https://code.visualstudio.com) · [GitHub](https://github.com) |
-| **Hosting and demo** | [Vercel](https://vercel.com) (frontend) · [Render](https://render.com) and [ngrok](https://ngrok.com) (server) |
+| **Hosting and demo** | [Vercel](https://vercel.com) (frontend) · [Render](https://render.com) |
 | **Docs** | [Mermaid](https://mermaid.js.org) diagrams · [shields.io](https://shields.io) badges |
 
 **Training data:** open datasets from Hugging Face and Kaggle, plus our own templates. Names below are as recorded in `ml/data/messages_with_source.csv`; full details in [`ml/results.md`](ml/results.md).
