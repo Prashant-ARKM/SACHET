@@ -18,7 +18,7 @@ function getLocalCitizenReports() {
 export async function fetchReports(limit = 1000) {
   const custom = getLocalCitizenReports()
   const ctrl = new AbortController()
-  const timer = setTimeout(() => ctrl.abort(), 3000)
+  const timer = setTimeout(() => ctrl.abort(), 15000)
   try {
     const res = await fetch(`${BASE}/api/reports?limit=${limit}`, { signal: ctrl.signal })
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
