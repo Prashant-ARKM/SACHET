@@ -3,27 +3,55 @@
 // (first use) and then kept in the browser cache, so later transcriptions work offline.
 import { pipeline, env } from '@huggingface/transformers'
 
-// Multilingual Whisper (Hindi + English). "base" is about 80 MB with 8-bit weights.
-// For better Hindi accuracy, switch to 'Xenova/whisper-small' (larger and slower).
-const MODEL = 'Xenova/whisper-base'
+// Multilingual Whisper "small" (Hindi + English), about 250 MB with 8-bit weights.
+// ("base" is smaller and faster but too weak for Hindi phone calls: it falls into repetition loops.)
+const MODEL = 'Xenova/whisper-small'
 
-env.allowLocalModels = false // always fetch from the model hub on first use, then use the cache
+env.allowLocalModels = false // fetch from the model hub on first use, then use the browser cache
 env.useBrowserCache = true
 
-let transcriberPromise = null
+// Overall download progress across all model files, by bytes
+const files = {}
+function reportProgress(p) {
+  if (p.status === 'progress' && p.file) {
+    files[p.file] = { loaded: p.loaded || 0, total: p.total || 0 }
+    const loaded = Object.values(files).reduce((a, f) => a + f.loaded, 0)
+    const total = Object.values(files).reduce((a, f) => a + f.total, 0)
+    if (total) self.postMessage({ type: 'download', progress: (loaded / total) * 100 })
+  }
+}
 
+async function hasWebGPU() {
+  try {
+    return Boolean(self.navigator?.gpu && (await self.navigator.gpu.requestAdapter()))
+  } catch {
+    return false
+  }
+}
+
+let transcriberPromise = null
 function getTranscriber() {
   if (!transcriberPromise) {
-    transcriberPromise = pipeline('automatic-speech-recognition', MODEL, {
-      dtype: 'q8', // 8-bit: small and fast enough for phones
-      device: 'wasm',
-      progress_callback: (p) => {
-        // p.status: 'initiate' | 'download' | 'progress' | 'done' | 'ready'
-        if (p.status === 'progress' && typeof p.progress === 'number') {
-          self.postMessage({ type: 'download', file: p.file, progress: p.progress })
+    transcriberPromise = (async () => {
+      self.postMessage({ type: 'loading' })
+      // Graphics chip (WebGPU) is much faster where available; otherwise the processor (WASM).
+      if (await hasWebGPU()) {
+        try {
+          return await pipeline('automatic-speech-recognition', MODEL, {
+            device: 'webgpu',
+            dtype: { encoder_model: 'fp32', decoder_model_merged: 'q4' },
+            progress_callback: reportProgress,
+          })
+        } catch {
+          // fall back to the processor below
         }
-      },
-    }).catch((err) => {
+      }
+      return pipeline('automatic-speech-recognition', MODEL, {
+        device: 'wasm',
+        dtype: 'q8', // 8-bit: small and fast enough for phones
+        progress_callback: reportProgress,
+      })
+    })().catch((err) => {
       transcriberPromise = null // allow a retry (e.g. after coming online)
       throw err
     })
@@ -31,19 +59,21 @@ function getTranscriber() {
   return transcriberPromise
 }
 
-self.onmessage = async (event) => {
-  const { audio, language } = event.data
+// One message = one piece of audio (up to 30 s, 16 kHz mono)
+self.onmessage = async ({ data }) => {
+  const { id, audio, language } = data
   try {
     const transcriber = await getTranscriber()
-    self.postMessage({ type: 'transcribing' })
+    self.postMessage({ type: 'ready', id })
     const output = await transcriber(audio, {
-      language, // 'hindi' or 'english'
+      language,
       task: 'transcribe',
-      chunk_length_s: 30, // long calls are processed in 30-second pieces
-      stride_length_s: 5,
+      // Stop the model from getting stuck repeating the same words ("वो पर वो पर …")
+      no_repeat_ngram_size: 3,
+      repetition_penalty: 1.2,
     })
-    self.postMessage({ type: 'result', text: (output.text || '').trim() })
+    self.postMessage({ type: 'result', id, text: (output.text || '').trim() })
   } catch (err) {
-    self.postMessage({ type: 'error', message: String(err?.message || err) })
+    self.postMessage({ type: 'error', id, message: String(err?.message || err) })
   }
 }
