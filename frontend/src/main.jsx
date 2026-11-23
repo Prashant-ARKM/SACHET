@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
+import { registerSW } from 'virtual:pwa-register'
 import 'leaflet/dist/leaflet.css'
 import './index.css'
 import App from './App.jsx'
@@ -20,3 +21,13 @@ createRoot(document.getElementById('root')).render(
     </BrowserRouter>
   </StrictMode>,
 )
+
+registerSW({
+  immediate: true,
+  onRegisteredSW(_url, registration) {
+    if (!registration) return
+    window.addEventListener('online', () => {
+      registration.update().catch((error) => console.warn('SACHET update check failed', error))
+    })
+  },
+})
