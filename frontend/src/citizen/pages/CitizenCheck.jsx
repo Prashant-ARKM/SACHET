@@ -57,6 +57,24 @@ export default function CitizenCheck() {
     }
   }, [location.state])
 
+  // Shared from another app (WhatsApp, SMS, browser) via the Android Share menu:
+  // /citizen/check?text=...&url=... -> fill the box and check it straight away
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    const parts = []
+    for (const key of ['title', 'text', 'url']) {
+      const value = (params.get(key) || '').trim()
+      if (value && !parts.some((p) => p.includes(value))) parts.push(value)
+    }
+    if (!parts.length) return
+    const shared = parts.join('\n')
+    setActiveTab('message')
+    setInputText(shared)
+    runCheck(shared)
+    // Clear the address so a refresh doesn't check the same message again
+    navigate('/citizen/check', { replace: true })
+  }, [location.search])
+
   const runCheck = (textToEvaluate) => {
     const text = textToEvaluate ?? inputText
     if (!text.trim()) return

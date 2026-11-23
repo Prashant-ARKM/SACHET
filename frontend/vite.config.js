@@ -19,6 +19,12 @@ export default defineConfig({
         display: 'standalone',
         start_url: '/citizen',
         scope: '/',
+        // Android "Share" menu: sharing a message or link to SACHET opens the checker with it
+        share_target: {
+          action: '/citizen/check',
+          method: 'GET',
+          params: { title: 'title', text: 'text', url: 'url' },
+        },
         icons: [
           { src: '/pwa-192.png', sizes: '192x192', type: 'image/png' },
           { src: '/pwa-512.png', sizes: '512x512', type: 'image/png' },
