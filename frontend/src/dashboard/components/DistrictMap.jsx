@@ -32,7 +32,11 @@ function labelIcon(lines) {
 function DistrictLabels() {
   const [zoom, setZoom] = useState(null)
   const map = useMapEvent('zoomend', () => setZoom(map.getZoom()))
-  const visibleZoom = zoom ?? map.getZoom()
+  const [overviewZoom] = useState(() => map.getZoom())
+  const visibleZoom = zoom ?? overviewZoom
+
+  // Keep the full-state view free of labels until one full zoom step in.
+  if (visibleZoom < overviewZoom + 1) return null
 
   return districts.features
     .map(({ properties }) => properties)
