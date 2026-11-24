@@ -35,25 +35,47 @@ First-time UPI users in villages and small towns are targeted by OTP scams, fake
 - **Campaign kit:** turn a scam spike into a ready poster, SMS and announcer script in minutes, in Hindi, Chhattisgarhi or English.
 - **Signed QR alerts:** every poster carries a digitally signed QR. Citizens' phones verify it offline, pass it on phone to phone, and from then on warn about the scammer numbers and words it carries.
 
-## ■ Key Features
+## ■ Features vs the problem statement
 
-| Feature (problem statement) | What SACHET does |
+How SACHET covers **GT-02**, in the problem statement's own order: the **must-have** features, then the **bonus** features, then what **we added ourselves**. ✅ done · 🟡 partly done.
+
+### 1. Must-have features
+
+| # | Required by GT-02 | Status | How SACHET does it |
+|---|---|---|---|
+| 1 | **ML-based scam message detector**: paste or share an SMS, WhatsApp message or URL; a trained model (not only keywords) says scam or genuine and why; English, Hindi and Hinglish; runs on the device without internet | ✅ | Trained TF-IDF + logistic-regression model (`model.json`) scored **in the browser, offline**, nothing uploaded. Handles English, Hindi (Devanagari) and Hinglish. Highlights the words that drove the verdict, explains the scam type and lists what to do next. Paste, or share from any Android app straight into Check. **92.9% accuracy** on our held-out test split ([details](#-detector-accuracy)). |
+| 2 | **Scam call detector**: analyse a recorded call, transcribe it, flag scripts like fake KYC, "digital arrest", fake customs or courier calls, with a warning and the phrases that triggered it | ✅ | Upload a call recording (mp3, m4a, wav, ogg). It is transcribed **on the phone** by Whisper (optional 80 MB *fast* or 250 MB *accurate* speech pack, downloaded once, then offline), in 30-second parts. The same model checks the transcript, shows the warning and highlights the triggering phrases, and stops early once the scam is clear. Audio never leaves the phone. |
+| 3 | **Official reporting handoff**: one tap to **1930** and **cybercrime.gov.in** when money is lost, **Chakshu** (Sanchar Saathi) before any loss, and an evidence checklist | ✅ | "Did you lose money?" → one-tap **Call 1930** + cybercrime.gov.in, or **Chakshu** if no money was lost, with an evidence checklist to keep ready. A red **Call 1930** button is on every screen. Optional anonymous report (with consent) goes to the district dashboard. |
+| 4 | **Local-language safety lessons and quiz**: OTP, ATM PIN, UPI PIN and QR safety in Hindi and Chhattisgarhi; a quiz that gives a **Digital Financial Literacy Score**; works offline | ✅ | Visual-card lessons with **audio** (read aloud by the phone's voice) in Hindi, Chhattisgarhi and English, a quiz and a Digital Financial Literacy Score. Cached for offline use. |
+| 5 | **Scam-trend dashboard (policy view)**: anonymised counts of reported scam types by region for banks and the district administration | ✅ | Officials dashboard: overview, district map of Chhattisgarh (zooms into the selected district, with district, time, scam-type and sort filters and a per-district table), rising districts and scam types (this week vs last), daily trend, scam-type breakdown and an anonymised activity feed. |
+
+### 2. Bonus features
+
+| # | Bonus in GT-02 | Status | How SACHET does it |
+|---|---|---|---|
+| 1 | **Live call warning** while the call is still playing | ✅ | Live mode: play the call on speaker; the text is written down as it is spoken and the model re-checks it every 1.5 s, showing a warning **during the call**. Spoken acronyms ("ओटीपी", "सीबीआई") are normalised first. Live speech-to-text uses the browser's speech service, so this mode needs internet; the check itself is on-device. |
+| 2 | **Fake-QR checker**: show the UPI ID and payee name behind a QR and flag mismatches before payment | ✅ | Take a photo of any QR: SACHET shows the **real UPI ID and payee name**, any pre-filled amount or note, and red flags. Type who you think you are paying and it **flags a name mismatch**. It can **read the payee name aloud** (phone voice first; asks before using a cloud voice). Works offline. |
+| 3 | **New-scam alerts**: group similar reported messages and alert officials when a new scam pattern starts spreading in a district | 🟡 | The dashboard flags the **scam type and districts spreading fastest** this week vs last ("Spreading fast" tile, rising-district hero) and links straight to the Campaign kit. Reports don't store message text (privacy), so we don't yet cluster *similar messages* into brand-new patterns. |
+
+### 3. What we added ourselves (not asked in GT-02)
+
+| Addition | Why | What it does |
+|---|---|---|
+| **Campaign kit** (officials) | Turn a spike on the dashboard into an awareness campaign the same day | Pick a district and scam type, or **paste a real scam message**: the same in-browser model sets the scam type and picks the key words. Generates an **A4 poster** (two styles, prints on one page), a **bulk SMS** with a Unicode SMS counter and a **30-second announcer script** with Play for panchayat speakers, in Hindi, Chhattisgarhi or English, with this week's report numbers as evidence. |
+| **Signed QR alerts with phone-to-phone relay** | Police warnings shared on WhatsApp are easy to fake, and villages are often offline | Every poster carries a **digitally signed QR** (ECDSA P-256). Phones **verify it offline**, catch fake or edited posters, save it, and can **show the same QR to the next person**. [How it works](#-campaign-kit-and-signed-qr-alerts). |
+| **Reported scammer IDs in the alert** | Turn citizen reports into protection for other citizens | The official approves up to 6 phone numbers, UPI IDs or links reported in the district. After scanning, SACHET warns **offline** when a message, call or payment QR contains one: *"This number was reported 5 times in Raipur"*. |
+| **ML words in the alert** | Catch reworded versions of the same scam | Up to 5 words the model links to that scam type travel in the signed QR; later messages containing them get a "matches the alert you scanned" warning (smoke test: 0.16% false alarms, 5 of 6 rewordings caught). |
+| **Citizen Alerts page** | One place for verified local alerts | Latest verified alert for your district, "Scan a poster" in three steps, and every alert saved on the phone. Also on the Home "District Alert" tile and in the bottom bar. |
+| **Built for rural and elderly users** | First-time users, low literacy, small cheap phones | Hindi by default; one language choice (हिंदी / छत्तीसगढ़ी / English) across the whole app; large text and buttons on phones; bottom bar with a red **Call 1930** button; audio for lessons and QR names. |
+| **Installable, offline PWA** | Patchy rural internet | App, model, lessons and alerts are cached; Android share target sends messages straight into Check. |
+
+### Deliverables
+
+| Deliverable | Status |
 |---|---|
-| ML scam message detector | Trained TF-IDF + logistic-regression model (`model.json`) runs **in the browser, offline**. Handles English, Hindi (Devanagari) and Hinglish. Shows the words that drove the verdict and what to do next. |
-| Scam call detector | **Live:** play the call on speaker; the browser writes it down (needs internet) and the model re-checks the text every 1.5 s, warning *during* the call. **Recording:** upload an mp3/m4a/wav call recording; it is transcribed **on the phone** by Whisper (optional 80 MB *fast* or 250 MB *accurate* speech pack, downloaded once), in 30-second parts, and stops early once the scam is clear. Audio never leaves the phone. You can also type the conversation. |
-| UPI QR check | Take a photo of any QR: SACHET shows the **real UPI ID and payee name**, any pre-filled amount or note, and red flags, and can **read the payee name aloud** (phone voice first; asks before using a cloud voice). Works offline. |
-| Official reporting handoff | "Did you lose money?" → one tap to **1930** + cybercrime.gov.in, or **Chakshu** before any loss. Evidence checklist. Optional anonymous report (with consent) sent to the dashboard. |
-| Lessons + quiz | OTP, ATM PIN, UPI PIN and QR safety in Hindi, Chhattisgarhi and English, with audio. Quiz → Digital Financial Literacy Score. Works offline. |
-| Scam-trend dashboard | District map of Chhattisgarh that zooms into the selected district, with district, time, scam-type and sort filters and a table breakdown per district. Rising districts (this week vs last), scam types, daily trend and an anonymised activity feed. "Make campaign →" on rising-scam tiles. |
-| Campaign kit (officials) | Pick a district and scam type, or **paste a real scam message**: the same in-browser model sets the scam type and picks the words to warn about. Generates an **A4 poster** (two styles, prints on one page), a **bulk SMS** with a Unicode SMS counter and a **30-second announcer script** with Play, in Hindi, Chhattisgarhi or English. Shows this week's reports vs last week as evidence. |
-| Signed QR alerts | The poster QR is signed (ECDSA P-256) and carries the alert, the ML-picked words and up to 6 **reported scammer phone numbers, UPI IDs or links** the official approved. Phones **verify it offline**, catch tampered or fake posters, save it, and can **show the same QR to the next person** (relay). After that, Check warns offline when a message, call or payment QR contains a listed number or the alert's words. |
-| Citizen Alerts page | Latest verified alert for your district, "Scan a poster" in three steps, and every alert saved on the phone. Also on the Home "District Alert" tile and in the bottom bar. |
-
-**Also:**
-- Installable PWA: the app, lessons and model are cached for offline use.
-- Built for rural and elderly users: Hindi by default, large text and buttons on phones, a bottom bar with a red **Call 1930** button on every screen.
-- One language choice (हिंदी / छत्तीसगढ़ी / English) carries across the launch page, citizen app and dashboard.
-- Share target: on Android, share a message from any app straight into SACHET's Check screen.
+| Web prototype with offline message detector, call detector, reporting handoff, lessons and quiz, and scam-trend view | ✅ [sachet-pi.vercel.app](https://sachet-pi.vercel.app) |
+| Detector accuracy on our own held-out test split | ✅ [Detector accuracy](#-detector-accuracy) · [`ml/results.md`](ml/results.md) |
+| Brief architecture overview | ✅ [Architecture](#-architecture) |
 
 ## ■ Detector accuracy
 
@@ -334,14 +356,3 @@ SACHET is built on open-source software, open data and public services. Thank yo
 <p align="center">
 Built with 💚 for Chhattisgarh at Hackasol 5.0.
 </p>
-### Campaign alert word-match smoke test
-
-With the existing model and six saved sample alerts (KYC, OTP, digital arrest,
-loan app, fake QR, and courier/customs), the citizen matcher flagged **3 of
-1,926 held-out genuine messages (0.16%)** and **5 of 6 manually reworded scam
-examples (83.3%)**. These rates describe this small alert set and depend on the
-saved alerts and paraphrases. The fake QR and courier/customs alerts used the
-binary model's keyword weights because the type model has no rows for them.
-
-The existing model scored **99.29% on 561 Hinglish development messages**
-(model only, repository split). Real WhatsApp-forward accuracy remains unmeasured.
